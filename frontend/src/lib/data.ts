@@ -13,8 +13,8 @@ export const mockProducts = [
     id: "2",
     name: "Noir Cyberpunk Utility Jacket",
     price: 249.50,
-    image: "https://images.unsplash.com/photo-1551028719-01c1eb5fe8b6?q=80&w=1000&auto=format&fit=crop",
-    hoverImage: "https://images.unsplash.com/photo-1551028719-01c1eb5fe8b6?q=80&w=1000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1520975954732-57dd22299614?q=80&w=1000&auto=format&fit=crop",
+    hoverImage: "https://images.unsplash.com/photo-1520975918742-df2168925501?q=80&w=1000&auto=format&fit=crop",
     category: "Outerwear",
     rating: 5.0
   },
