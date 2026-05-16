@@ -3,6 +3,8 @@ import { useState } from "react";
 import { mockProducts } from "@/lib/data";
 import { motion } from "framer-motion";
 import { Star, Heart, Share2, ShoppingBag, Truck, ShieldAlert } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/store/cartSlice";
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
   const product = mockProducts.find(p => p.id === params.id) || mockProducts[0];
@@ -10,6 +12,20 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   const [selectedColor, setSelectedColor] = useState("Black");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(product.image);
+  
+  const dispatch = useDispatch();
+
+  const handleAddToCart = () => {
+    dispatch(addToCart({
+      product: product.id,
+      title: product.name,
+      image: product.image,
+      price: product.price,
+      quantity,
+      size: selectedSize,
+      color: selectedColor
+    }));
+  };
 
   return (
     <div className="container mx-auto px-6 py-12">
@@ -123,7 +139,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
               <input type="text" value={quantity} readOnly className="w-12 bg-transparent text-center font-poppins text-white" />
               <button onClick={() => setQuantity(quantity + 1)} className="px-4 text-white hover:bg-white/5 transition-colors">+</button>
             </div>
-            <button className="flex-1 bg-[#ff0033] text-white hover:bg-[#cc0029] transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2">
+            <button onClick={handleAddToCart} className="flex-1 bg-[#ff0033] text-white hover:bg-[#cc0029] transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2">
               <ShoppingBag size={18} />
               <span>Add To Cart</span>
             </button>

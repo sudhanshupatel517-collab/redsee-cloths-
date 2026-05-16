@@ -2,11 +2,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, Heart, User, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/store";
+import { logout } from "@/store/authSlice";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const dispatch = useDispatch();
+  const { cartItems } = useSelector((state: RootState) => state.cart);
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +33,11 @@ const Navbar = () => {
     { name: "Hoodies", href: "/category/hoodies" },
     { name: "Sneakers", href: "/category/sneakers" },
   ];
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setDropdownOpen(false);
+  };
 
   return (
     <motion.nav
@@ -54,7 +69,7 @@ const Navbar = () => {
         </div>
 
         {/* Icons */}
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden md:flex items-center space-x-6 relative">
           <button className="text-gray-300 hover:text-[#ff0033] transition-colors">
             <Search size={20} />
           </button>
@@ -66,16 +81,55 @@ const Navbar = () => {
           <Link href="/cart">
             <button className="text-gray-300 hover:text-[#ff0033] transition-colors relative">
               <ShoppingCart size={20} />
-              <span className="absolute -top-2 -right-2 bg-[#ff0033] text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                2
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#ff0033] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </button>
           </Link>
-          <Link href="/profile">
-            <button className="text-gray-300 hover:text-[#ff0033] transition-colors">
-              <User size={20} />
-            </button>
-          </Link>
+          
+          <div className="relative">
+            {user ? (
+              <button onClick={() => setDropdownOpen(!dropdownOpen)} className="text-gray-300 hover:text-[#ff0033] transition-colors flex items-center gap-2">
+                <User size={20} />
+              </button>
+            ) : (
+              <Link href="/login">
+                <button className="text-gray-300 hover:text-[#ff0033] transition-colors font-montserrat text-sm font-bold uppercase tracking-widest">
+                  Login
+                </button>
+              </Link>
+            )}
+
+            {dropdownOpen && user && (
+              <div className="absolute right-0 mt-4 w-48 bg-black border border-white/10 rounded-md shadow-2xl py-2 z-50 glassmorphism-dark">
+                <div className="px-4 py-2 border-b border-white/10">
+                  <p className="text-sm text-white font-poppins">{user.name}</p>
+                  <p className="text-xs text-gray-400 capitalize">{user.role}</p>
+                </div>
+                
+                {user.role === 'admin' && (
+                  <Link href="/admin" onClick={() => setDropdownOpen(false)}>
+                    <span className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors">
+                      <Settings size={16} className="mr-2" /> Admin Dashboard
+                    </span>
+                  </Link>
+                )}
+                {user.role === 'coadmin' && (
+                  <Link href="/staff" onClick={() => setDropdownOpen(false)}>
+                    <span className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors">
+                      <Settings size={16} className="mr-2" /> Staff Dashboard
+                    </span>
+                  </Link>
+                )}
+                
+                <button onClick={handleLogout} className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors">
+                  <LogOut size={16} className="mr-2" /> Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -83,6 +137,11 @@ const Navbar = () => {
           <Link href="/cart">
             <button className="text-gray-300 hover:text-[#ff0033] transition-colors relative">
               <ShoppingCart size={20} />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#ff0033] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </button>
           </Link>
           <button
@@ -101,7 +160,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "100vh" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden absolute top-full left-0 w-full bg-[#0A0A0A] flex flex-col items-center pt-10 space-y-6"
+            className="md:hidden absolute top-full left-0 w-full bg-[#0A0A0A] flex flex-col items-center pt-10 space-y-6 overflow-hidden"
           >
             {navLinks.map((link) => (
               <Link key={link.name} href={link.href}>
@@ -113,16 +172,22 @@ const Navbar = () => {
                 </span>
               </Link>
             ))}
-            <div className="flex space-x-8 pt-8">
-              <button className="text-gray-300 hover:text-[#ff0033]">
-                <Search size={24} />
-              </button>
-              <button className="text-gray-300 hover:text-[#ff0033]">
-                <Heart size={24} />
-              </button>
-              <button className="text-gray-300 hover:text-[#ff0033]">
-                <User size={24} />
-              </button>
+            
+            <div className="flex flex-col items-center space-y-4 pt-8 w-full px-6">
+              {user ? (
+                <>
+                  <p className="text-[#ff0033] font-montserrat">Hi, {user.name}</p>
+                  {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-white">Admin Dashboard</Link>}
+                  {user.role === 'coadmin' && <Link href="/staff" onClick={() => setMobileMenuOpen(false)} className="text-white">Staff Dashboard</Link>}
+                  <button onClick={handleLogout} className="text-gray-400">Logout</button>
+                </>
+              ) : (
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full bg-[#ff0033] text-white py-3 px-8 font-montserrat uppercase font-bold tracking-widest">
+                    Login / Register
+                  </button>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

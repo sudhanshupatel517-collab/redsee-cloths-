@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import StoreProvider from "@/components/StoreProvider";
 
 export const metadata: Metadata = {
   title: "Redsee | Futuristic Fashion",
@@ -16,11 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="antialiased bg-[#0A0A0A] text-white">
-        <Navbar />
-        <main className="min-h-screen pt-20">
-          {children}
-        </main>
-        <Footer />
+        <StoreProvider>
+          <Navbar />
+          <main className="min-h-screen pt-20">
+            {children}
+          </main>
+          <Footer />
+        </StoreProvider>
       </body>
     </html>
   );

@@ -1,30 +1,26 @@
 "use client";
-import { useState } from "react";
-import { mockProducts } from "@/lib/data";
 import Link from "next/link";
 import { Trash2, ArrowRight } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/store";
+import { addToCart, removeFromCart } from "@/store/cartSlice";
 
 export default function Cart() {
-  // Using some mock data for the cart
-  const [cartItems, setCartItems] = useState([
-    { ...mockProducts[0], quantity: 1, size: 'L', color: 'Black' },
-    { ...mockProducts[2], quantity: 2, size: 'M', color: 'Charcoal' }
-  ]);
+  const dispatch = useDispatch();
+  const { cartItems } = useSelector((state: RootState) => state.cart);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const updateQuantity = (item: any, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
+    dispatch(addToCart({ ...item, quantity: newQuantity }));
   };
 
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+  const removeItem = (product: string, size: string, color: string) => {
+    dispatch(removeFromCart({ product, size, color }));
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 150 ? 0 : 15;
-  const total = subtotal + shipping;
+  const total = subtotal > 0 ? subtotal + shipping : 0;
 
   return (
     <div className="container mx-auto px-6 py-12 min-h-screen">
@@ -43,16 +39,16 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
-            {cartItems.map(item => (
-              <div key={item.id} className="flex gap-6 p-4 border border-white/5 bg-zinc-900/50">
+            {cartItems.map((item, index) => (
+              <div key={index} className="flex gap-6 p-4 border border-white/5 bg-zinc-900/50">
                 <div className="w-24 h-32 flex-shrink-0 bg-black">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-grow flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start">
-                      <h3 className="text-xl font-bebas tracking-wide text-white">{item.name}</h3>
-                      <button onClick={() => removeItem(item.id)} className="text-gray-500 hover:text-[#ff0033] transition-colors">
+                      <h3 className="text-xl font-bebas tracking-wide text-white">{item.title}</h3>
+                      <button onClick={() => removeItem(item.product, item.size, item.color)} className="text-gray-500 hover:text-[#ff0033] transition-colors">
                         <Trash2 size={20} />
                       </button>
                     </div>
@@ -62,9 +58,9 @@ export default function Cart() {
                   </div>
                   <div className="flex justify-between items-center mt-4">
                     <div className="flex border border-white/20">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="px-3 py-1 text-white hover:bg-white/5 transition-colors">-</button>
+                      <button onClick={() => updateQuantity(item, item.quantity - 1)} className="px-3 py-1 text-white hover:bg-white/5 transition-colors">-</button>
                       <input type="text" value={item.quantity} readOnly className="w-10 bg-transparent text-center font-poppins text-white text-sm" />
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="px-3 py-1 text-white hover:bg-white/5 transition-colors">+</button>
+                      <button onClick={() => updateQuantity(item, item.quantity + 1)} className="px-3 py-1 text-white hover:bg-white/5 transition-colors">+</button>
                     </div>
                     <span className="font-poppins font-bold text-white">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
@@ -101,7 +97,7 @@ export default function Cart() {
               </Link>
               
               <div className="mt-4 text-center">
-                <p className="text-xs text-gray-500 font-poppins">Secure checkout with Stripe / Razorpay</p>
+                <p className="text-xs text-gray-500 font-poppins">Secure checkout with Razorpay</p>
               </div>
             </div>
           </div>
