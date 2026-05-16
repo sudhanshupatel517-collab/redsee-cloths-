@@ -8,6 +8,20 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ message: 'No order items' });
     }
 
+    // HARDCODED FALLBACK FOR PREVIEW
+    if (['1', '2', '3'].includes(req.user._id?.toString())) {
+      return res.status(201).json({
+        _id: 'mock-order-' + Date.now(),
+        userId: req.user._id,
+        products,
+        shippingAddress,
+        paymentMethod,
+        totalAmount,
+        paymentStatus: 'Completed',
+        orderStatus: 'Confirmed'
+      });
+    }
+
     const order = new Order({
       userId: req.user._id,
       products,

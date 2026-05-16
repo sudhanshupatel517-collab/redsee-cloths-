@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StoreProvider from "@/components/StoreProvider";
+import AuthGuard from "@/components/AuthGuard";
 
 export const metadata: Metadata = {
   title: "Redsee | Futuristic Fashion",
@@ -18,11 +19,13 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="antialiased bg-[#0A0A0A] text-white">
         <StoreProvider>
-          <Navbar />
-          <main className="min-h-screen pt-20">
-            {children}
-          </main>
-          <Footer />
+          <AuthGuard>
+            <Navbar />
+            <main className="min-h-screen pt-20">
+              {children}
+            </main>
+            <Footer />
+          </AuthGuard>
         </StoreProvider>
       </body>
     </html>
