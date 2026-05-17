@@ -16,12 +16,20 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (mounted) {
-      const isAuthRoute = pathname === '/login' || pathname === '/signup';
+    const checkAuth = () => {
+      const isAuthRoute = pathname === '/auth';
       
       if (!user && !isAuthRoute) {
-        router.push('/login');
+        router.push('/auth');
+      } else if (user && isAuthRoute) {
+        if (user.role === 'admin') router.push('/admin');
+        else if (user.role === 'coadmin') router.push('/staff');
+        else router.push('/');
       }
+    };
+
+    if (mounted) {
+      checkAuth();
     }
   }, [user, pathname, router, mounted]);
 
@@ -29,7 +37,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   if (!mounted) return null;
 
   // If not logged in and not on auth route, render nothing while redirecting
-  if (!user && pathname !== '/login' && pathname !== '/signup') {
+  if (!user && pathname !== '/auth') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-[#ff0033] font-bebas text-2xl tracking-widest animate-pulse">

@@ -26,7 +26,7 @@ export default function Checkout() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      router.push('/auth');
     }
   }, [user, router]);
 

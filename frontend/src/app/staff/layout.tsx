@@ -12,7 +12,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!user || (user.role !== 'coadmin' && user.role !== 'admin')) {
-      router.push('/login');
+      router.push('/auth');
     }
   }, [user, router]);
 

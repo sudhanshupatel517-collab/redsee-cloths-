@@ -2,8 +2,12 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  email: { type: String, required: false, unique: true, sparse: true },
+  phone: { type: String, required: false, unique: true, sparse: true },
+  password: { type: String, required: function() { return this.authProvider === 'email'; } },
+  authProvider: { type: String, enum: ['google', 'phone', 'email'], default: 'email' },
+  avatar: { type: String },
+  isVerified: { type: Boolean, default: false },
   role: { type: String, enum: ['user', 'coadmin', 'admin'], default: 'user' },
   addresses: [{
     street: String,

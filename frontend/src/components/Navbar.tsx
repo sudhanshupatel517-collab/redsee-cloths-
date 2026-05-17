@@ -6,6 +6,7 @@ import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings } from "lu
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { logout } from "@/store/authSlice";
+import api from "@/lib/axios";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,7 +35,12 @@ const Navbar = () => {
     { name: "Sneakers", href: "/category/sneakers" },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await api.post('/api/auth/logout');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
     dispatch(logout());
     setDropdownOpen(false);
   };
@@ -95,7 +101,7 @@ const Navbar = () => {
                 <User size={20} />
               </button>
             ) : (
-              <Link href="/login">
+              <Link href="/auth">
                 <button className="text-gray-300 hover:text-[#ff0033] transition-colors font-montserrat text-sm font-bold uppercase tracking-widest">
                   Login
                 </button>
@@ -182,7 +188,7 @@ const Navbar = () => {
                   <button onClick={handleLogout} className="text-gray-400">Logout</button>
                 </>
               ) : (
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
                   <button className="w-full bg-[#ff0033] text-white py-3 px-8 font-montserrat uppercase font-bold tracking-widest">
                     Login / Register
                   </button>

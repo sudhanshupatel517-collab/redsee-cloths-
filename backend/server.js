@@ -9,8 +9,13 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const cookieParser = require('cookie-parser');
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 
 // Routes
@@ -18,11 +23,13 @@ const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 app.use('/api/products', productRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes); // keep for backward compat
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
     res.send('Redsee API is running');
