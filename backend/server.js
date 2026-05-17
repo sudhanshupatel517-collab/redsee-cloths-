@@ -39,15 +39,19 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-// In a real app we'd connect to MongoDB here, but since we don't have a Mongo URI, we can use a local one or mock it.
-// I will setup mongoose connect but ignore error if not available.
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/redsee')
     .then(() => {
         console.log('MongoDB Connected');
-        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     })
     .catch((err) => {
         console.error('MongoDB connection error:', err);
-        // Start server anyway for testing purposes if DB fails locally
-        app.listen(PORT, () => console.log(`Server running on port ${PORT} (No DB)`));
     });
+
+// Vercel Serverless Functions need the app exported
+// Local development needs app.listen
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+module.exports = app;
