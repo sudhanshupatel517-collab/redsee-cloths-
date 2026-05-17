@@ -4,7 +4,7 @@ import { Lock, CreditCard, ChevronRight, CheckCircle2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { clearCart } from "@/store/cartSlice";
-import axios from "axios";
+import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 
 export default function Checkout() {
@@ -52,7 +52,7 @@ export default function Checkout() {
         totalAmount
       };
 
-      await axios.post('http://localhost:5000/api/orders', orderData, config);
+      await api.post('/api/orders', orderData, config);
       dispatch(clearCart());
       setStep(3);
     } catch (error) {

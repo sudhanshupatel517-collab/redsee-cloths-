@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { TrendingUp, Package, Users, ShoppingBag } from 'lucide-react';
@@ -13,7 +13,7 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-        const { data } = await axios.get('http://localhost:5000/api/admin/stats', config);
+        const { data } = await api.get('/api/admin/stats', config);
         setStats(data);
       } catch (error) {
         console.error(error);

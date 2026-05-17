@@ -7,7 +7,7 @@ import { setCredentials } from '@/store/authSlice';
 import { RootState } from '@/store/store';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '@/lib/axios';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -33,7 +33,7 @@ export default function Signup() {
       return;
     }
     try {
-      const { data } = await axios.post('http://localhost:5000/api/users/register', { name, email, password });
+      const { data } = await api.post('/api/users/register', { name, email, password });
       dispatch(setCredentials(data));
       router.push('/');
     } catch (err: any) {

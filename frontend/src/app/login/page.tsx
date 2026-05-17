@@ -7,7 +7,7 @@ import { setCredentials } from '@/store/authSlice';
 import { RootState } from '@/store/store';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '@/lib/axios';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -29,7 +29,7 @@ export default function Login() {
   const submitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('http://localhost:5000/api/users/login', { email, password });
+      const { data } = await api.post('/api/users/login', { email, password });
       dispatch(setCredentials(data));
       if (data.role === 'admin') router.push('/admin');
       else if (data.role === 'coadmin') router.push('/staff');
