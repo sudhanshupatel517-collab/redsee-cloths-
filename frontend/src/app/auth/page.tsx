@@ -7,7 +7,7 @@ import { setCredentials } from '@/store/authSlice';
 import { RootState } from '@/store/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/axios';
-import { Mail, Lock, User, Phone, ArrowRight, Chrome, Smartphone, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Phone, ArrowRight, Globe, Smartphone, Loader2 } from 'lucide-react';
 import { auth, googleProvider, RecaptchaVerifier, signInWithPhoneNumber } from '@/firebase/config';
 import { signInWithPopup } from 'firebase/auth';
 
@@ -308,7 +308,7 @@ export default function AuthPage() {
                 disabled={loading}
                 className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 py-3 rounded-lg text-white font-poppins text-sm transition-colors"
               >
-                <Chrome size={18} className="text-red-500" />
+                <Globe size={18} className="text-red-500" />
                 <span>Google</span>
               </button>
               
