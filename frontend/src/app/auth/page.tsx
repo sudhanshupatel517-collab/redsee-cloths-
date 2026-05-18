@@ -95,7 +95,9 @@ export default function AuthPage() {
       console.error('Google Auth Error:', err);
       
       let errorMessage = 'Google Sign-In failed. Please try again.';
-      if (err.code === 'auth/popup-closed-by-user') {
+      if (err.response?.data?.message) {
+        errorMessage = `Backend Error: ${err.response.data.message}`;
+      } else if (err.code === 'auth/popup-closed-by-user') {
         errorMessage = 'Sign-in popup was closed before completing.';
       } else if (err.code === 'auth/popup-blocked') {
         errorMessage = 'Sign-in popup was blocked by your browser. Please allow popups for this site.';
