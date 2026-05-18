@@ -176,24 +176,36 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden py-20 px-4">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#7a0000]/30 via-black to-black z-0"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#7a0000]/20 via-black to-black z-0"></div>
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#ff0033]/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#7a0000]/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
 
       <div id="recaptcha-container"></div>
 
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md p-8 glassmorphism-dark border border-white/10 rounded-2xl z-10 relative shadow-2xl backdrop-blur-xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md p-8 md:p-10 glassmorphism-dark border border-white/10 rounded-2xl z-10 relative shadow-2xl backdrop-blur-2xl"
       >
-        <div className="text-center mb-10">
-          <h2 className="text-4xl md:text-5xl font-bebas text-white tracking-widest mb-2 uppercase">
-            {view === 'login' ? 'ACCESS PORTAL' : view === 'signup' ? 'BECOME A MEMBER' : view === 'forgot' ? 'RESET SECRETS' : 'MOBILE LOGIN'}
+        <div className="text-center mb-8">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="inline-block mb-4"
+          >
+             <div className="w-12 h-12 bg-gradient-to-br from-[#ff0033] to-[#7a0000] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(255,0,51,0.4)]">
+                <span className="font-bebas text-white text-2xl tracking-widest">R</span>
+             </div>
+          </motion.div>
+          <h2 className="text-3xl md:text-4xl font-bebas text-white tracking-widest mb-2 uppercase">
+            {view === 'login' ? 'Sign In to Redsee' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : 'Mobile Access'}
           </h2>
           <p className="text-gray-400 font-poppins text-sm">
-            {view === 'login' ? 'Welcome back to the aesthetic revolution' : 'Join the futuristic fashion revolution'}
+            {view === 'login' ? 'Access the next generation of streetwear.' : 
+             view === 'signup' ? 'Join the futuristic fashion revolution.' : 
+             view === 'phone' ? 'Secure, fast, and passwordless access.' : 'We will send you reset instructions.'}
           </p>
         </div>
 
@@ -204,7 +216,103 @@ export default function AuthPage() {
         )}
 
         <AnimatePresence mode="wait">
-          {view === 'phone' ? (
+          {view === 'login' && (
+            <motion.div
+              key="login-view"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="space-y-6"
+            >
+              {/* Primary Authentication Methods */}
+              <div className="space-y-4">
+                <button 
+                  type="button"
+                  onClick={handleGoogleAuth}
+                  disabled={loading}
+                  className="w-full relative group flex items-center justify-center space-x-3 bg-white text-black py-3.5 rounded-lg font-montserrat font-semibold transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] overflow-hidden"
+                >
+                  <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                  </svg>
+                  <span className="relative z-10">Continue with Google</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/5 to-transparent translate-x-[-100%] group-hover:animate-shimmer" />
+                </button>
+
+                <button 
+                  type="button"
+                  onClick={() => setView('phone')}
+                  disabled={loading}
+                  className="w-full relative group flex items-center justify-center space-x-3 bg-black/40 hover:bg-black/60 border border-white/10 hover:border-white/30 py-3.5 rounded-lg text-white font-montserrat font-medium transition-all backdrop-blur-sm overflow-hidden"
+                >
+                  <Smartphone size={18} className="text-gray-400 relative z-10 group-hover:text-white transition-colors" />
+                  <span className="relative z-10 text-gray-300 group-hover:text-white transition-colors">Continue with Mobile Number</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:animate-shimmer" />
+                </button>
+              </div>
+
+              <div className="relative flex items-center py-2">
+                <div className="flex-grow border-t border-white/10"></div>
+                <span className="flex-shrink-0 mx-4 text-gray-500 text-xs font-montserrat lowercase tracking-widest">or sign in with email</span>
+                <div className="flex-grow border-t border-white/10"></div>
+              </div>
+
+              {/* Email Form */}
+              <form onSubmit={handleEmailAuth} className="space-y-4">
+                <div>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    <input 
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Email Address"
+                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-all focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    <input 
+                      type="password" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Password"
+                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-all focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end mt-2">
+                    <button type="button" onClick={() => setView('forgot')} className="text-xs text-gray-500 hover:text-[#ff0033] transition-colors">Forgot Password?</button>
+                  </div>
+                </div>
+                
+                <button disabled={loading} type="submit" className="w-full relative group bg-transparent border border-white/20 hover:border-[#ff0033] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center">
+                  <span className="relative z-10 flex items-center space-x-2">
+                    {loading ? <Loader2 className="animate-spin" size={20} /> : (
+                      <>
+                        <span>Sign In</span>
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </span>
+                  <div className="absolute inset-0 bg-[#ff0033]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              </form>
+
+              <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
+                Don't have an account? <button onClick={() => setView('signup')} className="text-[#ff0033] hover:text-white transition-colors font-bold ml-1">Create Account</button>
+              </p>
+            </motion.div>
+          )}
+
+          {view === 'phone' && (
             <motion.form 
               key="phone-form"
               initial={{ opacity: 0, x: 20 }}
@@ -221,7 +329,7 @@ export default function AuthPage() {
                       <select
                         value={countryCode}
                         onChange={(e) => setCountryCode(e.target.value)}
-                        className="w-full bg-black/50 border border-white/10 border-r-0 focus:border-[#ff0033] rounded-l-lg pl-3 pr-8 py-4 text-white outline-none transition-colors appearance-none"
+                        className="w-full bg-black/50 border border-white/10 border-r-0 focus:border-[#ff0033] rounded-l-lg pl-3 pr-8 py-3.5 text-white outline-none transition-colors appearance-none"
                       >
                         <option value="+91">IN (+91)</option>
                         <option value="+1">US (+1)</option>
@@ -237,7 +345,7 @@ export default function AuthPage() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="9876543210"
-                        className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-r-lg pl-12 pr-4 py-4 text-white outline-none transition-colors"
+                        className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-r-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors"
                         required
                       />
                     </div>
@@ -253,22 +361,24 @@ export default function AuthPage() {
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
                       placeholder="123456"
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-4 text-white tracking-[0.5em] font-bold text-center outline-none transition-colors"
+                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white tracking-[0.5em] font-bold text-center outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                       required
                     />
                   </div>
                 </div>
               )}
               
-              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-4 rounded-lg transition-all overflow-hidden flex justify-center items-center">
+              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
                 {loading ? <Loader2 className="animate-spin" size={20} /> : (otpSent ? 'Verify Code' : 'Send Code')}
               </button>
 
               <button type="button" onClick={() => setView('login')} className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors mt-4">
-                Use Email instead
+                Back to Sign In
               </button>
             </motion.form>
-          ) : (
+          )}
+
+          {(view === 'signup' || view === 'forgot') && (
             <motion.form 
               key="email-form"
               initial={{ opacity: 0, x: -20 }}
@@ -286,7 +396,7 @@ export default function AuthPage() {
                       type="text" 
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-4 text-white outline-none transition-colors"
+                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                       required
                     />
                   </div>
@@ -301,7 +411,7 @@ export default function AuthPage() {
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-4 text-white outline-none transition-colors"
+                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                     required
                   />
                 </div>
@@ -316,74 +426,39 @@ export default function AuthPage() {
                       type="password" 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-4 text-white outline-none transition-colors"
+                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                       required
                     />
                   </div>
-                  {view === 'login' && (
-                    <div className="flex justify-end mt-2">
-                      <button type="button" onClick={() => setView('forgot')} className="text-xs text-gray-500 hover:text-[#ff0033] transition-colors">Forgot Password?</button>
-                    </div>
-                  )}
                 </div>
               )}
               
-              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-4 rounded-lg transition-all overflow-hidden flex justify-center items-center">
+              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
                 <span className="relative z-10 flex items-center space-x-2">
                   {loading ? <Loader2 className="animate-spin" size={20} /> : (
                     <>
-                      <span>{view === 'login' ? 'Authenticate' : view === 'signup' ? 'Create Account' : 'Reset Password'}</span>
+                      <span>{view === 'signup' ? 'Create Account' : 'Reset Password'}</span>
                       <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-shimmer" />
               </button>
+
+              <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
+                Already a member? <button type="button" onClick={() => setView('login')} className="text-[#ff0033] hover:text-white transition-colors font-bold ml-1">Sign In</button>
+              </p>
             </motion.form>
           )}
         </AnimatePresence>
 
-        {view === 'login' && (
-          <div className="mt-8 space-y-4">
-            <div className="relative flex items-center py-2">
-              <div className="flex-grow border-t border-white/10"></div>
-              <span className="flex-shrink-0 mx-4 text-gray-500 text-xs font-montserrat uppercase tracking-widest">Or Continue With</span>
-              <div className="flex-grow border-t border-white/10"></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <button 
-                onClick={handleGoogleAuth}
-                disabled={loading}
-                className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 py-3 rounded-lg text-white font-poppins text-sm transition-colors"
-              >
-                <Globe size={18} className="text-red-500" />
-                <span>Google</span>
-              </button>
-              
-              <button 
-                onClick={() => setView('phone')}
-                disabled={loading}
-                className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 py-3 rounded-lg text-white font-poppins text-sm transition-colors"
-              >
-                <Smartphone size={18} className="text-gray-300" />
-                <span>Mobile OTP</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {view === 'login' && (
-          <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
-            Don't have an account? <button onClick={() => setView('signup')} className="text-[#ff0033] hover:text-white transition-colors font-bold ml-1">Register Now</button>
-          </p>
-        )}
-
-        {(view === 'signup' || view === 'forgot') && (
-          <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
-            Already a member? <button onClick={() => setView('login')} className="text-[#ff0033] hover:text-white transition-colors font-bold ml-1">Login Instead</button>
-          </p>
-        )}
+        {/* Trust Signals Footer */}
+        <div className="mt-10 pt-6 border-t border-white/10 flex items-center justify-center space-x-2 text-gray-500 text-xs font-poppins">
+           <svg className="w-4 h-4 text-[#ff0033]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+           </svg>
+           <span>Securely encrypted & powered by Firebase</span>
+        </div>
 
       </motion.div>
     </div>
