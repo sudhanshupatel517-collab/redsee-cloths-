@@ -44,32 +44,41 @@ const googleLogin = async (req, res) => {
       return res.status(500).json({ message: 'Firebase Admin not initialized. Please configure FIREBASE_PROJECT_ID in .env' });
     }
     
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-    let user = await User.findOne({ email: decodedToken.email });
-
-    if (!user) {
-      user = await User.create({
-        name: decodedToken.name || 'Google User',
-        email: decodedToken.email,
-        avatar: decodedToken.picture || '',
-        authProvider: 'google',
-        isVerified: true,
-      });
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(idToken);
+    } catch (verifyError) {
+      return res.status(401).json({ message: 'Firebase Token Verification Failed', error: verifyError.message });
     }
 
-    const token = generateTokenAndSetCookie(res, user._id);
+    try {
+      let user = await User.findOne({ email: decodedToken.email });
 
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      avatar: user.avatar,
-      token, // Also send in payload for Redux state compat
-    });
+      if (!user) {
+        user = await User.create({
+          name: decodedToken.name || 'Google User',
+          email: decodedToken.email,
+          avatar: decodedToken.picture || '',
+          authProvider: 'google',
+          isVerified: true,
+        });
+      }
+
+      const token = generateTokenAndSetCookie(res, user._id);
+
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        token,
+      });
+    } catch (dbError) {
+      res.status(500).json({ message: 'MongoDB Database Error', error: dbError.message });
+    }
   } catch (error) {
-    res.status(401).json({ message: 'Invalid Google Token', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -84,30 +93,39 @@ const phoneLogin = async (req, res) => {
       return res.status(500).json({ message: 'Firebase Admin not initialized. Please configure FIREBASE_PROJECT_ID in .env' });
     }
 
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-    let user = await User.findOne({ phone: decodedToken.phone_number });
-
-    if (!user) {
-      user = await User.create({
-        name: 'Mobile User',
-        phone: decodedToken.phone_number,
-        authProvider: 'phone',
-        isVerified: true,
-      });
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(idToken);
+    } catch (verifyError) {
+      return res.status(401).json({ message: 'Firebase Token Verification Failed', error: verifyError.message });
     }
 
-    const token = generateTokenAndSetCookie(res, user._id);
+    try {
+      let user = await User.findOne({ phone: decodedToken.phone_number });
 
-    res.json({
-      _id: user._id,
-      name: user.name,
-      phone: user.phone,
-      role: user.role,
-      token,
-    });
+      if (!user) {
+        user = await User.create({
+          name: 'Mobile User',
+          phone: decodedToken.phone_number,
+          authProvider: 'phone',
+          isVerified: true,
+        });
+      }
+
+      const token = generateTokenAndSetCookie(res, user._id);
+
+      res.json({
+        _id: user._id,
+        name: user.name,
+        phone: user.phone,
+        role: user.role,
+        token,
+      });
+    } catch (dbError) {
+      res.status(500).json({ message: 'MongoDB Database Error', error: dbError.message });
+    }
   } catch (error) {
-    res.status(401).json({ message: 'Invalid Phone Token', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
