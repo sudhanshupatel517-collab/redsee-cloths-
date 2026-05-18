@@ -1,22 +1,31 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-  // Initialize Resend with the API key from environment variables
-  const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
+  // Create a transporter
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER || 'your-email@gmail.com', // User needs to set this
+      pass: process.env.EMAIL_PASS || 'your-email-app-password', // User needs to set this (App Password)
+    },
+  });
 
+  // Define email options
+  const mailOptions = {
+    from: `Redsee <${process.env.EMAIL_USER || 'no-reply@redsee.com'}>`,
+    to: options.email,
+    subject: options.subject,
+    text: options.message,
+    html: options.html,
+  };
+
+  // Send the email
   try {
-    const data = await resend.emails.send({
-      from: `Redsee <${process.env.EMAIL_USER || 'onboarding@resend.dev'}>`,
-      to: [options.email],
-      subject: options.subject,
-      text: options.message,
-      html: options.html, // Optional HTML support
-    });
-
-    console.log(`Email sent successfully via Resend to ${options.email}`, data);
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent successfully to ${options.email}`);
   } catch (error) {
-    console.error('Error sending email with Resend:', error);
-    // Keep proceeding even if email fails (like in development)
+    console.error('Error sending email:', error);
+    // Even if it fails locally because of no credentials, we log it so dev can continue.
   }
 };
 
