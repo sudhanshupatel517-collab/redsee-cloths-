@@ -30,6 +30,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
@@ -91,7 +92,20 @@ export default function AuthPage() {
       
       handleSuccess(data);
     } catch (err: any) {
-      setError('Google Sign-In failed. Please try again.');
+      console.error('Google Auth Error:', err);
+      
+      let errorMessage = 'Google Sign-In failed. Please try again.';
+      if (err.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in popup was closed before completing.';
+      } else if (err.code === 'auth/popup-blocked') {
+        errorMessage = 'Sign-in popup was blocked by your browser. Please allow popups for this site.';
+      } else if (err.code === 'auth/unauthorized-domain') {
+        errorMessage = 'This domain is not authorized for OAuth operations. Check your Firebase console.';
+      } else if (err.code === 'auth/invalid-api-key') {
+        errorMessage = 'Firebase API key is invalid or missing in production environment.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -113,13 +127,30 @@ export default function AuthPage() {
     if (!otpSent) {
       try {
         setupRecaptcha();
-        const formattedPhone = phone.startsWith('+') ? phone : `+1${phone}`; // Fallback country code, should use a proper selector
+        // Format to E.164: Remove leading zeros or spaces from phone number, then append country code
+        const cleanPhone = phone.replace(/\D/g, '').replace(/^0+/, '');
+        const formattedPhone = `${countryCode}${cleanPhone}`; 
+        
         const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
         window.confirmationResult = confirmationResult;
         setOtpSent(true);
       } catch (err: any) {
-        setError('Failed to send OTP. Ensure phone number includes country code (+1).');
-        if (window.recaptchaVerifier) window.recaptchaVerifier.clear();
+        console.error('OTP Send Error:', err);
+        
+        let errorMessage = 'Failed to send OTP. Ensure the phone number is correct.';
+        if (err.code === 'auth/invalid-phone-number') {
+          errorMessage = 'Invalid phone number format. Please check and try again.';
+        } else if (err.code === 'auth/too-many-requests') {
+          errorMessage = 'Too many attempts. Please try again later.';
+        } else if (err.code === 'auth/missing-app-credential' || err.message?.includes('reCAPTCHA')) {
+          errorMessage = 'reCAPTCHA verification failed. Please try again.';
+        }
+
+        setError(errorMessage);
+        if (window.recaptchaVerifier) {
+          window.recaptchaVerifier.clear();
+          window.recaptchaVerifier = null;
+        }
       }
     } else {
       try {
@@ -133,7 +164,8 @@ export default function AuthPage() {
         
         handleSuccess(data);
       } catch (err: any) {
-        setError('Invalid OTP code.');
+        console.error('OTP Confirm Error:', err);
+        setError(err.response?.data?.message || err.message || 'Invalid OTP code.');
       }
     }
     setLoading(false);
@@ -182,16 +214,31 @@ export default function AuthPage() {
               {!otpSent ? (
                 <div>
                   <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Phone Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                    <input 
-                      type="tel" 
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+1 234 567 8900"
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-4 text-white outline-none transition-colors"
-                      required
-                    />
+                  <div className="flex relative">
+                    <div className="relative w-28">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="w-full bg-black/50 border border-white/10 border-r-0 focus:border-[#ff0033] rounded-l-lg pl-3 pr-8 py-4 text-white outline-none transition-colors appearance-none"
+                      >
+                        <option value="+91">IN (+91)</option>
+                        <option value="+1">US (+1)</option>
+                        <option value="+44">UK (+44)</option>
+                        <option value="+61">AU (+61)</option>
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▼</div>
+                    </div>
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                      <input 
+                        type="tel" 
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="9876543210"
+                        className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-r-lg pl-12 pr-4 py-4 text-white outline-none transition-colors"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               ) : (

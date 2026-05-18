@@ -40,13 +40,11 @@ const googleLogin = async (req, res) => {
   const { idToken, email, name, avatar } = req.body;
 
   try {
-    let decodedToken;
-    if (admin.apps.length > 0) {
-      decodedToken = await admin.auth().verifyIdToken(idToken);
-    } else {
-      // Fallback for preview without service account
-      decodedToken = { email, name, picture: avatar, uid: idToken }; // idToken mocked as UID from frontend
+    if (admin.apps.length === 0) {
+      return res.status(500).json({ message: 'Firebase Admin not initialized. Please configure FIREBASE_PROJECT_ID in .env' });
     }
+    
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
 
     let user = await User.findOne({ email: decodedToken.email });
 
@@ -82,12 +80,11 @@ const phoneLogin = async (req, res) => {
   const { idToken, phone } = req.body;
 
   try {
-    let decodedToken;
-    if (admin.apps.length > 0) {
-      decodedToken = await admin.auth().verifyIdToken(idToken);
-    } else {
-      decodedToken = { phone_number: phone, uid: idToken };
+    if (admin.apps.length === 0) {
+      return res.status(500).json({ message: 'Firebase Admin not initialized. Please configure FIREBASE_PROJECT_ID in .env' });
     }
+
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
 
     let user = await User.findOne({ phone: decodedToken.phone_number });
 
@@ -157,18 +154,7 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // HARDCODED FALLBACK FOR PREVIEW WITHOUT DATABASE
-  if (password === 'password123') {
-    let dummyUser;
-    if (email === 'admin@redsee.com') dummyUser = { _id: '1', name: 'Admin User', email, role: 'admin' };
-    if (email === 'staff@redsee.com') dummyUser = { _id: '2', name: 'Staff Member', email, role: 'coadmin' };
-    if (email === 'user@redsee.com') dummyUser = { _id: '3', name: 'Regular User', email, role: 'user' };
-    
-    if (dummyUser) {
-      const token = generateTokenAndSetCookie(res, dummyUser._id);
-      return res.json({ ...dummyUser, token });
-    }
-  }
+
 
   try {
     const user = await User.findOne({ email });
@@ -187,7 +173,7 @@ const login = async (req, res) => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch(err) {
-      res.status(500).json({ message: 'Database connection failed. Use preview accounts.' });
+      res.status(500).json({ message: 'Server or Database error.', error: err.message });
   }
 };
 
