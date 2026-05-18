@@ -7,11 +7,11 @@ import { setCredentials } from '@/store/authSlice';
 import { RootState } from '@/store/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/axios';
-import { Mail, Lock, User, Phone, ArrowRight, Globe, Smartphone, Loader2 } from 'lucide-react';
-import { auth, googleProvider, RecaptchaVerifier, signInWithPhoneNumber } from '@/firebase/config';
+import { Mail, Lock, User, ArrowRight, Globe, Loader2 } from 'lucide-react';
+import { auth, googleProvider } from '@/firebase/config';
 import { signInWithPopup } from 'firebase/auth';
 
-type AuthView = 'login' | 'signup' | 'forgot' | 'phone';
+type AuthView = 'login' | 'signup' | 'forgot' | 'verify_email';
 
 declare global {
   interface Window {
@@ -29,8 +29,6 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('+91');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
@@ -62,15 +60,30 @@ export default function AuthPage() {
         const { data } = await api.post('/api/auth/login', { email, password });
         handleSuccess(data);
       } else if (view === 'signup') {
-        const { data } = await api.post('/api/auth/signup', { name, email, password });
-        handleSuccess(data);
+        // Send OTP request to backend
+        await api.post('/api/auth/send-email-otp', { name, email, password });
+        setOtpSent(true);
+        setView('verify_email');
       } else if (view === 'forgot') {
-        // Implement forgot password API
         setError('Password reset link sent to your email.');
         setTimeout(() => setView('login'), 3000);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await api.post('/api/auth/verify-email-otp', { email, otp });
+      handleSuccess(data);
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Invalid verification code.');
     } finally {
       setLoading(false);
     }
@@ -113,65 +126,7 @@ export default function AuthPage() {
     }
   };
 
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-      });
-    }
-  };
-
-  const handlePhoneAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    if (!otpSent) {
-      try {
-        setupRecaptcha();
-        // Format to E.164: Remove leading zeros or spaces from phone number, then append country code
-        const cleanPhone = phone.replace(/\D/g, '').replace(/^0+/, '');
-        const formattedPhone = `${countryCode}${cleanPhone}`; 
-        
-        const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
-        window.confirmationResult = confirmationResult;
-        setOtpSent(true);
-      } catch (err: any) {
-        console.error('OTP Send Error:', err);
-        
-        let errorMessage = 'Failed to send OTP. Ensure the phone number is correct.';
-        if (err.code === 'auth/invalid-phone-number') {
-          errorMessage = 'Invalid phone number format. Please check and try again.';
-        } else if (err.code === 'auth/too-many-requests') {
-          errorMessage = 'Too many attempts. Please try again later.';
-        } else if (err.code === 'auth/missing-app-credential' || err.message?.includes('reCAPTCHA')) {
-          errorMessage = 'reCAPTCHA verification failed. Please try again.';
-        }
-
-        setError(errorMessage);
-        if (window.recaptchaVerifier) {
-          window.recaptchaVerifier.clear();
-          window.recaptchaVerifier = null;
-        }
-      }
-    } else {
-      try {
-        const result = await window.confirmationResult.confirm(otp);
-        const idToken = await result.user.getIdToken();
-        
-        const { data } = await api.post('/api/auth/phone', { 
-          idToken,
-          phone: result.user.phoneNumber
-        });
-        
-        handleSuccess(data);
-      } catch (err: any) {
-        console.error('OTP Confirm Error:', err);
-        setError(err.response?.data?.message || err.message || 'Invalid OTP code.');
-      }
-    }
-    setLoading(false);
-  };
+  // Removed phone auth logic
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden py-20 px-4">
@@ -200,12 +155,12 @@ export default function AuthPage() {
              </div>
           </motion.div>
           <h2 className="text-3xl md:text-4xl font-bebas text-white tracking-widest mb-2 uppercase">
-            {view === 'login' ? 'Sign In to Redsee' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : 'Mobile Access'}
+            {view === 'login' ? 'Sign In to Redsee' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : 'Verify Email'}
           </h2>
           <p className="text-gray-400 font-poppins text-sm">
             {view === 'login' ? 'Access the next generation of streetwear.' : 
              view === 'signup' ? 'Join the futuristic fashion revolution.' : 
-             view === 'phone' ? 'Secure, fast, and passwordless access.' : 'We will send you reset instructions.'}
+             view === 'verify_email' ? `We sent a code to ${email}` : 'We will send you reset instructions.'}
           </p>
         </div>
 
@@ -240,17 +195,6 @@ export default function AuthPage() {
                   </svg>
                   <span className="relative z-10">Continue with Google</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/5 to-transparent translate-x-[-100%] group-hover:animate-shimmer" />
-                </button>
-
-                <button 
-                  type="button"
-                  onClick={() => setView('phone')}
-                  disabled={loading}
-                  className="w-full relative group flex items-center justify-center space-x-3 bg-black/40 hover:bg-black/60 border border-white/10 hover:border-white/30 py-3.5 rounded-lg text-white font-montserrat font-medium transition-all backdrop-blur-sm overflow-hidden"
-                >
-                  <Smartphone size={18} className="text-gray-400 relative z-10 group-hover:text-white transition-colors" />
-                  <span className="relative z-10 text-gray-300 group-hover:text-white transition-colors">Continue with Mobile Number</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:animate-shimmer" />
                 </button>
               </div>
 
@@ -312,68 +256,37 @@ export default function AuthPage() {
             </motion.div>
           )}
 
-          {view === 'phone' && (
+          {view === 'verify_email' && (
             <motion.form 
-              key="phone-form"
+              key="verify-form"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              onSubmit={handlePhoneAuth} 
+              onSubmit={handleVerifyOtp} 
               className="space-y-5"
             >
-              {!otpSent ? (
-                <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Phone Number</label>
-                  <div className="flex relative">
-                    <div className="relative w-28">
-                      <select
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        className="w-full bg-black/50 border border-white/10 border-r-0 focus:border-[#ff0033] rounded-l-lg pl-3 pr-8 py-3.5 text-white outline-none transition-colors appearance-none"
-                      >
-                        <option value="+91">IN (+91)</option>
-                        <option value="+1">US (+1)</option>
-                        <option value="+44">UK (+44)</option>
-                        <option value="+61">AU (+61)</option>
-                      </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▼</div>
-                    </div>
-                    <div className="relative flex-1">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                      <input 
-                        type="tel" 
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="9876543210"
-                        className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-r-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors"
-                        required
-                      />
-                    </div>
-                  </div>
+              <div>
+                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Enter 6-Digit Code</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                  <input 
+                    type="text" 
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="123456"
+                    maxLength={6}
+                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white tracking-[0.5em] font-bold text-center outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                    required
+                  />
                 </div>
-              ) : (
-                <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Enter Verification Code</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                    <input 
-                      type="text" 
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="123456"
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white tracking-[0.5em] font-bold text-center outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
-                      required
-                    />
-                  </div>
-                </div>
-              )}
+              </div>
               
               <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
-                {loading ? <Loader2 className="animate-spin" size={20} /> : (otpSent ? 'Verify Code' : 'Send Code')}
+                {loading ? <Loader2 className="animate-spin" size={20} /> : 'Verify Email'}
               </button>
 
-              <button type="button" onClick={() => setView('login')} className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors mt-4">
-                Back to Sign In
+              <button type="button" onClick={() => setView('signup')} className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors mt-4">
+                Back to Sign Up
               </button>
             </motion.form>
           )}

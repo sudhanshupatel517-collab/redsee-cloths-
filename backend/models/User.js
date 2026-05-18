@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
   authProvider: { type: String, enum: ['google', 'phone', 'email'], default: 'email' },
   avatar: { type: String },
   isVerified: { type: Boolean, default: false },
+  emailOtp: { type: String },
+  otpExpire: { type: Date },
   role: { type: String, enum: ['user', 'coadmin', 'admin'], default: 'user' },
   addresses: [{
     street: String,

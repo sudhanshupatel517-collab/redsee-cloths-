@@ -2,6 +2,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const admin = require('firebase-admin');
+const crypto = require('crypto');
+const sendEmail = require('../utils/sendEmail');
 
 // Initialize Firebase Admin (Only works if credentials are provided in env, else we mock verification for preview)
 try {
@@ -129,32 +131,90 @@ const phoneLogin = async (req, res) => {
   }
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/signup
+// @desc    Send Email OTP for Signup
+// @route   POST /api/auth/send-email-otp
 // @access  Public
-const signup = async (req, res) => {
+const sendEmailOtp = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    const userExists = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+    if (user && user.isVerified) {
+      return res.status(400).json({ message: 'User already exists and is verified' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Generate 6 digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    const otpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      authProvider: 'email',
+    if (user) {
+      // Update unverified user
+      user.name = name;
+      user.password = hashedPassword;
+      user.emailOtp = hashedOtp;
+      user.otpExpire = otpExpire;
+      await user.save();
+    } else {
+      user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        authProvider: 'email',
+        isVerified: false,
+        emailOtp: hashedOtp,
+        otpExpire,
+      });
+    }
+
+    const message = `Your Redsee verification code is: ${otp}\nThis code will expire in 10 minutes.`;
+    
+    // For local development without SMTP, log the OTP
+    console.log(`\n\n=== OTP FOR ${email} IS: ${otp} ===\n\n`);
+
+    await sendEmail({
+      email: user.email,
+      subject: 'Redsee - Email Verification Code',
+      message,
     });
+
+    res.status(200).json({ message: 'OTP sent to email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Verify Email OTP
+// @route   POST /api/auth/verify-email-otp
+// @access  Public
+const verifyEmailOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    
+    const user = await User.findOne({
+      email,
+      emailOtp: hashedOtp,
+      otpExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    user.isVerified = true;
+    user.emailOtp = undefined;
+    user.otpExpire = undefined;
+    await user.save();
 
     const token = generateTokenAndSetCookie(res, user._id);
 
-    res.status(201).json({
+    res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -176,6 +236,10 @@ const login = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
+
+    if (user && !user.isVerified && user.authProvider === 'email') {
+      return res.status(401).json({ message: 'Please verify your email first before logging in' });
+    }
 
     if (user && user.password && (await bcrypt.compare(password, user.password))) {
       const token = generateTokenAndSetCookie(res, user._id);
@@ -209,7 +273,8 @@ const logout = (req, res) => {
 module.exports = {
   googleLogin,
   phoneLogin,
-  signup,
+  sendEmailOtp,
+  verifyEmailOtp,
   login,
   logout,
 };
