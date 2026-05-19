@@ -114,6 +114,12 @@ const Navbar = () => {
                   <p className="text-sm text-white font-poppins">{user.name}</p>
                   <p className="text-xs text-gray-400 capitalize">{user.role}</p>
                 </div>
+
+                <Link href="/profile" onClick={() => setDropdownOpen(false)}>
+                  <span className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors mt-1">
+                    <User size={16} className="mr-2" /> My Profile
+                  </span>
+                </Link>
                 
                 {user.role === 'admin' && (
                   <Link href="/admin" onClick={() => setDropdownOpen(false)}>
@@ -183,6 +189,7 @@ const Navbar = () => {
               {user ? (
                 <>
                   <p className="text-[#ff0033] font-montserrat">Hi, {user.name}</p>
+                  <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-white">My Profile</Link>
                   {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-white">Admin Dashboard</Link>}
                   {user.role === 'coadmin' && <Link href="/staff" onClick={() => setMobileMenuOpen(false)} className="text-white">Staff Dashboard</Link>}
                   <button onClick={handleLogout} className="text-gray-400">Logout</button>

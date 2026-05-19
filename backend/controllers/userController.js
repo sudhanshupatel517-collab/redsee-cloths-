@@ -90,5 +90,52 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ message: 'Database Error' });
   }
 };
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.name = req.body.name || user.name;
+      user.email = req.body.email || user.email;
+      user.phone = req.body.phone || user.phone;
+      user.gender = req.body.gender || user.gender;
+      user.avatar = req.body.avatar || user.avatar;
+      
+      // We will add DOB later if needed
+      
+      // Update address if provided
+      if (req.body.address) {
+        // If the user has an address array, update the first one or push a new one
+        if (user.addresses.length > 0) {
+          user.addresses[0] = { ...user.addresses[0], ...req.body.address };
+        } else {
+          user.addresses.push(req.body.address);
+        }
+      }
 
-module.exports = { registerUser, loginUser, getUserProfile };
+      if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.password, salt);
+      }
+
+      const updatedUser = await user.save();
+      
+      res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        gender: updatedUser.gender,
+        avatar: updatedUser.avatar,
+        role: updatedUser.role,
+        addresses: updatedUser.addresses,
+        token: generateToken(updatedUser._id),
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile };
