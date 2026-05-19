@@ -6,6 +6,10 @@ interface User {
   email: string;
   role: string;
   token: string;
+  phone?: string;
+  gender?: string;
+  addresses?: any[];
+  avatar?: string;
 }
 
 interface AuthState {
