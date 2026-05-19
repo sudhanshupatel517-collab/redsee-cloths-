@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   emailOtp: { type: String },
   otpExpire: { type: Date },
+  gender: { type: String, enum: ['Male', 'Female', 'Other'] },
   role: { type: String, enum: ['user', 'coadmin', 'admin'], default: 'user' },
   addresses: [{
     street: String,

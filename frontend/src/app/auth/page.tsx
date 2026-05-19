@@ -11,7 +11,7 @@ import { Mail, Lock, User, ArrowRight, Globe, Loader2 } from 'lucide-react';
 import { auth, googleProvider } from '@/firebase/config';
 import { signInWithPopup } from 'firebase/auth';
 
-type AuthView = 'login' | 'signup' | 'forgot' | 'verify_email';
+type AuthView = 'login' | 'signup' | 'forgot' | 'verify_email' | 'google_onboarding';
 
 declare global {
   interface Window {
@@ -31,6 +31,9 @@ export default function AuthPage() {
   const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [googleData, setGoogleData] = useState<any>(null);
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('Male');
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -103,7 +106,18 @@ export default function AuthPage() {
         avatar: result.user.photoURL
       });
       
-      handleSuccess(data);
+      if (data.isNewUser) {
+        setGoogleData({
+          idToken,
+          email: data.email,
+          name: data.name,
+          avatar: data.avatar
+        });
+        setName(data.name || '');
+        setView('google_onboarding');
+      } else {
+        handleSuccess(data);
+      }
     } catch (err: any) {
       console.error('Google Auth Error:', err);
       
@@ -121,6 +135,25 @@ export default function AuthPage() {
       }
       
       setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await api.post('/api/auth/google-signup', {
+        ...googleData,
+        name,
+        phone,
+        gender
+      });
+      handleSuccess(data);
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
@@ -155,12 +188,13 @@ export default function AuthPage() {
              </div>
           </motion.div>
           <h2 className="text-3xl md:text-4xl font-bebas text-white tracking-widest mb-2 uppercase">
-            {view === 'login' ? 'Sign In to Redsee' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : 'Verify Email'}
+            {view === 'login' ? 'Sign In to Redsee' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : view === 'verify_email' ? 'Verify Email' : 'Complete Profile'}
           </h2>
           <p className="text-gray-400 font-poppins text-sm">
             {view === 'login' ? 'Access the next generation of streetwear.' : 
              view === 'signup' ? 'Join the futuristic fashion revolution.' : 
-             view === 'verify_email' ? `We sent a code to ${email}` : 'We will send you reset instructions.'}
+             view === 'verify_email' ? `We sent a code to ${email}` : 
+             view === 'google_onboarding' ? 'Almost there! Add a few details.' : 'We will send you reset instructions.'}
           </p>
         </div>
 
@@ -287,6 +321,71 @@ export default function AuthPage() {
 
               <button type="button" onClick={() => setView('signup')} className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors mt-4">
                 Back to Sign Up
+              </button>
+            </motion.form>
+          )}
+
+          {view === 'google_onboarding' && (
+            <motion.form 
+              key="google-onboarding-form"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              onSubmit={handleGoogleSignup} 
+              className="space-y-5"
+            >
+              <div>
+                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                  <input 
+                    type="text" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Mobile Number</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-poppins text-sm">+91</span>
+                  <input 
+                    type="tel" 
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="9876543210"
+                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-14 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Preference</label>
+                <div className="relative">
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-4 pr-10 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)] appearance-none"
+                    required
+                  >
+                    <option value="Male">Men's Fashion</option>
+                    <option value="Female">Women's Fashion</option>
+                    <option value="Other">Unisex / All</option>
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">▼</div>
+                </div>
+              </div>
+              
+              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
+                {loading ? <Loader2 className="animate-spin" size={20} /> : 'Complete Registration'}
+              </button>
+
+              <button type="button" onClick={() => setView('login')} className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors mt-4">
+                Cancel
               </button>
             </motion.form>
           )}

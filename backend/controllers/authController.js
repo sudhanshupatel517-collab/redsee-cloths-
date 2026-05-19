@@ -57,12 +57,12 @@ const googleLogin = async (req, res) => {
       let user = await User.findOne({ email: decodedToken.email });
 
       if (!user) {
-        user = await User.create({
-          name: decodedToken.name || 'Google User',
+        // Return 200 with flag for frontend to prompt onboarding
+        return res.status(200).json({
+          isNewUser: true,
           email: decodedToken.email,
-          avatar: decodedToken.picture || '',
-          authProvider: 'google',
-          isVerified: true,
+          name: decodedToken.name || 'Google User',
+          avatar: decodedToken.picture || ''
         });
       }
 
@@ -128,6 +128,58 @@ const phoneLogin = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Complete Google Onboarding
+// @route   POST /api/auth/google-signup
+// @access  Public
+const googleSignup = async (req, res) => {
+  const { idToken, email, name, avatar, phone, gender } = req.body;
+
+  try {
+    if (admin.apps.length === 0) {
+      return res.status(500).json({ message: 'Firebase Admin not initialized' });
+    }
+
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(idToken);
+    } catch (verifyError) {
+      return res.status(401).json({ message: 'Firebase Token Verification Failed', error: verifyError.message });
+    }
+
+    if (decodedToken.email !== email) {
+      return res.status(401).json({ message: 'Invalid token email payload' });
+    }
+
+    let user = await User.findOne({ email });
+    if (user) {
+       return res.status(400).json({ message: 'User already exists' });
+    }
+
+    user = await User.create({
+      name,
+      email,
+      phone,
+      gender,
+      authProvider: 'google',
+      avatar,
+      isVerified: true
+    });
+
+    const token = generateTokenAndSetCookie(res, user._id);
+    
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
@@ -272,6 +324,7 @@ const logout = (req, res) => {
 
 module.exports = {
   googleLogin,
+  googleSignup,
   phoneLogin,
   sendEmailOtp,
   verifyEmailOtp,
