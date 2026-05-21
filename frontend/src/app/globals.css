@@ -6,15 +6,38 @@
   --font-bebas: "Bebas Neue", sans-serif;
   --font-poppins: "Poppins", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
 }
 
 @layer base {
   :root {
+    --background: #ffffff;
+    --foreground: #0A0A0A;
+    --primary: #7A0000;
+    --secondary: #f4f4f5;
+    --accent: #ff0033;
+    --border: rgba(0, 0, 0, 0.1);
+    --glass: rgba(0, 0, 0, 0.05);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --bg-overlay: rgba(255, 255, 255, 0.8);
+  }
+
+  .dark {
     --background: #0A0A0A;
     --foreground: #ffffff;
     --primary: #7A0000;
     --secondary: #1a1a1a;
     --accent: #ff0033;
+    --border: rgba(255, 255, 255, 0.1);
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --bg-overlay: rgba(0, 0, 0, 0.4);
   }
 
   body {
@@ -40,15 +63,15 @@
   }
 
   .glassmorphism {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--glass);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
   }
   
   .glassmorphism-dark {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: var(--bg-overlay);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
   }
 }
 
@@ -58,7 +81,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0A0A0A; 
+  background: var(--background); 
 }
 
 ::-webkit-scrollbar-thumb {

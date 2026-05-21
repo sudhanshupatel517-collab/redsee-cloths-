@@ -1,14 +1,30 @@
+"use client";
 import Link from "next/link";
 import { Globe, Mail } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const Footer = () => {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = theme === 'system' ? 'dark' : theme;
+
   return (
-    <footer className="bg-[#050505] border-t border-white/5 pt-16 pb-8 mt-20">
+    <footer className="bg-secondary border-t border-border pt-16 pb-8 mt-20 transition-colors duration-300">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
         {/* Brand */}
         <div className="space-y-4">
           <Link href="/">
-            <img src="/logo.png" alt="REDSEE" className="w-32 md:w-40 object-contain" />
+            {mounted ? (
+              <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="w-32 md:w-40 object-contain" />
+            ) : (
+              <div className="w-32 h-16 bg-transparent"></div>
+            )}
           </Link>
           <p className="text-gray-400 font-poppins text-sm leading-relaxed">
             The future of fashion. Premium dropshipping platform for luxury aesthetics, oversized streetwear, and bold trends.

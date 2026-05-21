@@ -11,7 +11,7 @@ const Hero = () => {
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1618022325802-7e5e732d97a1?q=80&w=2000&auto=format&fit=crop')" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"></div>
         {/* Red Glow effect */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#7A0000] rounded-full blur-[150px] opacity-40"></div>
       </div>
@@ -32,7 +32,7 @@ const Hero = () => {
           >
             New Collection 2026
           </motion.span>
-          <h1 className="text-6xl md:text-8xl font-bebas text-white leading-none mb-6">
+          <h1 className="text-6xl md:text-8xl font-bebas text-foreground leading-none mb-6">
             DEFINE YOUR <br />
             <span className="text-glow text-transparent bg-clip-text bg-gradient-to-r from-[#ff0033] to-[#7A0000]">IDENTITY.</span>
           </h1>
@@ -42,13 +42,13 @@ const Hero = () => {
           
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
             <Link href="/shop">
-              <button className="bg-[#ff0033] hover:bg-white hover:text-black transition-all duration-300 text-white px-8 py-4 font-montserrat uppercase tracking-wider font-bold text-sm flex items-center justify-center group w-full sm:w-auto">
+              <button className="bg-[#ff0033] hover:bg-foreground hover:text-background transition-all duration-300 text-foreground px-8 py-4 font-montserrat uppercase tracking-wider font-bold text-sm flex items-center justify-center group w-full sm:w-auto">
                 Shop Now
                 <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
             <Link href="/new-arrivals">
-              <button className="bg-transparent border border-white/30 hover:border-white transition-all duration-300 text-white px-8 py-4 font-montserrat uppercase tracking-wider font-bold text-sm flex items-center justify-center w-full sm:w-auto">
+              <button className="bg-transparent border border-foreground/30 hover:border-foreground transition-all duration-300 text-foreground px-8 py-4 font-montserrat uppercase tracking-wider font-bold text-sm flex items-center justify-center w-full sm:w-auto">
                 Explore Trends
               </button>
             </Link>

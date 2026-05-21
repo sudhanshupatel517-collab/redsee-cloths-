@@ -2,16 +2,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings, Sun, Moon } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { logout } from "@/store/authSlice";
 import api from "@/lib/axios";
+import { useTheme } from "next-themes";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state: RootState) => state.cart);
@@ -20,6 +23,7 @@ const Navbar = () => {
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
@@ -45,6 +49,8 @@ const Navbar = () => {
     setDropdownOpen(false);
   };
 
+  const currentTheme = theme === 'system' ? 'dark' : theme;
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -57,7 +63,11 @@ const Navbar = () => {
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
         <Link href="/">
-          <img src="/logo.png" alt="REDSEE" className="h-10 cursor-pointer object-contain" />
+          {mounted ? (
+            <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="h-10 cursor-pointer object-contain" />
+          ) : (
+            <div className="h-10 w-32 bg-transparent"></div>
+          )}
         </Link>
 
         {/* Desktop Nav */}
@@ -74,6 +84,14 @@ const Navbar = () => {
 
         {/* Icons */}
         <div className="hidden md:flex items-center space-x-6 relative">
+          {mounted && (
+            <button 
+              onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
+              className="text-gray-300 hover:text-[#ff0033] transition-colors"
+            >
+              {currentTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          )}
           <button className="text-gray-300 hover:text-[#ff0033] transition-colors">
             <Search size={20} />
           </button>
@@ -109,7 +127,7 @@ const Navbar = () => {
             {dropdownOpen && user && (
               <div className="absolute right-0 mt-4 w-48 bg-black border border-white/10 rounded-md shadow-2xl py-2 z-50 glassmorphism-dark">
                 <div className="px-4 py-2 border-b border-white/10">
-                  <p className="text-sm text-white font-poppins">{user.name}</p>
+                  <p className="text-sm text-foreground font-poppins">{user.name}</p>
                   <p className="text-xs text-gray-400 capitalize">{user.role}</p>
                 </div>
 
@@ -144,6 +162,14 @@ const Navbar = () => {
 
         {/* Mobile Menu Toggle */}
         <div className="md:hidden flex items-center space-x-4">
+          {mounted && (
+            <button 
+              onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
+              className="text-gray-300 hover:text-[#ff0033] transition-colors"
+            >
+              {currentTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          )}
           <Link href="/cart">
             <button className="text-gray-300 hover:text-[#ff0033] transition-colors relative">
               <ShoppingCart size={20} />
@@ -155,7 +181,7 @@ const Navbar = () => {
             </button>
           </Link>
           <button
-            className="text-white"
+            className="text-foreground"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -170,7 +196,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "100vh" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden absolute top-full left-0 w-full bg-[#0A0A0A] flex flex-col items-center pt-10 space-y-6 overflow-hidden"
+            className="md:hidden absolute top-full left-0 w-full bg-background flex flex-col items-center pt-10 space-y-6 overflow-hidden"
           >
             {navLinks.map((link) => (
               <Link key={link.name} href={link.href}>
@@ -187,9 +213,9 @@ const Navbar = () => {
               {user ? (
                 <>
                   <p className="text-[#ff0033] font-montserrat">Hi, {user.name}</p>
-                  <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-white">My Profile</Link>
-                  {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-white">Admin Dashboard</Link>}
-                  {user.role === 'coadmin' && <Link href="/staff" onClick={() => setMobileMenuOpen(false)} className="text-white">Staff Dashboard</Link>}
+                  <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-foreground">My Profile</Link>
+                  {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-foreground">Admin Dashboard</Link>}
+                  {user.role === 'coadmin' && <Link href="/staff" onClick={() => setMobileMenuOpen(false)} className="text-foreground">Staff Dashboard</Link>}
                   <button onClick={handleLogout} className="text-gray-400">Logout</button>
                 </>
               ) : (

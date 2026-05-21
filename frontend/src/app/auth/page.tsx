@@ -10,6 +10,7 @@ import api from '@/lib/axios';
 import { Mail, Lock, User, ArrowRight, Globe, Loader2 } from 'lucide-react';
 import { auth, googleProvider } from '@/firebase/config';
 import { signInWithPopup } from 'firebase/auth';
+import { useTheme } from 'next-themes';
 
 type AuthView = 'login' | 'signup' | 'forgot' | 'verify_email' | 'google_onboarding';
 
@@ -38,8 +39,13 @@ export default function AuthPage() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  const currentTheme = theme === 'system' ? 'dark' : theme;
 
   useEffect(() => {
+    setMounted(true);
     if (user) {
       if (user.role === 'admin') router.push('/admin');
       else if (user.role === 'coadmin') router.push('/staff');
@@ -162,7 +168,7 @@ export default function AuthPage() {
   // Removed phone auth logic
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden py-20 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden py-20 px-4">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#7a0000]/20 via-black to-black z-0"></div>
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#ff0033]/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
@@ -174,7 +180,7 @@ export default function AuthPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md p-8 md:p-10 glassmorphism-dark border border-white/10 rounded-2xl z-10 relative shadow-2xl backdrop-blur-2xl"
+        className="w-full max-w-md p-8 md:p-10 glassmorphism-dark border border-border rounded-2xl z-10 relative shadow-2xl backdrop-blur-2xl"
       >
         <div className="text-center mb-8">
           <motion.div 
@@ -183,9 +189,13 @@ export default function AuthPage() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="flex justify-center mb-6"
           >
-             <img src="/logo.png" alt="REDSEE" className="h-16 object-contain" />
+             {mounted ? (
+               <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="h-16 object-contain" />
+             ) : (
+               <div className="h-16 w-32 bg-transparent"></div>
+             )}
           </motion.div>
-          <h2 className="text-3xl md:text-4xl font-bebas text-white tracking-widest mb-2 uppercase">
+          <h2 className="text-3xl md:text-4xl font-bebas text-foreground tracking-widest mb-2 uppercase">
             {view === 'login' ? 'Sign In' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : view === 'verify_email' ? 'Verify Email' : 'Complete Profile'}
           </h2>
           <p className="text-gray-400 font-poppins text-sm">
@@ -217,7 +227,7 @@ export default function AuthPage() {
                   type="button"
                   onClick={handleGoogleAuth}
                   disabled={loading}
-                  className="w-full relative group flex items-center justify-center space-x-3 bg-white text-black py-3.5 rounded-lg font-montserrat font-semibold transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] overflow-hidden"
+                  className="w-full relative group flex items-center justify-center space-x-3 bg-foreground text-background py-3.5 rounded-lg font-montserrat font-semibold transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] overflow-hidden"
                 >
                   <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -231,9 +241,9 @@ export default function AuthPage() {
               </div>
 
               <div className="relative flex items-center py-2">
-                <div className="flex-grow border-t border-white/10"></div>
+                <div className="flex-grow border-t border-border"></div>
                 <span className="flex-shrink-0 mx-4 text-gray-500 text-xs font-montserrat lowercase tracking-widest">or sign in with email</span>
-                <div className="flex-grow border-t border-white/10"></div>
+                <div className="flex-grow border-t border-border"></div>
               </div>
 
               {/* Email Form */}
@@ -246,7 +256,7 @@ export default function AuthPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email Address"
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-all focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                      className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-foreground outline-none transition-all focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                       required
                     />
                   </div>
@@ -260,7 +270,7 @@ export default function AuthPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-all focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                      className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-foreground outline-none transition-all focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                       required
                     />
                   </div>
@@ -269,7 +279,7 @@ export default function AuthPage() {
                   </div>
                 </div>
                 
-                <button disabled={loading} type="submit" className="w-full relative group bg-transparent border border-white/20 hover:border-[#ff0033] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center">
+                <button disabled={loading} type="submit" className="w-full relative group bg-transparent border border-border hover:border-[#ff0033] text-foreground font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center">
                   <span className="relative z-10 flex items-center space-x-2">
                     {loading ? <Loader2 className="animate-spin" size={20} /> : (
                       <>
@@ -283,7 +293,7 @@ export default function AuthPage() {
               </form>
 
               <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
-                Don't have an account? <button onClick={() => setView('signup')} className="text-[#ff0033] hover:text-white transition-colors font-bold ml-1">Create Account</button>
+                Don't have an account? <button onClick={() => setView('signup')} className="text-[#ff0033] hover:text-foreground transition-colors font-bold ml-1">Create Account</button>
               </p>
             </motion.div>
           )}
@@ -307,17 +317,17 @@ export default function AuthPage() {
                     onChange={(e) => setOtp(e.target.value)}
                     placeholder="123456"
                     maxLength={6}
-                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white tracking-[0.5em] font-bold text-center outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                    className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-foreground tracking-[0.5em] font-bold text-center outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                     required
                   />
                 </div>
               </div>
               
-              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
+              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-foreground font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Verify Email'}
               </button>
 
-              <button type="button" onClick={() => setView('signup')} className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors mt-4">
+              <button type="button" onClick={() => setView('signup')} className="w-full text-center text-sm text-gray-400 hover:text-foreground transition-colors mt-4">
                 Back to Sign Up
               </button>
             </motion.form>
@@ -340,7 +350,7 @@ export default function AuthPage() {
                     type="text" 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                    className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-foreground outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                     required
                   />
                 </div>
@@ -355,7 +365,7 @@ export default function AuthPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="9876543210"
-                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-14 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                    className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-14 pr-4 py-3.5 text-foreground outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                     required
                   />
                 </div>
@@ -367,7 +377,7 @@ export default function AuthPage() {
                   <select
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-4 pr-10 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)] appearance-none"
+                    className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-4 pr-10 py-3.5 text-foreground outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)] appearance-none"
                     required
                   >
                     <option value="Male">Men's Fashion</option>
@@ -378,11 +388,11 @@ export default function AuthPage() {
                 </div>
               </div>
               
-              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
+              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-foreground font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Complete Registration'}
               </button>
 
-              <button type="button" onClick={() => setView('login')} className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors mt-4">
+              <button type="button" onClick={() => setView('login')} className="w-full text-center text-sm text-gray-400 hover:text-foreground transition-colors mt-4">
                 Cancel
               </button>
             </motion.form>
@@ -402,7 +412,7 @@ export default function AuthPage() {
                     type="button"
                     onClick={handleGoogleAuth}
                     disabled={loading}
-                    className="w-full relative group flex items-center justify-center space-x-3 bg-white text-black py-3.5 rounded-lg font-montserrat font-semibold transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] overflow-hidden"
+                    className="w-full relative group flex items-center justify-center space-x-3 bg-foreground text-background py-3.5 rounded-lg font-montserrat font-semibold transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] overflow-hidden"
                   >
                     <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -415,9 +425,9 @@ export default function AuthPage() {
                   </button>
 
                   <div className="relative flex items-center py-2">
-                    <div className="flex-grow border-t border-white/10"></div>
+                    <div className="flex-grow border-t border-border"></div>
                     <span className="flex-shrink-0 mx-4 text-gray-500 text-xs font-montserrat lowercase tracking-widest">or sign up with email</span>
-                    <div className="flex-grow border-t border-white/10"></div>
+                    <div className="flex-grow border-t border-border"></div>
                   </div>
                 </>
               )}
@@ -432,7 +442,7 @@ export default function AuthPage() {
                       type="text" 
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                      className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-foreground outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                       required
                     />
                   </div>
@@ -447,7 +457,7 @@ export default function AuthPage() {
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                    className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-foreground outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                     required
                   />
                 </div>
@@ -462,14 +472,14 @@ export default function AuthPage() {
                       type="password" 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-white outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
+                      className="w-full bg-background/50 border border-border focus:border-[#ff0033] rounded-lg pl-12 pr-4 py-3.5 text-foreground outline-none transition-colors focus:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
                       required
                     />
                   </div>
                 </div>
               )}
               
-              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-white font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
+              <button disabled={loading} type="submit" className="w-full relative group bg-[#ff0033] hover:bg-[#cc0029] text-foreground font-montserrat font-bold tracking-widest uppercase py-3.5 rounded-lg transition-all overflow-hidden flex justify-center items-center shadow-[0_0_15px_rgba(255,0,51,0.3)] hover:shadow-[0_0_25px_rgba(255,0,51,0.5)]">
                 <span className="relative z-10 flex items-center space-x-2">
                   {loading ? <Loader2 className="animate-spin" size={20} /> : (
                     <>
@@ -482,7 +492,7 @@ export default function AuthPage() {
               </button>
 
               <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
-                Already a member? <button type="button" onClick={() => setView('login')} className="text-[#ff0033] hover:text-white transition-colors font-bold ml-1">Sign In</button>
+                Already a member? <button type="button" onClick={() => setView('login')} className="text-[#ff0033] hover:text-foreground transition-colors font-bold ml-1">Sign In</button>
               </p>
             </form>
             </motion.div>
@@ -490,7 +500,7 @@ export default function AuthPage() {
         </AnimatePresence>
 
         {/* Trust Signals Footer */}
-        <div className="mt-10 pt-6 border-t border-white/10 flex items-center justify-center space-x-2 text-gray-500 text-xs font-poppins">
+        <div className="mt-10 pt-6 border-t border-border flex items-center justify-center space-x-2 text-gray-500 text-xs font-poppins">
            <svg className="w-4 h-4 text-[#ff0033]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
            </svg>
