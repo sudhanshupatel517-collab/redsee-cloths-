@@ -57,9 +57,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
         <Link href="/">
-          <h1 className="text-3xl font-bebas text-glow text-white tracking-widest cursor-pointer">
-            REDSEE
-          </h1>
+          <img src="/logo.png" alt="REDSEE" className="h-10 cursor-pointer object-contain" />
         </Link>
 
         {/* Desktop Nav */}

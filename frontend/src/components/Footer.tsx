@@ -8,9 +8,7 @@ const Footer = () => {
         {/* Brand */}
         <div className="space-y-4">
           <Link href="/">
-            <h1 className="text-4xl font-bebas text-glow text-white tracking-widest">
-              REDSEE
-            </h1>
+            <img src="/logo.png" alt="REDSEE" className="w-32 md:w-40 object-contain" />
           </Link>
           <p className="text-gray-400 font-poppins text-sm leading-relaxed">
             The future of fashion. Premium dropshipping platform for luxury aesthetics, oversized streetwear, and bold trends.
