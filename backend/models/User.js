@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+  firebaseUid: { type: String, required: false },
   name: { type: String, required: true },
   email: { type: String, required: false, unique: true, sparse: true },
   phone: { type: String, required: false, unique: true, sparse: true },
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema({
     size: String,
     color: String
   }],
+  rewards: { type: Number, default: 0 },
   orderHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
 }, { timestamps: true });
 

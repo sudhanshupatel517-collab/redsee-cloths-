@@ -158,14 +158,20 @@ const googleSignup = async (req, res) => {
        return res.status(400).json({ message: 'User already exists' });
     }
 
+    let role = 'user';
+    if (email === 'admin@redsee.com') role = 'admin';
+    else if (email === 'staff@redsee.com') role = 'coadmin';
+
     user = await User.create({
+      firebaseUid: decodedToken.uid,
       name,
       email,
       phone,
       gender,
       authProvider: 'google',
       avatar,
-      isVerified: true
+      isVerified: true,
+      role
     });
 
     const token = generateTokenAndSetCookie(res, user._id);
@@ -204,12 +210,17 @@ const sendEmailOtp = async (req, res) => {
     const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
     const otpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
+    let role = 'user';
+    if (email === 'admin@redsee.com') role = 'admin';
+    else if (email === 'staff@redsee.com') role = 'coadmin';
+
     if (user) {
       // Update unverified user
       user.name = name;
       user.password = hashedPassword;
       user.emailOtp = hashedOtp;
       user.otpExpire = otpExpire;
+      user.role = role;
       await user.save();
     } else {
       user = await User.create({
@@ -220,6 +231,7 @@ const sendEmailOtp = async (req, res) => {
         isVerified: false,
         emailOtp: hashedOtp,
         otpExpire,
+        role
       });
     }
 
