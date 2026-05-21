@@ -40,6 +40,29 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, pathname, router, mounted]);
 
+  useEffect(() => {
+    // Fetch latest profile to keep localStorage and DB perfectly synchronized
+    const fetchLatestProfile = async () => {
+      if (user && mounted) {
+        try {
+          // Dynamic import of api and dispatch to avoid circular dependencies in AuthGuard
+          const { default: api } = await import('@/lib/axios');
+          const { store } = await import('@/store/store');
+          const { setCredentials } = await import('@/store/authSlice');
+          
+          const { data } = await api.get('/api/users/profile');
+          // Update store if data changed (simple check using stringify to avoid infinite loops)
+          if (JSON.stringify(data) !== JSON.stringify(user)) {
+             store.dispatch(setCredentials({ ...user, ...data }));
+          }
+        } catch (err) {
+          console.error("Failed to sync profile on load", err);
+        }
+      }
+    };
+    fetchLatestProfile();
+  }, [mounted]);
+
   // Don't render until mounted to prevent hydration errors from localStorage checks
   if (!mounted) return null;
 

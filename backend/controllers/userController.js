@@ -104,9 +104,8 @@ const updateUserProfile = async (req, res) => {
       
       // Update address if provided
       if (req.body.address) {
-        // If the user has an address array, update the first one or push a new one
-        if (user.addresses.length > 0) {
-          user.addresses[0] = { ...user.addresses[0], ...req.body.address };
+        if (user.addresses && user.addresses.length > 0) {
+          Object.assign(user.addresses[0], req.body.address);
         } else {
           user.addresses.push(req.body.address);
         }
@@ -127,6 +126,7 @@ const updateUserProfile = async (req, res) => {
         gender: updatedUser.gender,
         avatar: updatedUser.avatar,
         role: updatedUser.role,
+        hasPassword: updatedUser.hasPassword || false,
         addresses: updatedUser.addresses,
         token: generateToken(updatedUser._id),
       });
