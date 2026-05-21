@@ -7,7 +7,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem('userInfo');
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
