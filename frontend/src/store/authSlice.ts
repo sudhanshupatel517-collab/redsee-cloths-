@@ -10,6 +10,7 @@ interface User {
   gender?: string;
   addresses?: any[];
   avatar?: string;
+  hasPassword?: boolean;
 }
 
 interface AuthState {

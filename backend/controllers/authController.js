@@ -74,6 +74,7 @@ const googleLogin = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        hasPassword: user.hasPassword || false,
         token,
       });
     } catch (dbError) {
@@ -182,10 +183,81 @@ const googleSignup = async (req, res) => {
       email: user.email,
       role: user.role,
       avatar: user.avatar,
+      hasPassword: false,
       token,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+// @desc    Send OTP for password creation/change
+// @route   POST /api/auth/send-password-otp
+// @access  Private
+const sendPasswordOtp = async (req, res) => {
+  const { currentPassword, password } = req.body;
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (user.hasPassword && user.password) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password is required to change password' });
+      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid current password' });
+      }
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    const otpExpire = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+    user.emailOtp = hashedOtp;
+    user.otpExpire = otpExpire;
+    // temporarily store new password hash in a new field to apply after OTP
+    user.tempPassword = hashedPassword; 
+    await user.save();
+
+    const message = `Your Redsee password update code is: ${otp}\nThis code will expire in 5 minutes.`;
+    await sendEmail({ email: user.email, subject: 'Redsee - Password Update Code', message });
+    console.log(`\n\n=== OTP FOR ${user.email} IS: ${otp} ===\n\n`);
+
+    res.status(200).json({ message: 'OTP sent to email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Verify OTP and save password
+// @route   POST /api/auth/verify-password-setup
+// @access  Private
+const verifyPasswordSetup = async (req, res) => {
+  const { otp } = req.body;
+  try {
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    const user = await User.findOne({
+      _id: req.user._id,
+      emailOtp: hashedOtp,
+      otpExpire: { $gt: Date.now() },
+    });
+
+    if (!user) return res.status(400).json({ message: 'Invalid or expired OTP' });
+
+    user.password = user.tempPassword;
+    user.hasPassword = true;
+    user.tempPassword = undefined;
+    user.emailOtp = undefined;
+    user.otpExpire = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password updated successfully', hasPassword: true });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -231,7 +303,8 @@ const sendEmailOtp = async (req, res) => {
         isVerified: false,
         emailOtp: hashedOtp,
         otpExpire,
-        role
+        role,
+        hasPassword: true
       });
     }
 
@@ -283,6 +356,7 @@ const verifyEmailOtp = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      hasPassword: user.hasPassword || false,
       token,
     });
   } catch (error) {
@@ -313,6 +387,7 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        hasPassword: user.hasPassword || false,
         token,
       });
     } else {
@@ -342,4 +417,6 @@ module.exports = {
   verifyEmailOtp,
   login,
   logout,
+  sendPasswordOtp,
+  verifyPasswordSetup
 };

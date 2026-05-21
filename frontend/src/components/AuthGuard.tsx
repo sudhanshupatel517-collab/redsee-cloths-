@@ -18,13 +18,20 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = () => {
       const isAuthRoute = pathname === '/auth';
+      const isCreatePasswordRoute = pathname === '/create-password';
       
       if (!user && !isAuthRoute) {
         router.push('/auth');
-      } else if (user && isAuthRoute) {
-        if (user.role === 'admin') router.push('/admin');
-        else if (user.role === 'coadmin') router.push('/staff');
-        else router.push('/');
+      } else if (user) {
+        if (user.hasPassword === false && !isCreatePasswordRoute) {
+          router.push('/create-password');
+        } else if (user.hasPassword !== false && isCreatePasswordRoute) {
+          router.push('/');
+        } else if (isAuthRoute) {
+          if (user.role === 'admin') router.push('/admin');
+          else if (user.role === 'coadmin') router.push('/staff');
+          else router.push('/');
+        }
       }
     };
 

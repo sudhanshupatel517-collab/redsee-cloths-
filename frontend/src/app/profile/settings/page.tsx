@@ -4,11 +4,20 @@ import { useState } from 'react';
 import { Settings, Shield, Bell, Key, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import api from '@/lib/axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store/store';
+import { setCredentials } from '@/store/authSlice';
 
 export default function SettingsPage() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1); // 1 = passwords, 2 = OTP
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   
@@ -16,30 +25,54 @@ export default function SettingsPage() {
   const [emailNotif, setEmailNotif] = useState(true);
   const [smsNotif, setSmsNotif] = useState(false);
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (user?.hasPassword && !currentPassword) {
+      setMessage({ text: 'Current password is required', type: 'error' });
+      return;
+    }
     if (password !== confirmPassword) {
       setMessage({ text: 'Passwords do not match', type: 'error' });
       return;
     }
-    if (password.length < 6) {
-      setMessage({ text: 'Password must be at least 6 characters', type: 'error' });
+    if (password.length < 8) {
+      setMessage({ text: 'Password must be at least 8 characters', type: 'error' });
       return;
     }
 
     setLoading(true);
     setMessage({ text: '', type: '' });
     try {
-      await api.put('/api/users/profile', { password });
+      await api.post('/api/auth/send-password-otp', { currentPassword, password });
+      setStep(2);
+      setMessage({ text: `OTP sent to ${user?.email}`, type: 'success' });
+    } catch (error: any) {
+      setMessage({ text: error.response?.data?.message || 'Failed to send OTP', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length !== 6) return;
+    
+    setLoading(true);
+    setMessage({ text: '', type: '' });
+    try {
+      const res = await api.post('/api/auth/verify-password-setup', { otp });
+      if (res.data.hasPassword && user) {
+        dispatch(setCredentials({ ...user, hasPassword: true }));
+      }
       setMessage({ text: 'Password updated successfully!', type: 'success' });
       setIsChangingPassword(false);
+      setCurrentPassword('');
       setPassword('');
       setConfirmPassword('');
+      setOtp('');
+      setStep(1);
     } catch (error: any) {
-      setMessage({ 
-        text: error.response?.data?.message || 'Failed to update password', 
-        type: 'error' 
-      });
+      setMessage({ text: error.response?.data?.message || 'Invalid OTP', type: 'error' });
     } finally {
       setLoading(false);
       setTimeout(() => setMessage({ text: '', type: '' }), 5000);
@@ -79,59 +112,115 @@ export default function SettingsPage() {
 
           {!isChangingPassword ? (
             <button 
-              onClick={() => setIsChangingPassword(true)}
+              onClick={() => { setIsChangingPassword(true); setStep(1); }}
               className="border border-white/20 hover:border-[#ff0033] text-white hover:text-[#ff0033] px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
             >
-              Change / Set Password
+              {user?.hasPassword ? 'Change Password' : 'Set Password'}
             </button>
           ) : (
-            <motion.form 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              onSubmit={handlePasswordChange} 
-              className="space-y-4 max-w-md"
-            >
-              <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">New Password</label>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Confirm Password</label>
-                <input 
-                  type="password" 
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
-                  required
-                />
-              </div>
-              <div className="flex space-x-3 pt-2">
-                <button 
-                  type="submit"
-                  disabled={loading}
-                  className="bg-[#ff0033] hover:bg-[#cc0029] text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors flex items-center"
+            <AnimatePresence mode="wait">
+              {step === 1 && (
+                <motion.form 
+                  key="form1"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  onSubmit={handleSendOtp} 
+                  className="space-y-4 max-w-md"
                 >
-                  {loading ? <Loader2 className="animate-spin" size={16} /> : 'Save Password'}
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setIsChangingPassword(false);
-                    setMessage({ text: '', type: '' });
-                  }}
-                  className="border border-white/20 hover:bg-white/5 text-gray-400 hover:text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
+                  {user?.hasPassword && (
+                    <div>
+                      <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Current Password</label>
+                      <input 
+                        type="password" 
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                        required
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">New Password</label>
+                    <input 
+                      type="password" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Confirm Password</label>
+                    <input 
+                      type="password" 
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                      required
+                    />
+                  </div>
+                  <div className="flex space-x-3 pt-2">
+                    <button 
+                      type="submit"
+                      disabled={loading}
+                      className="bg-[#ff0033] hover:bg-[#cc0029] text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors flex items-center"
+                    >
+                      {loading ? <Loader2 className="animate-spin" size={16} /> : 'Continue'}
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setIsChangingPassword(false);
+                        setMessage({ text: '', type: '' });
+                      }}
+                      className="border border-white/20 hover:bg-white/5 text-gray-400 hover:text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </motion.form>
+              )}
+              
+              {step === 2 && (
+                <motion.form 
+                  key="form2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  onSubmit={handleVerifyOtp} 
+                  className="space-y-4 max-w-md"
                 >
-                  Cancel
-                </button>
-              </div>
-            </motion.form>
+                  <div>
+                    <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Enter 6-Digit OTP</label>
+                    <input 
+                      type="text" 
+                      maxLength={6}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-center text-white font-bebas text-2xl tracking-[0.5em] outline-none transition-colors"
+                      required
+                    />
+                  </div>
+                  <div className="flex space-x-3 pt-2">
+                    <button 
+                      type="submit"
+                      disabled={loading || otp.length !== 6}
+                      className="bg-[#ff0033] hover:bg-[#cc0029] text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors flex items-center"
+                    >
+                      {loading ? <Loader2 className="animate-spin" size={16} /> : 'Verify & Save'}
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="border border-white/20 hover:bg-white/5 text-gray-400 hover:text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
+                    >
+                      Back
+                    </button>
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
           )}
         </div>
 
