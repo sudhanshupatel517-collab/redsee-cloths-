@@ -181,14 +181,12 @@ export default function AuthPage() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="inline-block mb-4"
+            className="flex justify-center mb-6"
           >
-             <div className="w-12 h-12 bg-gradient-to-br from-[#ff0033] to-[#7a0000] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(255,0,51,0.4)]">
-                <span className="font-bebas text-white text-2xl tracking-widest">R</span>
-             </div>
+             <img src="/logo.png" alt="REDSEE" className="h-16 object-contain" />
           </motion.div>
           <h2 className="text-3xl md:text-4xl font-bebas text-white tracking-widest mb-2 uppercase">
-            {view === 'login' ? 'Sign In to Redsee' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : view === 'verify_email' ? 'Verify Email' : 'Complete Profile'}
+            {view === 'login' ? 'Sign In' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : view === 'verify_email' ? 'Verify Email' : 'Complete Profile'}
           </h2>
           <p className="text-gray-400 font-poppins text-sm">
             {view === 'login' ? 'Access the next generation of streetwear.' : 
