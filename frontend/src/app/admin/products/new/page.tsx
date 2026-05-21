@@ -6,7 +6,7 @@ import { RootState } from '@/store/store';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, X, Save, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, Image as ImageIcon, Loader2, Package } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AddProduct() {
