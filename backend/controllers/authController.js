@@ -73,6 +73,7 @@ const googleLogin = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        permissions: user.permissions,
         avatar: user.avatar,
         hasPassword: user.hasPassword || false,
         token,
@@ -122,6 +123,7 @@ const phoneLogin = async (req, res) => {
         name: user.name,
         phone: user.phone,
         role: user.role,
+        permissions: user.permissions,
         token,
       });
     } catch (dbError) {
@@ -182,6 +184,7 @@ const googleSignup = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      permissions: user.permissions,
       avatar: user.avatar,
       hasPassword: false,
       token,
@@ -356,6 +359,7 @@ const verifyEmailOtp = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      permissions: user.permissions,
       hasPassword: user.hasPassword || false,
       token,
     });
@@ -386,6 +390,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        permissions: user.permissions,
         avatar: user.avatar,
         hasPassword: user.hasPassword || false,
         token,

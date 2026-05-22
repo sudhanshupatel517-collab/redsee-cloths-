@@ -57,12 +57,15 @@ export default function StaffManagement() {
   };
 
   const handlePermissionToggle = (permId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      permissions: prev.permissions.includes(permId) 
-        ? prev.permissions.filter(p => p !== permId)
-        : [...prev.permissions, permId]
-    }));
+    setFormData(prev => {
+      const currentPerms = Array.isArray(prev.permissions) ? prev.permissions : [];
+      return {
+        ...prev,
+        permissions: currentPerms.includes(permId) 
+          ? currentPerms.filter(p => p !== permId)
+          : [...currentPerms, permId]
+      };
+    });
   };
 
   const openModal = (staffMember?: any) => {
@@ -261,14 +264,35 @@ export default function StaffManagement() {
                 <div>
                   <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-4">Permissions</label>
                   <div className="grid grid-cols-2 gap-3">
-                    {availablePermissions.map(perm => (
-                      <label key={perm.id} className="flex items-center space-x-3 cursor-pointer group">
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.permissions.includes(perm.id) ? 'bg-[#ff0033] border-[#ff0033]' : 'bg-transparent border-border group-hover:border-foreground/50'}`}>
-                          {formData.permissions.includes(perm.id) && <span className="text-white text-xs">✓</span>}
+                    {availablePermissions.map(perm => {
+                      const isChecked = Array.isArray(formData.permissions) ? formData.permissions.includes(perm.id) : false;
+                      return (
+                        <div 
+                          key={perm.id} 
+                          className="flex items-center space-x-3 cursor-pointer group"
+                          onClick={() => {
+                            let newPerms = [];
+                            if (Array.isArray(formData.permissions)) {
+                              if (formData.permissions.includes(perm.id)) {
+                                newPerms = formData.permissions.filter(p => p !== perm.id);
+                              } else {
+                                newPerms = [...formData.permissions, perm.id];
+                              }
+                            } else {
+                              newPerms = [perm.id];
+                            }
+                            setFormData({ ...formData, permissions: newPerms });
+                          }}
+                        >
+                          <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isChecked ? 'bg-[#ff0033] border-[#ff0033]' : 'bg-transparent border-border group-hover:border-foreground/50'}`}>
+                            {isChecked && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <span className="text-sm font-poppins text-foreground/80 group-hover:text-foreground transition-colors select-none">
+                            {perm.label}
+                          </span>
                         </div>
-                        <span className="text-sm font-poppins text-foreground/80 group-hover:text-foreground transition-colors">{perm.label}</span>
-                      </label>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 

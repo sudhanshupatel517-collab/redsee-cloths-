@@ -4,7 +4,7 @@ import { RootState } from '@/store/store';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Package, ShoppingBag, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Users, Settings, Archive, Tags, BadgePercent, Headphones } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -37,9 +37,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Package size={20} className="mr-3" /> Products
             </Link>
           )}
+          {(isAdmin || user.permissions?.includes('manage_inventory')) && (
+            <Link href="/admin/inventory" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+              <Archive size={20} className="mr-3" /> Inventory
+            </Link>
+          )}
+          {(isAdmin || user.permissions?.includes('manage_categories')) && (
+            <Link href="/admin/categories" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+              <Tags size={20} className="mr-3" /> Categories
+            </Link>
+          )}
           {(isAdmin || user.permissions?.includes('manage_orders')) && (
             <Link href="/admin/orders" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
               <ShoppingBag size={20} className="mr-3" /> Orders
+            </Link>
+          )}
+          {(isAdmin || user.permissions?.includes('manage_discounts')) && (
+            <Link href="/admin/discounts" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+              <BadgePercent size={20} className="mr-3" /> Discounts
+            </Link>
+          )}
+          {(isAdmin || user.permissions?.includes('manage_support')) && (
+            <Link href="/admin/support" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+              <Headphones size={20} className="mr-3" /> Support
             </Link>
           )}
           {isAdmin && (
