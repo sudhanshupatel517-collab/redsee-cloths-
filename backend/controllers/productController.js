@@ -147,6 +147,20 @@ const deleteProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
+      // Remove images from Cloudinary before deleting product
+      if (product.images && product.images.length > 0) {
+        const cloudinary = require('../config/cloudinary');
+        for (const img of product.images) {
+          if (img && typeof img === 'object' && img.public_id) {
+            try {
+              await cloudinary.uploader.destroy(img.public_id);
+            } catch (cloudErr) {
+              console.error(`Failed to delete image ${img.public_id} from Cloudinary:`, cloudErr);
+            }
+          }
+        }
+      }
+
       await Product.deleteOne({ _id: product._id });
       res.json({ message: 'Product removed' });
     } else {

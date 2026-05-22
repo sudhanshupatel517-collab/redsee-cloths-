@@ -8,6 +8,7 @@ import api from '@/lib/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, X, Save, Image as ImageIcon, Loader2, Package } from 'lucide-react';
 import Link from 'next/link';
+import ImageUpload, { CloudinaryImage } from '@/components/ImageUpload';
 
 export default function AddProduct() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -23,8 +24,7 @@ export default function AddProduct() {
   const [brand, setBrand] = useState('Redsee');
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
-  const [images, setImages] = useState<string[]>([]);
-  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [images, setImages] = useState<(string | CloudinaryImage)[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [featured, setFeatured] = useState(false);
@@ -40,13 +40,6 @@ export default function AddProduct() {
     }
   }, [user]);
 
-  const handleAddImage = () => {
-    if (imageUrlInput.trim() !== '') {
-      setImages([...images, imageUrlInput.trim()]);
-      setImageUrlInput('');
-    }
-  };
-
   const handleAddTag = () => {
     if (tagInput.trim() !== '' && !tags.includes(tagInput.trim())) {
       setTags([...tags, tagInput.trim()]);
@@ -60,10 +53,6 @@ export default function AddProduct() {
 
   const removeVariant = (index: number) => {
     setVariants(variants.filter((_, i) => i !== index));
-  };
-
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
   };
 
   const removeTag = (tag: string) => {
@@ -221,20 +210,9 @@ export default function AddProduct() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-md">
               <h2 className="text-xl font-bebas text-white tracking-widest uppercase mb-6 flex items-center border-b border-white/10 pb-4">
-                <ImageIcon className="mr-3 text-[#ff0033]" /> Image URLs
+                <ImageIcon className="mr-3 text-[#ff0033]" /> Product Images
               </h2>
-              <div className="flex space-x-2 mb-4">
-                <input type="url" value={imageUrlInput} onChange={e => setImageUrlInput(e.target.value)} placeholder="https://unsplash.com/..." className="flex-1 bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-2.5 text-white outline-none transition-colors text-sm" />
-                <button type="button" onClick={handleAddImage} className="bg-white/10 hover:bg-white/20 px-4 rounded-lg"><Plus size={18} className="text-white" /></button>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {images.map((url, idx) => (
-                  <div key={idx} className="relative aspect-square rounded-lg overflow-hidden group border border-white/10">
-                    <img src={url} alt="product" className="w-full h-full object-cover" />
-                    <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-black/80 p-1 rounded hover:text-[#ff0033] text-white opacity-0 group-hover:opacity-100 transition-opacity"><X size={14}/></button>
-                  </div>
-                ))}
-              </div>
+              <ImageUpload images={images} onChange={setImages} />
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-md">

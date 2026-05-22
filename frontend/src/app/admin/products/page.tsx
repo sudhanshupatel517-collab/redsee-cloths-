@@ -122,7 +122,7 @@ export default function ManageProducts() {
                         <div className="flex items-center space-x-4">
                           <div className="w-12 h-12 rounded bg-black/50 overflow-hidden flex items-center justify-center border border-white/5">
                             {product.images && product.images[0] ? (
-                              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                              <img src={typeof product.images[0] === 'string' ? product.images[0] : product.images[0]?.url} alt={product.name} className="w-full h-full object-cover" />
                             ) : (
                               <ImageIcon size={20} className="text-gray-600" />
                             )}

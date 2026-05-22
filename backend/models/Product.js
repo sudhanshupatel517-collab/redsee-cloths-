@@ -21,7 +21,7 @@ const productSchema = new mongoose.Schema({
 
   variants: [variantSchema],
   
-  images: [{ type: String }],
+  images: { type: [mongoose.Schema.Types.Mixed], default: [] },
   tags: [{ type: String }],
   
   inventoryStatus: {
