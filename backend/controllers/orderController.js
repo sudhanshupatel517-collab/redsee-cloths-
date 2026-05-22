@@ -60,4 +60,34 @@ const getMyOrders = async (req, res) => {
   }
 };
 
-module.exports = { createOrder, getOrderById, getMyOrders };
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({}).populate('userId', 'name email').sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+      order.orderStatus = status;
+      if (status === 'Delivered') {
+        order.isDelivered = true;
+        order.deliveredAt = Date.now();
+      }
+      const updatedOrder = await order.save();
+      res.json(updatedOrder);
+    } else {
+      res.status(404).json({ message: 'Order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { createOrder, getOrderById, getMyOrders, getAllOrders, updateOrderStatus };

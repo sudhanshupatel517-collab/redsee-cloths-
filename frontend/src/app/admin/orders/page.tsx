@@ -1,18 +1,59 @@
 'use client';
 
-import { useState } from 'react';
-import { ShoppingBag, Search, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { useRouter } from 'next/navigation';
+import api from '@/lib/axios';
+import { ShoppingBag, Search, Filter, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AdminOrders() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
+  
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  // Mock orders for UI placeholder until backend is connected
-  const mockOrders = [
-    { _id: 'ORD-7739', customer: 'Aryan Sharma', date: '2026-05-22', status: 'Processing', total: 4999 },
-    { _id: 'ORD-7738', customer: 'Riya Gupta', date: '2026-05-21', status: 'Shipped', total: 2499 },
-    { _id: 'ORD-7737', customer: 'Kabir Singh', date: '2026-05-20', status: 'Delivered', total: 8999 },
-  ];
+  useEffect(() => {
+    if (!user || !['admin', 'coadmin'].includes(user.role)) {
+      router.push('/admin');
+      return;
+    }
+    fetchOrders();
+  }, [user]);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+      const { data } = await api.get('/api/orders', config);
+      setOrders(data);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+      const { data } = await api.put(`/api/orders/${orderId}`, { status: newStatus }, config);
+      
+      setOrders(orders.map(o => o._id === orderId ? data : o));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error updating order status. Do you have permissions?');
+    }
+  };
+
+  const filteredOrders = orders.filter(o => 
+    o._id.toLowerCase().includes(search.toLowerCase()) || 
+    (o.userId?.name && o.userId.name.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const statuses = ['Processing', 'Packed', 'Shipped', 'Delivered', 'Cancelled'];
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-12 px-4 sm:px-6 lg:px-8">
@@ -42,40 +83,66 @@ export default function AdminOrders() {
         </div>
 
         <div className="bg-foreground/5 border border-border rounded-xl overflow-hidden backdrop-blur-md">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[400px]">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-border bg-foreground/[0.02]">
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Order ID</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Customer</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Date</th>
-                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Status</th>
-                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium text-right">Total</th>
+                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Total</th>
+                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {mockOrders.map((order) => (
-                  <motion.tr 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    key={order._id} 
-                    className="hover:bg-foreground/[0.02] transition-colors cursor-pointer"
-                  >
-                    <td className="px-6 py-4 text-sm font-poppins font-medium text-foreground">{order._id}</td>
-                    <td className="px-6 py-4 text-sm text-foreground/70 font-poppins">{order.customer}</td>
-                    <td className="px-6 py-4 text-sm text-foreground/70 font-poppins">{order.date}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded text-xs font-montserrat tracking-wider uppercase ${
-                        order.status === 'Delivered' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 
-                        order.status === 'Shipped' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 
-                        'bg-orange-500/10 text-orange-500 border border-orange-500/20'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-poppins font-medium text-foreground text-right">₹{order.total}</td>
-                  </motion.tr>
-                ))}
+                {loading ? (
+                  <tr><td colSpan={5} className="text-center py-12 text-foreground/50 font-poppins">Loading Orders...</td></tr>
+                ) : filteredOrders.length === 0 ? (
+                  <tr><td colSpan={5} className="text-center py-12 text-foreground/50 font-poppins">No orders found.</td></tr>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <motion.tr 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      key={order._id} 
+                      className="hover:bg-foreground/[0.02] transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm font-poppins font-medium text-foreground">{order._id.substring(0, 10).toUpperCase()}</td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm text-foreground/90 font-poppins">{order.userId?.name || 'Guest'}</p>
+                        <p className="text-xs text-foreground/50 font-poppins">{order.userId?.email || 'N/A'}</p>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-foreground/70 font-poppins">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-poppins font-medium text-foreground">₹{order.totalAmount}</td>
+                      <td className="px-6 py-4 text-right relative">
+                        <div className="inline-block text-left group">
+                          <select 
+                            value={order.orderStatus}
+                            onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                            className={`appearance-none outline-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-montserrat tracking-wider uppercase font-bold cursor-pointer transition-colors border ${
+                              order.orderStatus === 'Delivered' ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20' : 
+                              order.orderStatus === 'Shipped' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20' : 
+                              order.orderStatus === 'Cancelled' ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20' : 
+                              'bg-orange-500/10 text-orange-500 border-orange-500/20 hover:bg-orange-500/20'
+                            }`}
+                          >
+                            {statuses.map(status => (
+                              <option key={status} value={status} className="bg-background text-foreground">{status}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${
+                            order.orderStatus === 'Delivered' ? 'text-green-500' : 
+                            order.orderStatus === 'Shipped' ? 'text-blue-500' : 
+                            order.orderStatus === 'Cancelled' ? 'text-red-500' : 
+                            'text-orange-500'
+                          }`} />
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

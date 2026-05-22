@@ -32,16 +32,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
             <LayoutDashboard size={20} className="mr-3" /> Dashboard
           </Link>
-          <Link href="/admin/products" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
-            <Package size={20} className="mr-3" /> Products
-          </Link>
-          <Link href="/admin/orders" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
-            <ShoppingBag size={20} className="mr-3" /> Orders
-          </Link>
+          {(isAdmin || user.permissions?.includes('manage_products')) && (
+            <Link href="/admin/products" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+              <Package size={20} className="mr-3" /> Products
+            </Link>
+          )}
+          {(isAdmin || user.permissions?.includes('manage_orders')) && (
+            <Link href="/admin/orders" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+              <ShoppingBag size={20} className="mr-3" /> Orders
+            </Link>
+          )}
           {isAdmin && (
             <>
               <Link href="/admin/users" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
-                <Users size={20} className="mr-3" /> Users
+                <Users size={20} className="mr-3" /> Staff Management
               </Link>
               <Link href="/admin/settings" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
                 <Settings size={20} className="mr-3" /> Settings

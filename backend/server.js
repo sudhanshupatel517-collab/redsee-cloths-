@@ -46,10 +46,13 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
+const seedAdmin = require('./utils/seedAdmin');
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/redsee')
     .then(() => {
         console.log('MongoDB Connected');
+        seedAdmin();
     })
     .catch((err) => {
         console.error('MongoDB connection error:', err);

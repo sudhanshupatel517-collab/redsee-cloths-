@@ -11,6 +11,7 @@ interface User {
   addresses?: any[];
   avatar?: string;
   hasPassword?: boolean;
+  permissions?: string[];
 }
 
 interface AuthState {
