@@ -87,7 +87,7 @@ export default function AddProduct() {
       router.push('/admin/products');
     } catch (err: any) {
       console.error(err);
-      setMessage(err.response?.data?.message || 'Failed to create product');
+      setMessage(err.response?.data?.error || err.response?.data?.message || 'Failed to create product');
       setLoading(false);
     }
   };
