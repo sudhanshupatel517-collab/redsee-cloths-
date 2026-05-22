@@ -47,16 +47,14 @@ export default function AuthPage() {
   useEffect(() => {
     setMounted(true);
     if (user) {
-      if (user.role === 'admin') router.push('/admin');
-      else if (user.role === 'coadmin') router.push('/staff');
+      if (user.role === 'admin' || user.role === 'coadmin') router.push('/admin');
       else router.push('/');
     }
   }, [user, router]);
 
   const handleSuccess = (data: any) => {
     dispatch(setCredentials(data));
-    if (data.role === 'admin') router.push('/admin');
-    else if (data.role === 'coadmin') router.push('/staff');
+    if (data.role === 'admin' || data.role === 'coadmin') router.push('/admin');
     else router.push('/');
   };
 
