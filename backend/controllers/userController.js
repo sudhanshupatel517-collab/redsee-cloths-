@@ -41,17 +41,16 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   
-  // HARDCODED FALLBACK FOR PREVIEW WITHOUT DATABASE
-  if (password === 'password123') {
-    if (email === 'admin@redsee.com') {
-      return res.json({ _id: '1', name: 'Admin User', email, role: 'admin', hasPassword: true, token: generateToken('1') });
-    }
-    if (email === 'staff@redsee.com') {
-      return res.json({ _id: '2', name: 'Staff Member', email, role: 'coadmin', hasPassword: true, token: generateToken('2') });
-    }
-    if (email === 'user@redsee.com') {
-      return res.json({ _id: '3', name: 'Regular User', email, role: 'user', hasPassword: true, token: generateToken('3') });
-    }
+  // HARDCODED SECURE ACCOUNTS FOR ADMIN AND COADMIN
+  if (email === 'himanshu4admin9@redsee.com' && password === '6Meow#ghop#ghop9') {
+    return res.json({ _id: '1', name: 'Himanshu Admin', email, role: 'admin', hasPassword: true, token: generateToken('1') });
+  }
+  if (email === 'sudhanshu4coadmin9@redsee.com' && password === '6Yele9Password#') {
+    return res.json({ _id: '2', name: 'Sudhanshu Staff', email, role: 'coadmin', hasPassword: true, token: generateToken('2') });
+  }
+  // Keep the regular user fallback for testing just in case
+  if (email === 'user@redsee.com' && password === 'password123') {
+    return res.json({ _id: '3', name: 'Regular User', email, role: 'user', hasPassword: true, token: generateToken('3') });
   }
 
   try {
