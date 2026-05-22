@@ -198,7 +198,7 @@ export default function AuthPage() {
           <h2 className="text-3xl md:text-4xl font-bebas text-foreground tracking-widest mb-2 uppercase">
             {view === 'login' ? 'Sign In' : view === 'signup' ? 'Create Account' : view === 'forgot' ? 'Reset Password' : view === 'verify_email' ? 'Verify Email' : 'Complete Profile'}
           </h2>
-          <p className="text-gray-400 font-poppins text-sm">
+          <p className="text-foreground/60 font-poppins text-sm">
             {view === 'login' ? 'Access the next generation of streetwear.' : 
              view === 'signup' ? 'Join the futuristic fashion revolution.' : 
              view === 'verify_email' ? `We sent a code to ${email}` : 
@@ -242,7 +242,7 @@ export default function AuthPage() {
 
               <div className="relative flex items-center py-2">
                 <div className="flex-grow border-t border-border"></div>
-                <span className="flex-shrink-0 mx-4 text-gray-500 text-xs font-montserrat lowercase tracking-widest">or sign in with email</span>
+                <span className="flex-shrink-0 mx-4 text-foreground/50 text-xs font-montserrat lowercase tracking-widest">or sign in with email</span>
                 <div className="flex-grow border-t border-border"></div>
               </div>
 
@@ -250,7 +250,7 @@ export default function AuthPage() {
               <form onSubmit={handleEmailAuth} className="space-y-4">
                 <div>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                     <input 
                       type="email" 
                       value={email}
@@ -264,7 +264,7 @@ export default function AuthPage() {
 
                 <div>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                     <input 
                       type="password" 
                       value={password}
@@ -275,7 +275,7 @@ export default function AuthPage() {
                     />
                   </div>
                   <div className="flex justify-end mt-2">
-                    <button type="button" onClick={() => setView('forgot')} className="text-xs text-gray-500 hover:text-[#ff0033] transition-colors">Forgot Password?</button>
+                    <button type="button" onClick={() => setView('forgot')} className="text-xs text-foreground/50 hover:text-[#ff0033] transition-colors">Forgot Password?</button>
                   </div>
                 </div>
                 
@@ -292,7 +292,7 @@ export default function AuthPage() {
                 </button>
               </form>
 
-              <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
+              <p className="mt-8 text-center text-foreground/60 text-sm font-poppins">
                 Don't have an account? <button onClick={() => setView('signup')} className="text-[#ff0033] hover:text-foreground transition-colors font-bold ml-1">Create Account</button>
               </p>
             </motion.div>
@@ -308,9 +308,9 @@ export default function AuthPage() {
               className="space-y-5"
             >
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Enter 6-Digit Code</label>
+                <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Enter 6-Digit Code</label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                   <input 
                     type="text" 
                     value={otp}
@@ -327,7 +327,7 @@ export default function AuthPage() {
                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Verify Email'}
               </button>
 
-              <button type="button" onClick={() => setView('signup')} className="w-full text-center text-sm text-gray-400 hover:text-foreground transition-colors mt-4">
+              <button type="button" onClick={() => setView('signup')} className="w-full text-center text-sm text-foreground/60 hover:text-foreground transition-colors mt-4">
                 Back to Sign Up
               </button>
             </motion.form>
@@ -343,9 +343,9 @@ export default function AuthPage() {
               className="space-y-5"
             >
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Full Name</label>
+                <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Full Name</label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                   <input 
                     type="text" 
                     value={name}
@@ -357,9 +357,9 @@ export default function AuthPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Mobile Number</label>
+                <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Mobile Number</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-poppins text-sm">+91</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50 font-poppins text-sm">+91</span>
                   <input 
                     type="tel" 
                     value={phone}
@@ -372,7 +372,7 @@ export default function AuthPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Preference</label>
+                <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Preference</label>
                 <div className="relative">
                   <select
                     value={gender}
@@ -384,7 +384,7 @@ export default function AuthPage() {
                     <option value="Female">Women's Fashion</option>
                     <option value="Other">Unisex / All</option>
                   </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">▼</div>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-foreground/50 text-xs">▼</div>
                 </div>
               </div>
               
@@ -392,7 +392,7 @@ export default function AuthPage() {
                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Complete Registration'}
               </button>
 
-              <button type="button" onClick={() => setView('login')} className="w-full text-center text-sm text-gray-400 hover:text-foreground transition-colors mt-4">
+              <button type="button" onClick={() => setView('login')} className="w-full text-center text-sm text-foreground/60 hover:text-foreground transition-colors mt-4">
                 Cancel
               </button>
             </motion.form>
@@ -426,7 +426,7 @@ export default function AuthPage() {
 
                   <div className="relative flex items-center py-2">
                     <div className="flex-grow border-t border-border"></div>
-                    <span className="flex-shrink-0 mx-4 text-gray-500 text-xs font-montserrat lowercase tracking-widest">or sign up with email</span>
+                    <span className="flex-shrink-0 mx-4 text-foreground/50 text-xs font-montserrat lowercase tracking-widest">or sign up with email</span>
                     <div className="flex-grow border-t border-border"></div>
                   </div>
                 </>
@@ -435,9 +435,9 @@ export default function AuthPage() {
               <form onSubmit={handleEmailAuth} className="space-y-5">
                 {view === 'signup' && (
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Full Name</label>
+                  <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Full Name</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                     <input 
                       type="text" 
                       value={name}
@@ -450,9 +450,9 @@ export default function AuthPage() {
               )}
 
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Email Address</label>
+                <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                   <input 
                     type="email" 
                     value={email}
@@ -465,9 +465,9 @@ export default function AuthPage() {
 
               {view !== 'forgot' && (
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-400 uppercase mb-2">Password</label>
+                  <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Password</label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                     <input 
                       type="password" 
                       value={password}
@@ -491,7 +491,7 @@ export default function AuthPage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-shimmer" />
               </button>
 
-              <p className="mt-8 text-center text-gray-400 text-sm font-poppins">
+              <p className="mt-8 text-center text-foreground/60 text-sm font-poppins">
                 Already a member? <button type="button" onClick={() => setView('login')} className="text-[#ff0033] hover:text-foreground transition-colors font-bold ml-1">Sign In</button>
               </p>
             </form>
@@ -500,7 +500,7 @@ export default function AuthPage() {
         </AnimatePresence>
 
         {/* Trust Signals Footer */}
-        <div className="mt-10 pt-6 border-t border-border flex items-center justify-center space-x-2 text-gray-500 text-xs font-poppins">
+        <div className="mt-10 pt-6 border-t border-border flex items-center justify-center space-x-2 text-foreground/50 text-xs font-poppins">
            <svg className="w-4 h-4 text-[#ff0033]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
            </svg>

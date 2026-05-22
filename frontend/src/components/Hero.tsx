@@ -36,7 +36,7 @@ const Hero = () => {
             DEFINE YOUR <br />
             <span className="text-glow text-transparent bg-clip-text bg-gradient-to-r from-[#ff0033] to-[#7A0000]">IDENTITY.</span>
           </h1>
-          <p className="text-gray-300 font-poppins text-lg mb-10 max-w-xl">
+          <p className="text-foreground/70 font-poppins text-lg mb-10 max-w-xl">
             Discover the perfect blend of dark luxury and modern streetwear. Elevate your wardrobe with Redsee's exclusive, limited-edition pieces.
           </p>
           
