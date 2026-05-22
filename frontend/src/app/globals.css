@@ -45,6 +45,7 @@
     color: var(--foreground);
     font-family: var(--font-poppins);
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3 {

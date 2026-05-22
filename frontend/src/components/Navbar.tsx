@@ -194,7 +194,7 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "100vh" }}
+            animate={{ opacity: 1, height: "100dvh" }}
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden absolute top-full left-0 w-full bg-background flex flex-col items-center pt-10 space-y-6 overflow-hidden"
           >

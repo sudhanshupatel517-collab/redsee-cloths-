@@ -10,6 +10,19 @@ export const metadata: Metadata = {
   description: "Premium e-commerce clothing dropshipping platform.",
 };
 
+import type { Viewport } from 'next';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0A0A0A' },
+  ],
+};
+
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function RootLayout({
@@ -29,7 +42,7 @@ export default function RootLayout({
           <StoreProvider>
             <AuthGuard>
               <Navbar />
-              <main className="min-h-screen pt-20">
+              <main className="min-h-[100dvh] pt-20">
                 {children}
               </main>
               <Footer />
