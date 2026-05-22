@@ -40,7 +40,7 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Pre-save hook to calculate finalPrice and inventoryStatus
-productSchema.pre('save', function(next) {
+productSchema.pre('save', function() {
   // Auto-calculate final price
   if (this.pricing.originalPrice && this.pricing.discountPercentage >= 0) {
     const discountAmount = (this.pricing.originalPrice * this.pricing.discountPercentage) / 100;
@@ -58,8 +58,6 @@ productSchema.pre('save', function(next) {
       this.inventoryStatus = 'In Stock';
     }
   }
-
-  next();
 });
 
 module.exports = mongoose.model('Product', productSchema);
