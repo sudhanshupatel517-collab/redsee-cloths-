@@ -39,10 +39,10 @@ export default function AuthPage() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { user } = useSelector((state: RootState) => state.auth);
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   
-  const currentTheme = theme === 'system' ? 'dark' : theme;
+  const currentTheme = resolvedTheme || 'dark';
 
   useEffect(() => {
     setMounted(true);

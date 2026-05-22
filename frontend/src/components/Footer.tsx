@@ -5,14 +5,14 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 const Footer = () => {
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const currentTheme = theme === 'system' ? 'dark' : theme;
+  const currentTheme = resolvedTheme || 'dark';
 
   return (
     <footer className="bg-secondary border-t border-border pt-16 pb-8 mt-20 transition-colors duration-300">

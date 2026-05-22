@@ -14,7 +14,7 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state: RootState) => state.cart);
@@ -49,7 +49,7 @@ const Navbar = () => {
     setDropdownOpen(false);
   };
 
-  const currentTheme = theme === 'system' ? 'dark' : theme;
+  const currentTheme = resolvedTheme || 'dark';
 
   return (
     <motion.nav
