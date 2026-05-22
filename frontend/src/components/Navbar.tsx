@@ -145,7 +145,7 @@ const Navbar = () => {
                   </Link>
                 )}
                 {user.role === 'coadmin' && (
-                  <Link href="/staff" onClick={() => setDropdownOpen(false)}>
+                  <Link href="/admin" onClick={() => setDropdownOpen(false)}>
                     <span className="flex items-center px-4 py-2 text-sm text-foreground/70 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors">
                       <Settings size={16} className="mr-2" /> Staff Dashboard
                     </span>
@@ -215,7 +215,7 @@ const Navbar = () => {
                   <p className="text-[#ff0033] font-montserrat">Hi, {user.name}</p>
                   <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-foreground">My Profile</Link>
                   {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-foreground">Admin Dashboard</Link>}
-                  {user.role === 'coadmin' && <Link href="/staff" onClick={() => setMobileMenuOpen(false)} className="text-foreground">Staff Dashboard</Link>}
+                  {user.role === 'coadmin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-foreground">Staff Dashboard</Link>}
                   <button onClick={handleLogout} className="text-foreground/60">Logout</button>
                 </>
               ) : (
