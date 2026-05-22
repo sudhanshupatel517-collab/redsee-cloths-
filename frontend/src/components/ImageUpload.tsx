@@ -46,9 +46,9 @@ export default function ImageUpload({ images, onChange }: ImageUploadProps) {
       }
       
       onChange(newImages);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
+      alert(error.response?.data?.message || error.message || 'Failed to upload image. Please try again.');
     } finally {
       setUploading(false);
     }
