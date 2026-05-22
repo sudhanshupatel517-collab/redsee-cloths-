@@ -23,9 +23,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       if (!user && !isAuthRoute) {
         router.push('/auth');
       } else if (user) {
-        if (user.hasPassword === false && !isCreatePasswordRoute) {
+        const isStaff = user.role === 'admin' || user.role === 'coadmin';
+        if (user.hasPassword === false && !isCreatePasswordRoute && !isStaff) {
           router.push('/create-password');
-        } else if (user.hasPassword !== false && isCreatePasswordRoute) {
+        } else if ((user.hasPassword !== false || isStaff) && isCreatePasswordRoute) {
           router.push('/');
         } else if (isAuthRoute) {
           if (user.role === 'admin') router.push('/admin');

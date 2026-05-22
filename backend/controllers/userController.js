@@ -44,13 +44,13 @@ const loginUser = async (req, res) => {
   // HARDCODED FALLBACK FOR PREVIEW WITHOUT DATABASE
   if (password === 'password123') {
     if (email === 'admin@redsee.com') {
-      return res.json({ _id: '1', name: 'Admin User', email, role: 'admin', token: generateToken('1') });
+      return res.json({ _id: '1', name: 'Admin User', email, role: 'admin', hasPassword: true, token: generateToken('1') });
     }
     if (email === 'staff@redsee.com') {
-      return res.json({ _id: '2', name: 'Staff Member', email, role: 'coadmin', token: generateToken('2') });
+      return res.json({ _id: '2', name: 'Staff Member', email, role: 'coadmin', hasPassword: true, token: generateToken('2') });
     }
     if (email === 'user@redsee.com') {
-      return res.json({ _id: '3', name: 'Regular User', email, role: 'user', token: generateToken('3') });
+      return res.json({ _id: '3', name: 'Regular User', email, role: 'user', hasPassword: true, token: generateToken('3') });
     }
   }
 
