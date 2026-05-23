@@ -37,6 +37,7 @@ const Navbar = () => {
     { name: "Oversized", href: "/category/oversized" },
     { name: "Hoodies", href: "/category/hoodies" },
     { name: "Sneakers", href: "/category/sneakers" },
+    { name: "Events", href: "/events" },
   ];
 
   const handleLogout = async () => {
