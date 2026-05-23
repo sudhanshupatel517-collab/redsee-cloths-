@@ -21,7 +21,8 @@ import {
 } from 'lucide-react';
 
 const sidebarLinks = [
-  { name: 'My Profile', href: '/profile', icon: User },
+  { name: 'Dashboard', href: '/profile', icon: User },
+  { name: 'Personal Details', href: '/profile/details', icon: User },
   { name: 'Orders', href: '/profile/orders', icon: Package },
   { name: 'Wishlist', href: '/profile/wishlist', icon: Heart },
   { name: 'Rewards', href: '/profile/rewards', icon: Gift },

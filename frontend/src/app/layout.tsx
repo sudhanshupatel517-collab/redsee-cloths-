@@ -25,6 +25,8 @@ export const viewport: Viewport = {
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 
+import BottomNav from "@/components/BottomNav";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased bg-background text-foreground transition-colors duration-300">
+      <body className="antialiased bg-background text-foreground transition-colors duration-300 pb-16 md:pb-0">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -42,10 +44,11 @@ export default function RootLayout({
           <StoreProvider>
             <AuthGuard>
               <Navbar />
-              <main className="min-h-[100dvh] pt-20">
+              <main className="min-h-[100dvh]">
                 {children}
               </main>
               <Footer />
+              <BottomNav />
             </AuthGuard>
           </StoreProvider>
         </ThemeProvider>

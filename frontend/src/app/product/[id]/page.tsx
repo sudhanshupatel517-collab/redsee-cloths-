@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { mockProducts } from "@/lib/data";
-import { motion } from "framer-motion";
-import { Star, Heart, Share2, ShoppingBag, Truck, ShieldAlert } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Star, Heart, Share2, ShoppingBag, Truck, ShieldAlert, ArrowLeft } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/cartSlice";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
   const product = mockProducts.find(p => p.id === params.id) || mockProducts[0];
@@ -12,8 +14,10 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
   const [selectedColor, setSelectedColor] = useState("Black");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(product.image);
+  const [isWishlisted, setIsWishlisted] = useState(false);
   
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const handleAddToCart = () => {
     dispatch(addToCart({
@@ -27,138 +31,193 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
     }));
   };
 
+  const images = [product.image, product.hoverImage, product.image, product.hoverImage];
+
   return (
-    <div className="container mx-auto px-6 py-12">
-      {/* Breadcrumbs */}
-      <div className="text-xs font-montserrat text-gray-500 uppercase tracking-widest mb-8">
-        Home / {product.category} / <span className="text-white">{product.name}</span>
+    <div className="bg-background min-h-screen pb-24 md:pb-12">
+      {/* Mobile Sticky Header */}
+      <div className="md:hidden sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 py-3">
+        <button onClick={() => router.back()} className="text-foreground p-2 -ml-2 rounded-full active:bg-white/5 transition-colors">
+          <ArrowLeft size={24} />
+        </button>
+        <h2 className="font-bebas tracking-widest text-lg truncate px-4">{product.name}</h2>
+        <button 
+          onClick={() => setIsWishlisted(!isWishlisted)} 
+          className="text-foreground p-2 -mr-2 rounded-full active:bg-white/5 transition-colors"
+        >
+          <Heart size={22} className={isWishlisted ? "fill-[#ff0033] text-[#ff0033]" : ""} />
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Image Gallery */}
-        <div className="space-y-4">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="aspect-[4/5] bg-zinc-900 border border-white/5 relative overflow-hidden group"
-          >
-            <img src={activeImage} alt={product.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" />
-          </motion.div>
-          <div className="grid grid-cols-4 gap-4">
-            {[product.image, product.hoverImage, product.image, product.hoverImage].map((img, i) => (
-              <button 
-                key={i} 
-                onClick={() => setActiveImage(img)}
-                className={`aspect-square bg-zinc-900 border ${activeImage === img ? 'border-[#ff0033]' : 'border-white/5 hover:border-white/30'} transition-colors overflow-hidden`}
-              >
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
+      <div className="container mx-auto px-0 md:px-6 md:py-12">
+        {/* Desktop Breadcrumbs */}
+        <div className="hidden md:block text-xs font-montserrat text-gray-500 uppercase tracking-widest mb-8">
+          <Link href="/">Home</Link> / <Link href={`/category/${product.category.toLowerCase()}`}>{product.category}</Link> / <span className="text-white">{product.name}</span>
         </div>
 
-        {/* Product Info */}
-        <div className="flex flex-col">
-          <div className="flex justify-between items-start mb-2">
-            <h1 className="text-4xl md:text-5xl font-bebas text-white tracking-wide">{product.name}</h1>
-            <button className="text-gray-400 hover:text-[#ff0033] transition-colors">
-              <Share2 size={24} />
-            </button>
-          </div>
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-0 md:gap-12">
           
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="flex text-[#ff0033]">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={18} className={i < Math.floor(product.rating) ? "fill-current" : "text-gray-600"} />
+          {/* Image Gallery */}
+          <div className="relative w-full">
+            {/* Mobile: Horizontal Swipeable Gallery */}
+            <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-[60vh] bg-zinc-900">
+              {images.map((img, i) => (
+                <div key={i} className="min-w-full h-full snap-center relative">
+                  <img src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
+                </div>
               ))}
             </div>
-            <span className="text-sm font-poppins text-gray-400">124 Reviews</span>
-          </div>
 
-          <div className="text-3xl font-poppins font-bold text-white mb-8 flex items-end space-x-4">
-            <span>${product.price}</span>
-            {product.discount && (
-              <span className="text-xl text-gray-500 line-through mb-1">
-                ${(product.price / (1 - product.discount / 100)).toFixed(2)}
-              </span>
-            )}
-            {product.discount && (
-              <span className="text-sm bg-[#ff0033] text-white px-2 py-1 mb-2 font-bold uppercase tracking-wider">
-                Sale
-              </span>
-            )}
-          </div>
-
-          <p className="text-gray-400 font-poppins text-sm leading-relaxed mb-8">
-            Experience next-level comfort and style with this premium piece from Redsee's latest collection. Engineered for the modern urban environment, featuring durable stitching and a relaxed silhouette.
-          </p>
-
-          {/* Color Selection */}
-          <div className="mb-6">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm font-montserrat uppercase text-gray-300">Color</span>
-              <span className="text-sm font-poppins text-white">{selectedColor}</span>
-            </div>
-            <div className="flex space-x-3">
-              {['Black', 'Red', 'Charcoal'].map(color => (
-                <button 
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-10 h-10 rounded-full border-2 ${selectedColor === color ? 'border-white' : 'border-transparent'} flex items-center justify-center`}
-                  style={{ backgroundColor: color === 'Black' ? '#0a0a0a' : color === 'Red' ? '#7A0000' : '#333333' }}
-                >
-                  <span className="sr-only">{color}</span>
-                </button>
-              ))}
+            {/* Desktop: Grid/Main Gallery */}
+            <div className="hidden md:block space-y-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="aspect-[4/5] bg-zinc-900 border border-white/5 relative overflow-hidden group rounded-2xl"
+              >
+                <img src={activeImage} alt={product.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" />
+              </motion.div>
+              <div className="grid grid-cols-4 gap-4">
+                {images.map((img, i) => (
+                  <button 
+                    key={i} 
+                    onClick={() => setActiveImage(img)}
+                    className={`aspect-square bg-zinc-900 rounded-xl border ${activeImage === img ? 'border-[#ff0033]' : 'border-white/5 hover:border-white/30'} transition-colors overflow-hidden`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Size Selection */}
-          <div className="mb-8">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm font-montserrat uppercase text-gray-300">Size</span>
-              <button className="text-sm font-montserrat text-gray-400 underline hover:text-white transition-colors">Size Guide</button>
+          {/* Product Info */}
+          <div className="flex flex-col px-4 pt-6 md:px-0 md:pt-0">
+            <div className="flex justify-between items-start mb-2">
+              <h1 className="text-3xl md:text-5xl font-bebas text-white tracking-wide leading-none">{product.name}</h1>
+              <button className="hidden md:flex text-gray-400 hover:text-[#ff0033] transition-colors p-2 rounded-full hover:bg-white/5">
+                <Share2 size={24} />
+              </button>
             </div>
-            <div className="grid grid-cols-5 gap-2">
-              {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
-                <button 
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`py-3 border ${selectedSize === size ? 'border-[#ff0033] bg-[#ff0033] text-white' : 'border-white/20 text-gray-300 hover:border-white'} font-poppins text-sm transition-all`}
-                >
-                  {size}
-                </button>
-              ))}
+            
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="flex text-[#ff0033]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={14} className={i < Math.floor(product.rating) ? "fill-[#ff0033]" : "text-gray-600"} />
+                ))}
+              </div>
+              <span className="text-xs font-poppins text-gray-400">124 Reviews</span>
             </div>
-          </div>
 
-          {/* Quantity & Actions */}
-          <div className="flex space-x-4 mb-8">
-            <div className="flex border border-white/20">
-              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 text-white hover:bg-white/5 transition-colors">-</button>
-              <input type="text" value={quantity} readOnly className="w-12 bg-transparent text-center font-poppins text-white" />
-              <button onClick={() => setQuantity(quantity + 1)} className="px-4 text-white hover:bg-white/5 transition-colors">+</button>
+            <div className="flex items-end space-x-3 mb-6">
+              <span className="text-3xl md:text-4xl font-poppins font-bold text-white leading-none">${product.price}</span>
+              {product.discount && (
+                <span className="text-lg md:text-xl text-gray-500 line-through mb-1">
+                  ${(product.price / (1 - product.discount / 100)).toFixed(2)}
+                </span>
+              )}
+              {product.discount && (
+                <span className="bg-[#ff0033] text-white text-[10px] md:text-xs px-2 py-1 mb-1.5 font-bold uppercase tracking-wider rounded">
+                  -{product.discount}%
+                </span>
+              )}
             </div>
-            <button onClick={handleAddToCart} className="flex-1 bg-[#ff0033] text-white hover:bg-[#cc0029] transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2">
-              <ShoppingBag size={18} />
-              <span>Add To Cart</span>
-            </button>
-            <button className="px-4 border border-white/20 text-white hover:bg-white/5 transition-colors flex items-center justify-center">
-              <Heart size={20} />
-            </button>
-          </div>
 
-          {/* Meta Info */}
-          <div className="border-t border-white/10 pt-6 space-y-4">
-            <div className="flex items-center space-x-3 text-sm text-gray-400 font-poppins">
-              <Truck size={18} className="text-[#ff0033]" />
-              <span>Free worldwide shipping on orders over $150</span>
+            <p className="text-gray-400 font-poppins text-sm leading-relaxed mb-8">
+              Experience next-level comfort and style with this premium piece from Redsee's latest collection. Engineered for the modern urban environment, featuring durable stitching and a relaxed silhouette.
+            </p>
+
+            {/* Color Selection */}
+            <div className="mb-6">
+              <div className="flex justify-between mb-3">
+                <span className="text-xs font-montserrat uppercase font-bold tracking-widest text-gray-300">Color: <span className="text-white ml-1">{selectedColor}</span></span>
+              </div>
+              <div className="flex space-x-3">
+                {['Black', 'Red', 'Charcoal'].map(color => (
+                  <button 
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor === color ? 'border-white scale-110' : 'border-transparent hover:border-white/50'} flex items-center justify-center shadow-lg`}
+                    style={{ backgroundColor: color === 'Black' ? '#0a0a0a' : color === 'Red' ? '#7A0000' : '#333333' }}
+                  >
+                    <span className="sr-only">{color}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center space-x-3 text-sm text-gray-400 font-poppins">
-              <ShieldAlert size={18} className="text-[#ff0033]" />
-              <span>30-day return policy. Shop with confidence.</span>
+
+            {/* Size Selection */}
+            <div className="mb-8">
+              <div className="flex justify-between mb-3">
+                <span className="text-xs font-montserrat uppercase font-bold tracking-widest text-gray-300">Size: <span className="text-white ml-1">{selectedSize}</span></span>
+                <button className="text-xs font-montserrat text-gray-400 underline hover:text-white transition-colors">Size Guide</button>
+              </div>
+              <div className="flex flex-wrap gap-2 md:grid md:grid-cols-5">
+                {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                  <button 
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`flex-1 min-w-[60px] py-3 rounded-lg border transition-all ${
+                      selectedSize === size 
+                        ? 'border-[#ff0033] bg-[#ff0033]/10 text-white font-bold' 
+                        : 'border-white/10 text-gray-300 hover:border-white/30 hover:bg-white/5'
+                    } font-poppins text-sm`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop Actions (Hidden on Mobile) */}
+            <div className="hidden md:flex space-x-4 mb-8">
+              <div className="flex border border-white/20 rounded-lg overflow-hidden">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 text-white hover:bg-white/5 transition-colors">-</button>
+                <input type="text" value={quantity} readOnly className="w-12 bg-transparent text-center font-poppins text-white outline-none" />
+                <button onClick={() => setQuantity(quantity + 1)} className="px-4 text-white hover:bg-white/5 transition-colors">+</button>
+              </div>
+              <button onClick={handleAddToCart} className="flex-1 bg-[#ff0033] text-white hover:bg-[#cc0029] rounded-lg transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2">
+                <ShoppingBag size={18} />
+                <span>Add To Cart</span>
+              </button>
+              <button 
+                onClick={() => setIsWishlisted(!isWishlisted)}
+                className="px-4 border border-white/20 rounded-lg text-white hover:bg-white/5 transition-colors flex items-center justify-center"
+              >
+                <Heart size={20} className={isWishlisted ? "fill-[#ff0033] text-[#ff0033]" : ""} />
+              </button>
+            </div>
+
+            {/* Meta Info */}
+            <div className="border-t border-white/5 pt-6 space-y-4 mb-8">
+              <div className="flex items-center space-x-3 text-sm text-gray-400 font-poppins bg-white/5 p-4 rounded-xl border border-white/5">
+                <Truck size={20} className="text-[#ff0033]" />
+                <span>Free express shipping on orders over $150</span>
+              </div>
+              <div className="flex items-center space-x-3 text-sm text-gray-400 font-poppins bg-white/5 p-4 rounded-xl border border-white/5">
+                <ShieldAlert size={20} className="text-[#ff0033]" />
+                <span>30-day premium return policy.</span>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Sticky Bottom Add-to-Cart Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-white/10 p-3 pb-safe">
+        <div className="flex space-x-3">
+          <div className="flex border border-white/10 rounded-lg overflow-hidden bg-white/5">
+            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 text-white active:bg-white/10 transition-colors">-</button>
+            <input type="text" value={quantity} readOnly className="w-8 bg-transparent text-center font-poppins text-white text-sm outline-none" />
+            <button onClick={() => setQuantity(quantity + 1)} className="px-3 text-white active:bg-white/10 transition-colors">+</button>
+          </div>
+          <button 
+            onClick={handleAddToCart} 
+            className="flex-1 bg-[#ff0033] text-white active:scale-[0.98] rounded-lg transition-transform flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-xs space-x-2 shadow-[0_0_15px_rgba(255,0,51,0.3)]"
+          >
+            <ShoppingBag size={16} />
+            <span>Add To Cart - ${(product.price * quantity).toFixed(2)}</span>
+          </button>
         </div>
       </div>
     </div>

@@ -20,7 +20,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       const isAuthRoute = pathname === '/auth';
       const isCreatePasswordRoute = pathname === '/create-password';
       
-      if (!user && !isAuthRoute) {
+      // Define routes that require authentication
+      const isProtectedRoute = pathname?.startsWith('/profile') || 
+                               pathname?.startsWith('/admin') || 
+                               pathname?.startsWith('/checkout');
+      
+      if (!user && isProtectedRoute) {
         router.push('/auth');
       } else if (user) {
         const isStaff = user.role === 'admin' || user.role === 'coadmin';
@@ -66,8 +71,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // Don't render until mounted to prevent hydration errors from localStorage checks
   if (!mounted) return null;
 
-  // If not logged in and not on auth route, render nothing while redirecting
-  if (!user && pathname !== '/auth') {
+  // If not logged in and trying to access a protected route, render nothing while redirecting
+  const isProtectedRoute = pathname?.startsWith('/profile') || 
+                           pathname?.startsWith('/admin') || 
+                           pathname?.startsWith('/checkout');
+
+  if (!user && isProtectedRoute) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-[#ff0033] font-bebas text-2xl tracking-widest animate-pulse">

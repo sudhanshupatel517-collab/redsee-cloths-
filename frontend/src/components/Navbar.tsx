@@ -160,7 +160,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Toggle */}
+        {/* Mobile View (Minimalist) */}
         <div className="md:hidden flex items-center space-x-4">
           {mounted && (
             <button 
@@ -170,65 +170,8 @@ const Navbar = () => {
               {currentTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
           )}
-          <Link href="/cart">
-            <button className="text-foreground/70 hover:text-[#ff0033] transition-colors relative">
-              <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#ff0033] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-          </Link>
-          <button
-            className="text-foreground"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Nav */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "100dvh" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden absolute top-full left-0 w-full bg-background flex flex-col items-center pt-10 space-y-6 overflow-hidden"
-          >
-            {navLinks.map((link) => (
-              <Link key={link.name} href={link.href}>
-                <span
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-2xl font-bebas tracking-wider text-foreground/70 hover:text-[#ff0033] cursor-pointer"
-                >
-                  {link.name}
-                </span>
-              </Link>
-            ))}
-            
-            <div className="flex flex-col items-center space-y-4 pt-8 w-full px-6">
-              {user ? (
-                <>
-                  <p className="text-[#ff0033] font-montserrat">Hi, {user.name}</p>
-                  <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-foreground">My Profile</Link>
-                  {user.role === 'admin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-foreground">Admin Dashboard</Link>}
-                  {user.role === 'coadmin' && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-foreground">Staff Dashboard</Link>}
-                  <button onClick={handleLogout} className="text-foreground/60">Logout</button>
-                </>
-              ) : (
-                <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="w-full bg-[#ff0033] text-white py-3 px-8 font-montserrat uppercase font-bold tracking-widest">
-                    Login / Register
-                  </button>
-                </Link>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.nav>
   );
 };
