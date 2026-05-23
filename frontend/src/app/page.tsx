@@ -22,7 +22,10 @@ export default function Home() {
   useEffect(() => {
     dispatch(fetchHomeData());
     // Fetch active events for the hero banner
-    api.get('/api/events').then(res => setEvents(res.data)).catch(console.error);
+    api.get('/api/events').then(res => {
+      setEvents(res.data);
+      setCurrentBanner(0); // Reset banner index to prevent out-of-bounds crash
+    }).catch(console.error);
   }, [dispatch]);
 
   // Auto-scroll banners (now using events if available, else fallback banners)
@@ -112,11 +115,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="absolute inset-0 w-full h-full"
             >
-              {events[currentBanner]?.imageUrl ? (
+              {events[currentBanner % events.length]?.imageUrl ? (
                 <>
                   <img
-                    src={events[currentBanner].imageUrl}
-                    alt={events[currentBanner].title}
+                    src={events[currentBanner % events.length]?.imageUrl}
+                    alt={events[currentBanner % events.length]?.title || 'Event Poster'}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {/* Subtle gradient overlay to ensure text/buttons are visible */}
@@ -124,18 +127,18 @@ export default function Home() {
                 </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a0000] to-black flex flex-col items-center justify-center p-8 text-center border-y border-[#ff0033]/20 shadow-[inset_0_0_100px_rgba(255,0,51,0.1)]">
-                  <h2 className="text-5xl font-bebas text-white mb-2 tracking-widest drop-shadow-[0_0_10px_rgba(255,0,51,0.5)]">{events[currentBanner].title}</h2>
-                  <p className="text-gray-400 font-poppins text-xs mb-6 max-w-lg">{events[currentBanner].description}</p>
+                  <h2 className="text-5xl font-bebas text-white mb-2 tracking-widest drop-shadow-[0_0_10px_rgba(255,0,51,0.5)]">{events[currentBanner % events.length]?.title || 'NEW EVENT'}</h2>
+                  <p className="text-gray-400 font-poppins text-xs mb-6 max-w-lg">{events[currentBanner % events.length]?.description}</p>
                 </div>
               )}
-              {events[currentBanner]?.link ? (
-                <button onClick={() => router.push(events[currentBanner].link)} className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full font-montserrat uppercase tracking-widest text-xs font-bold hover:bg-[#ff0033] hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,0,51,0.5)] z-20">
+              {events[currentBanner % events.length]?.link ? (
+                <button onClick={() => router.push(events[currentBanner % events.length].link)} className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full font-montserrat uppercase tracking-widest text-xs font-bold hover:bg-[#ff0033] hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,0,51,0.5)] z-20">
                   Explore Event
                 </button>
-              ) : events[currentBanner]?.imageUrl && (
+              ) : events[currentBanner % events.length]?.imageUrl && (
                 <div className="absolute bottom-10 left-0 right-0 text-center z-20 px-4">
-                  <h3 className="text-3xl font-bebas text-white tracking-widest drop-shadow-md">{events[currentBanner].title}</h3>
-                  <p className="text-gray-300 font-poppins text-sm max-w-lg mx-auto line-clamp-2 mt-1">{events[currentBanner].description}</p>
+                  <h3 className="text-3xl font-bebas text-white tracking-widest drop-shadow-md">{events[currentBanner % events.length]?.title}</h3>
+                  <p className="text-gray-300 font-poppins text-sm max-w-lg mx-auto line-clamp-2 mt-1">{events[currentBanner % events.length]?.description}</p>
                 </div>
               )}
             </motion.div>
