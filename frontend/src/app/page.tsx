@@ -36,7 +36,7 @@ export default function Home() {
     <div className="bg-black min-h-screen pb-20 overflow-x-hidden">
       
       {/* 1. TOP HEADER SECTION */}
-      <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/5 pt-14 pb-3 px-4">
+      <div className="relative z-40 bg-black/80 backdrop-blur-xl border-b border-white/5 py-3 px-4">
         <div className="flex bg-white/5 p-1 rounded-2xl relative border border-white/10 shadow-inner">
           {/* Animated Background Glow */}
           <motion.div 

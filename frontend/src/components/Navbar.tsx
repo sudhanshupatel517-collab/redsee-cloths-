@@ -56,7 +56,7 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed w-full top-0 z-50 transition-all duration-300 ${
+      className={`sticky w-full top-0 z-50 transition-all duration-300 ${
         isScrolled ? "glassmorphism-dark py-3" : "bg-transparent py-5"
       }`}
     >
