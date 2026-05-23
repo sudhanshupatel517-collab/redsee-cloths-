@@ -24,6 +24,7 @@ export default function ManageEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   
   // Create Event State
   const [isCreating, setIsCreating] = useState(false);
@@ -66,6 +67,25 @@ export default function ManageEvents() {
       fetchEvents();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to create event');
+    }
+  };
+
+  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      setUploadingImage(true);
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+      const { data } = await api.post('/api/upload', formData, config);
+      setNewEvent({ ...newEvent, imageUrl: data.url });
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -130,8 +150,16 @@ export default function ManageEvents() {
                 <textarea required rows={3} value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors resize-none" placeholder="Details about this event..." />
               </div>
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Image URL (Optional)</label>
-                <input type="text" value={newEvent.imageUrl} onChange={e => setNewEvent({...newEvent, imageUrl: e.target.value})} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors" placeholder="https://..." />
+                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Event Image</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={uploadImage}
+                  disabled={uploadingImage}
+                  className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-2.5 text-white outline-none transition-colors file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#ff0033] file:text-white hover:file:bg-[#cc0029] disabled:opacity-50" 
+                />
+                {uploadingImage && <p className="text-xs text-[#ff0033] mt-2 animate-pulse font-poppins">Uploading to Cloudinary...</p>}
+                {newEvent.imageUrl && !uploadingImage && <p className="text-xs text-green-500 mt-2 font-poppins text-ellipsis overflow-hidden">Uploaded!</p>}
               </div>
               <div>
                 <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Target Link (Optional)</label>
