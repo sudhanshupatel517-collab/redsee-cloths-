@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search as SearchIcon, MapPin, ChevronRight, Mic } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import api from "@/lib/axios";
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
