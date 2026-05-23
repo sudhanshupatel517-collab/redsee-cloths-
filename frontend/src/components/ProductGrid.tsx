@@ -1,9 +1,11 @@
 import ProductCard from "./ProductCard";
-import { mockProducts } from "@/lib/data";
 
-const ProductGrid = ({ title, limit = 8 }: { title?: string; limit?: number }) => {
-  const displayProducts = mockProducts.slice(0, limit);
+interface ProductGridProps {
+  title?: string;
+  products: any[];
+}
 
+const ProductGrid = ({ title, products }: ProductGridProps) => {
   return (
     <section className="py-20 px-6 container mx-auto">
       {title && (
@@ -18,10 +20,26 @@ const ProductGrid = ({ title, limit = 8 }: { title?: string; limit?: number }) =
       )}
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {displayProducts.map((product) => (
-          <ProductCard key={product.id} {...product} />
+        {products.map((product) => (
+          <ProductCard 
+            key={product._id}
+            id={product._id}
+            name={product.name}
+            price={product.pricing?.basePrice || 0}
+            image={product.images?.[0]?.url || ''}
+            hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
+            category={product.category}
+            rating={5}
+            discount={product.pricing?.discount || 0}
+          />
         ))}
       </div>
+      
+      {products.length === 0 && (
+        <div className="text-center text-gray-500 font-poppins py-10">
+          No products found.
+        </div>
+      )}
     </section>
   );
 };

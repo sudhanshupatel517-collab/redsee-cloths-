@@ -26,6 +26,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const homepageRoutes = require('./routes/homepageRoutes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes); // keep for backward compat
@@ -34,6 +36,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/banners', bannerRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/homepage', homepageRoutes);
 
 app.get('/', (req, res) => {
     res.send('Redsee API is running');

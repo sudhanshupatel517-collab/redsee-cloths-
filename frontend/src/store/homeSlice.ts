@@ -14,6 +14,7 @@ export interface HomeState {
   newArrivals: any[]; // Assuming products
   womensCollection: any[];
   mensCollection: any[];
+  categories: any[];
   loading: boolean;
   error: string | null;
 }
@@ -23,6 +24,7 @@ const initialState: HomeState = {
   newArrivals: [],
   womensCollection: [],
   mensCollection: [],
+  categories: [],
   loading: false,
   error: null,
 };
@@ -32,19 +34,8 @@ export const fetchHomeData = createAsyncThunk(
   'home/fetchHomeData',
   async (_, { rejectWithValue }) => {
     try {
-      const [bannersRes, newArrivalsRes, womensRes, mensRes] = await Promise.all([
-        api.get('/api/banners').catch(() => ({ data: [] })), // Graceful fallback
-        api.get('/api/products?limit=10'), // Get latest
-        api.get('/api/products?category=Women&limit=6'),
-        api.get('/api/products?category=Men&limit=6'),
-      ]);
-
-      return {
-        banners: bannersRes.data,
-        newArrivals: newArrivalsRes.data.slice(0, 10), // Ensure max 10
-        womensCollection: womensRes.data.slice(0, 6),
-        mensCollection: mensRes.data.slice(0, 6),
-      };
+      const { data } = await api.get('/api/homepage');
+      return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch home data');
     }
@@ -63,10 +54,11 @@ const homeSlice = createSlice({
       })
       .addCase(fetchHomeData.fulfilled, (state, action) => {
         state.loading = false;
-        state.banners = action.payload.banners;
-        state.newArrivals = action.payload.newArrivals;
-        state.womensCollection = action.payload.womensCollection;
-        state.mensCollection = action.payload.mensCollection;
+        state.banners = action.payload.banners || [];
+        state.newArrivals = action.payload.latestProducts || [];
+        state.womensCollection = action.payload.womensProducts || [];
+        state.mensCollection = action.payload.mensProducts || [];
+        state.categories = action.payload.categories || [];
       })
       .addCase(fetchHomeData.rejected, (state, action) => {
         state.loading = false;

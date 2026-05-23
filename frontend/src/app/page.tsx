@@ -160,7 +160,16 @@ export default function Home() {
           ) : newArrivals.length > 0 ? (
             newArrivals.map((product) => (
               <div key={product._id} className="w-[160px] md:w-[220px] flex-shrink-0 snap-start">
-                <ProductCard product={product} />
+                <ProductCard 
+                  id={product._id}
+                  name={product.name}
+                  price={product.pricing?.basePrice || 0}
+                  image={product.images?.[0]?.url || ''}
+                  hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
+                  category={product.category}
+                  rating={5}
+                  discount={product.pricing?.discount || 0}
+                />
               </div>
             ))
           ) : (
@@ -185,7 +194,17 @@ export default function Home() {
 
           <div className="grid grid-cols-2 gap-3 relative z-10">
             {womensCollection.slice(0, 4).map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard 
+                  key={product._id}
+                  id={product._id}
+                  name={product.name}
+                  price={product.pricing?.basePrice || 0}
+                  image={product.images?.[0]?.url || ''}
+                  hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
+                  category={product.category}
+                  rating={5}
+                  discount={product.pricing?.discount || 0}
+              />
             ))}
           </div>
         </section>
@@ -255,7 +274,17 @@ export default function Home() {
 
           <div className="grid grid-cols-2 gap-3 relative z-10">
             {mensCollection.slice(0, 4).map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard 
+                  key={product._id}
+                  id={product._id}
+                  name={product.name}
+                  price={product.pricing?.basePrice || 0}
+                  image={product.images?.[0]?.url || ''}
+                  hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
+                  category={product.category}
+                  rating={5}
+                  discount={product.pricing?.discount || 0}
+              />
             ))}
           </div>
         </section>

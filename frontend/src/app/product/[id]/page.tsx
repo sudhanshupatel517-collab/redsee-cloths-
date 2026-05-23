@@ -1,37 +1,76 @@
 "use client";
-import { useState } from "react";
-import { mockProducts } from "@/lib/data";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Heart, Share2, ShoppingBag, Truck, ShieldAlert, ArrowLeft } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/store/cartSlice";
+import { fetchProductDetails, clearProductDetails } from "@/store/productSlice";
+import { AppDispatch, RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
-  const product = mockProducts.find(p => p.id === params.id) || mockProducts[0];
-  const [selectedSize, setSelectedSize] = useState("L");
-  const [selectedColor, setSelectedColor] = useState("Black");
-  const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState(product.image);
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  
+  const { productDetails: product, loading, error } = useSelector((state: RootState) => state.products);
+
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [activeImage, setActiveImage] = useState("");
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchProductDetails(params.id));
+    return () => {
+      dispatch(clearProductDetails());
+    };
+  }, [dispatch, params.id]);
+
+  useEffect(() => {
+    if (product) {
+      if (product.images && product.images.length > 0) setActiveImage(product.images[0].url);
+      if (product.variants && product.variants.length > 0) {
+        setSelectedSize(product.variants[0].size);
+        setSelectedColor(product.variants[0].color);
+      }
+    }
+  }, [product]);
 
   const handleAddToCart = () => {
+    if (!product) return;
     dispatch(addToCart({
-      product: product.id,
+      product: product._id,
       title: product.name,
-      image: product.image,
-      price: product.price,
+      image: product.images?.[0]?.url || '',
+      price: product.pricing?.basePrice || 0,
       quantity,
       size: selectedSize,
       color: selectedColor
     }));
   };
 
-  const images = [product.image, product.hoverImage, product.image, product.hoverImage];
+  if (loading) {
+    return (
+      <div className="bg-background min-h-screen flex justify-center items-center">
+        <div className="w-8 h-8 border-2 border-[#ff0033] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="bg-background min-h-screen flex flex-col justify-center items-center text-white">
+        <h2 className="text-2xl font-bebas tracking-widest uppercase mb-4">Product Not Found</h2>
+        <button onClick={() => router.back()} className="text-[#ff0033] hover:underline font-poppins text-sm">Go Back</button>
+      </div>
+    );
+  }
+
+  const images = product.images?.map((img: any) => img.url) || [];
+  const displayPrice = product.pricing?.basePrice || 0;
+  const displayDiscount = product.pricing?.discount || 0;
 
   return (
     <div className="bg-background min-h-screen pb-24 md:pb-12">
@@ -110,15 +149,15 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
             </div>
 
             <div className="flex items-end space-x-3 mb-6">
-              <span className="text-3xl md:text-4xl font-poppins font-bold text-white leading-none">${product.price}</span>
-              {product.discount && (
+              <span className="text-3xl md:text-4xl font-poppins font-bold text-white leading-none">${displayPrice}</span>
+              {displayDiscount > 0 && (
                 <span className="text-lg md:text-xl text-gray-500 line-through mb-1">
-                  ${(product.price / (1 - product.discount / 100)).toFixed(2)}
+                  ${(displayPrice / (1 - displayDiscount / 100)).toFixed(2)}
                 </span>
               )}
-              {product.discount && (
+              {displayDiscount > 0 && (
                 <span className="bg-[#ff0033] text-white text-[10px] md:text-xs px-2 py-1 mb-1.5 font-bold uppercase tracking-wider rounded">
-                  -{product.discount}%
+                  -{displayDiscount}%
                 </span>
               )}
             </div>
@@ -133,7 +172,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 <span className="text-xs font-montserrat uppercase font-bold tracking-widest text-gray-300">Color: <span className="text-white ml-1">{selectedColor}</span></span>
               </div>
               <div className="flex space-x-3">
-                {['Black', 'Red', 'Charcoal'].map(color => (
+                {Array.from(new Set(product.variants?.map((v: any) => v.color) || [])).map((color: any) => (
                   <button 
                     key={color}
                     onClick={() => setSelectedColor(color)}
@@ -153,7 +192,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 <button className="text-xs font-montserrat text-gray-400 underline hover:text-white transition-colors">Size Guide</button>
               </div>
               <div className="flex flex-wrap gap-2 md:grid md:grid-cols-5">
-                {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                {Array.from(new Set(product.variants?.map((v: any) => v.size) || [])).map((size: any) => (
                   <button 
                     key={size}
                     onClick={() => setSelectedSize(size)}
