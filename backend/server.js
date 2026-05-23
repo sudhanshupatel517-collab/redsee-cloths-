@@ -18,6 +18,33 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
+// Vercel Serverless Connection Cache
+let cachedDb = null;
+const connectDB = async () => {
+    if (cachedDb && mongoose.connection.readyState === 1) {
+        return cachedDb;
+    }
+    const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/redsee';
+    cachedDb = await mongoose.connect(uri, {
+        serverSelectionTimeoutMS: 5000,
+    });
+    console.log('MongoDB Connected (Serverless)');
+    const seedAdmin = require('./utils/seedAdmin');
+    seedAdmin();
+    return cachedDb;
+};
+
+// Middleware to ensure DB connection before handling routes
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        res.status(500).json({ message: 'Database Connection Failed', error: err.message });
+    }
+});
+
 // Routes
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -54,17 +81,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-const seedAdmin = require('./utils/seedAdmin');
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/redsee')
-    .then(() => {
-        console.log('MongoDB Connected');
-        seedAdmin();
-    })
-    .catch((err) => {
-        console.error('MongoDB connection error:', err);
-    });
 
 // Vercel Serverless Functions need the app exported
 // Local development needs app.listen
