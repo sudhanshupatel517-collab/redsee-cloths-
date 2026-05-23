@@ -17,20 +17,24 @@ export default function Home() {
   
   const [activeTab, setActiveTab] = useState<'MEN' | 'WOMEN'>('MEN');
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
     dispatch(fetchHomeData());
+    // Fetch active events for the hero banner
+    api.get('/api/events').then(res => setEvents(res.data)).catch(console.error);
   }, [dispatch]);
 
-  // Auto-scroll banners
+  // Auto-scroll banners (now using events if available, else fallback banners)
   useEffect(() => {
-    if (banners.length > 1) {
+    const bannerItems = events.length > 0 ? events : banners;
+    if (bannerItems.length > 1) {
       const interval = setInterval(() => {
-        setCurrentBanner((prev) => (prev + 1) % banners.length);
+        setCurrentBanner((prev) => (prev + 1) % bannerItems.length);
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [banners.length]);
+  }, [events.length, banners.length]);
 
   return (
     <div className="bg-black min-h-screen pb-20 overflow-x-hidden">
@@ -98,10 +102,48 @@ export default function Home() {
           <div className="absolute inset-0 animate-pulse bg-white/5 flex items-center justify-center">
              <div className="w-8 h-8 border-2 border-[#ff0033] border-t-transparent rounded-full animate-spin"></div>
           </div>
+        ) : events.length > 0 ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`event-${currentBanner}`}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 w-full h-full"
+            >
+              {events[currentBanner]?.imageUrl ? (
+                <>
+                  <img
+                    src={events[currentBanner].imageUrl}
+                    alt={events[currentBanner].title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Subtle gradient overlay to ensure text/buttons are visible */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+                </>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a0000] to-black flex flex-col items-center justify-center p-8 text-center border-y border-[#ff0033]/20 shadow-[inset_0_0_100px_rgba(255,0,51,0.1)]">
+                  <h2 className="text-5xl font-bebas text-white mb-2 tracking-widest drop-shadow-[0_0_10px_rgba(255,0,51,0.5)]">{events[currentBanner].title}</h2>
+                  <p className="text-gray-400 font-poppins text-xs mb-6 max-w-lg">{events[currentBanner].description}</p>
+                </div>
+              )}
+              {events[currentBanner]?.link ? (
+                <button onClick={() => router.push(events[currentBanner].link)} className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full font-montserrat uppercase tracking-widest text-xs font-bold hover:bg-[#ff0033] hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,0,51,0.5)] z-20">
+                  Explore Event
+                </button>
+              ) : events[currentBanner]?.imageUrl && (
+                <div className="absolute bottom-10 left-0 right-0 text-center z-20 px-4">
+                  <h3 className="text-3xl font-bebas text-white tracking-widest drop-shadow-md">{events[currentBanner].title}</h3>
+                  <p className="text-gray-300 font-poppins text-sm max-w-lg mx-auto line-clamp-2 mt-1">{events[currentBanner].description}</p>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         ) : banners.length > 0 ? (
           <AnimatePresence mode="wait">
             <motion.img
-              key={currentBanner}
+              key={`banner-${currentBanner}`}
               src={banners[currentBanner]?.imageUrl}
               alt={banners[currentBanner]?.title || 'Promotional Banner'}
               initial={{ opacity: 0, scale: 1.05 }}
@@ -123,9 +165,9 @@ export default function Home() {
         )}
         
         {/* Banner Pagination */}
-        {banners.length > 1 && (
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-10">
-            {banners.map((_, idx) => (
+        {(events.length > 1 || banners.length > 1) && (
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-30">
+            {(events.length > 0 ? events : banners).map((_, idx) => (
               <div 
                 key={idx} 
                 className={`h-1.5 rounded-full transition-all duration-300 ${currentBanner === idx ? 'w-6 bg-[#ff0033] shadow-[0_0_8px_#ff0033]' : 'w-1.5 bg-white/40'}`} 
