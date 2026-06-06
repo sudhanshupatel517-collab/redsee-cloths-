@@ -311,6 +311,145 @@ const products = [
     tags: ["trench", "coat", "enforcer", "dark"],
     featured: true,
     published: true
+  },
+  // CATEGORY 4: Women's Oversized Tees & Crop Tops
+  {
+    name: "Redsee Women's Signature Crop Tee - Crimson Red",
+    slug: generateSlug("Redsee Women's Signature Crop Tee - Crimson Red"),
+    description: "Premium heavy-weight crop tee featuring a minimalist red logo on luxury black cotton. Designed for a high-end streetwear silhouette.",
+    category: "Women's Oversized Tees",
+    brand: "Redsee",
+    pricing: { originalPrice: 1199, discountPercentage: 20, finalPrice: 959 },
+    variants: [
+      { size: "S", color: "Onyx Black", stock: 15 },
+      { size: "M", color: "Onyx Black", stock: 20 },
+      { size: "L", color: "Onyx Black", stock: 15 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000",
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["women", "crop-top", "signature", "crimson"],
+    featured: true,
+    published: true
+  },
+  {
+    name: "Cyberpunk Techwear Women's Tee",
+    slug: generateSlug("Cyberpunk Techwear Women's Tee"),
+    description: "Futuristic dark aesthetics crop tee with reflective red design. Crafted from highly breathable micro-poly cotton.",
+    category: "Women's Oversized Tees",
+    brand: "Redsee",
+    pricing: { originalPrice: 1399, discountPercentage: 15, finalPrice: 1189 },
+    variants: [
+      { size: "S", color: "Matte Black", stock: 10 },
+      { size: "M", color: "Matte Black", stock: 12 },
+      { size: "L", color: "Matte Black", stock: 8 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1000",
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["women", "cyberpunk", "techwear", "black"],
+    featured: false,
+    published: true
+  },
+  {
+    name: "Acid Wash Distressed Crop Tee",
+    slug: generateSlug("Acid Wash Distressed Crop Tee"),
+    description: "Distressed vintage-look washed crop tee. Features frayed hem details and pre-shrunk heavyweight cotton construction.",
+    category: "Women's Oversized Tees",
+    brand: "Redsee",
+    pricing: { originalPrice: 1299, discountPercentage: 18, finalPrice: 1065 },
+    variants: [
+      { size: "S", color: "Acid Grey", stock: 15 },
+      { size: "M", color: "Acid Grey", stock: 15 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["women", "acid-wash", "vintage", "distressed"],
+    featured: false,
+    published: true
+  },
+
+  // CATEGORY 5: Women's Hoodies
+  {
+    name: "Redsee Velvet-Lined Women's Heavy Hoodie",
+    slug: generateSlug("Redsee Velvet-Lined Women's Heavy Hoodie"),
+    description: "400 GSM luxury cropped hoodie. Features a velvet-lined hood interior and deep red glossy emblem embroidery.",
+    category: "Women's Hoodies",
+    brand: "Redsee",
+    pricing: { originalPrice: 2899, discountPercentage: 20, finalPrice: 2319 },
+    variants: [
+      { size: "S", color: "Onyx Black", stock: 15 },
+      { size: "M", color: "Onyx Black", stock: 15 },
+      { size: "L", color: "Onyx Black", stock: 10 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000",
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["women", "hoodie", "velvet", "heavyweight"],
+    featured: true,
+    published: true
+  },
+  {
+    name: "Phantom Cropped Zip-Up Women's Hoodie",
+    slug: generateSlug("Phantom Cropped Zip-Up Women's Hoodie"),
+    description: "A cropped zip-up hoodie featuring dual gunmetal zippers and raw edge details. Perfect for urban cyberpunk layering.",
+    category: "Women's Hoodies",
+    brand: "Redsee",
+    pricing: { originalPrice: 2599, discountPercentage: 15, finalPrice: 2209 },
+    variants: [
+      { size: "S", color: "Charcoal", stock: 10 },
+      { size: "M", color: "Charcoal", stock: 15 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["women", "hoodie", "zip-up", "cropped"],
+    featured: false,
+    published: true
+  },
+
+  // CATEGORY 6: Women's Jackets
+  {
+    name: "Redsee X-1 Varsity Bomber Jacket - Women's Edition",
+    slug: generateSlug("Redsee X-1 Varsity Bomber Jacket - Women's Edition"),
+    description: "A tailored-fit luxury varsity bomber jacket. Crafted from high-grade vegan leather and featuring crimson embroidery details.",
+    category: "Women's Streetwear Jackets",
+    brand: "Redsee",
+    pricing: { originalPrice: 5799, discountPercentage: 15, finalPrice: 4929 },
+    variants: [
+      { size: "S", color: "Onyx Black / Crimson", stock: 5 },
+      { size: "M", color: "Onyx Black / Crimson", stock: 5 },
+      { size: "L", color: "Onyx Black / Crimson", stock: 3 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000",
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["women", "bomber", "varsity", "leather"],
+    featured: true,
+    published: true
+  },
+  {
+    name: "Stealth Women's Puffer Jacket",
+    slug: generateSlug("Stealth Women's Puffer Jacket"),
+    description: "Lightweight windproof crop puffer jacket with thermal insulation and water-resistant finish.",
+    category: "Women's Streetwear Jackets",
+    brand: "Redsee",
+    pricing: { originalPrice: 5299, discountPercentage: 20, finalPrice: 4239 },
+    variants: [
+      { size: "S", color: "Matte Black", stock: 10 },
+      { size: "M", color: "Matte Black", stock: 10 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["women", "puffer", "jacket", "stealth"],
+    featured: false,
+    published: true
   }
 ];
 

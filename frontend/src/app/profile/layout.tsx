@@ -7,9 +7,9 @@ import ProfileSidebar from '@/components/ProfileSidebar';
 export default function ProfileLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-black pt-24 pb-12 px-4 relative overflow-hidden">
+      <div className="min-h-screen bg-white dark:bg-black pt-24 pb-12 px-4 relative overflow-hidden transition-colors duration-300">
         {/* Background Effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#7a0000]/10 via-black to-black z-0"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#7a0000]/5 dark:from-[#7a0000]/10 via-white dark:via-black to-white dark:to-black z-0 pointer-events-none"></div>
         <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-[#ff0033]/5 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -20,7 +20,7 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-2xl p-6 lg:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+            <div className="flex-1 bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 rounded-2xl p-6 lg:p-8 backdrop-blur-xl shadow-lg dark:shadow-2xl relative overflow-hidden transition-colors duration-300">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#ff0033]/50 to-transparent opacity-50"></div>
               {children}
             </div>

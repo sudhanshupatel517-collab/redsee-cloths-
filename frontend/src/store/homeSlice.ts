@@ -11,9 +11,14 @@ export interface Banner {
 
 export interface HomeState {
   banners: Banner[];
-  newArrivals: any[]; // Assuming products
-  womensCollection: any[];
+  justDropped: any[];
+  trendingNow: any[];
+  bestSellers: any[];
   mensCollection: any[];
+  womensCollection: any[];
+  limitedDrops: any[];
+  offersForYou: any[];
+  newArrivals: any[];
   categories: any[];
   loading: boolean;
   error: string | null;
@@ -21,9 +26,14 @@ export interface HomeState {
 
 const initialState: HomeState = {
   banners: [],
-  newArrivals: [],
-  womensCollection: [],
+  justDropped: [],
+  trendingNow: [],
+  bestSellers: [],
   mensCollection: [],
+  womensCollection: [],
+  limitedDrops: [],
+  offersForYou: [],
+  newArrivals: [],
   categories: [],
   loading: false,
   error: null,
@@ -55,9 +65,14 @@ const homeSlice = createSlice({
       .addCase(fetchHomeData.fulfilled, (state, action) => {
         state.loading = false;
         state.banners = action.payload.banners || [];
-        state.newArrivals = action.payload.latestProducts || [];
-        state.womensCollection = action.payload.womensProducts || [];
-        state.mensCollection = action.payload.mensProducts || [];
+        state.justDropped = action.payload.justDropped || [];
+        state.trendingNow = action.payload.trendingNow || [];
+        state.bestSellers = action.payload.bestSellers || [];
+        state.mensCollection = action.payload.mensCollection || [];
+        state.womensCollection = action.payload.womensCollection || [];
+        state.limitedDrops = action.payload.limitedDrops || [];
+        state.offersForYou = action.payload.offersForYou || [];
+        state.newArrivals = action.payload.newArrivals || [];
         state.categories = action.payload.categories || [];
       })
       .addCase(fetchHomeData.rejected, (state, action) => {

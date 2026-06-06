@@ -68,8 +68,18 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     fetchLatestProfile();
   }, [mounted]);
 
-  // Don't render until mounted to prevent hydration errors from localStorage checks
-  if (!mounted) return null;
+  // Show a branded loading screen during hydration instead of a blank page
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-4">
+        <div className="relative">
+          <div className="w-10 h-10 border-2 border-[#ff0033]/20 rounded-full"></div>
+          <div className="absolute inset-0 w-10 h-10 border-2 border-[#ff0033] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <span className="text-white/40 text-xs font-montserrat tracking-[0.3em] uppercase">REDSEE</span>
+      </div>
+    );
+  }
 
   // If not logged in and trying to access a protected route, render nothing while redirecting
   const isProtectedRoute = pathname?.startsWith('/profile') || 

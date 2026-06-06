@@ -2,49 +2,48 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings, Sun, Moon } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings, Sun, Moon, Shirt, Footprints, Crown, Sparkles, Layers, Gem } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { logout } from "@/store/authSlice";
 import api from "@/lib/axios";
 import { useTheme } from "next-themes";
+import { useRouter, usePathname } from "next/navigation";
+
+const CATEGORIES = [
+  { name: "Men", href: "/category/men", icon: Shirt, color: "#ff0033" },
+  { name: "Women", href: "/category/women", icon: Crown, color: "#ff0033" },
+  { name: "Oversized", href: "/category/oversized", icon: Layers, color: "#ff0033" },
+  { name: "Hoodies", href: "/category/hoodies", icon: Sparkles, color: "#ff0033" },
+  { name: "Sneakers", href: "/category/sneakers", icon: Footprints, color: "#ff0033" },
+  { name: "Accessories", href: "/shop", icon: Gem, color: "#ff0033" },
+];
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state: RootState) => state.cart);
   const { user } = useSelector((state: RootState) => state.auth);
-
-  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const wishlistItems = useSelector((state: RootState) => state.wishlist.items) || [];
+  const wishlistCount = wishlistItems.length;
+  const cartCount = cartItems.reduce((acc: number, item: any) => acc + item.quantity, 0);
 
   useEffect(() => {
     setMounted(true);
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: "Men", href: "/category/men" },
-    { name: "Women", href: "/category/women" },
-    { name: "Oversized", href: "/category/oversized" },
-    { name: "Hoodies", href: "/category/hoodies" },
-    { name: "Sneakers", href: "/category/sneakers" },
-  ];
-
   const handleLogout = async () => {
-    try {
-      await api.post('/api/auth/logout');
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
+    try { await api.post('/api/auth/logout'); } catch (err) { console.error('Logout error:', err); }
     dispatch(logout());
     setDropdownOpen(false);
   };
@@ -52,127 +51,218 @@ const Navbar = () => {
   const currentTheme = resolvedTheme || 'dark';
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`sticky w-full top-0 z-50 transition-all duration-300 ${
-        isScrolled ? "glassmorphism-dark py-3" : "bg-transparent py-5"
-      }`}
-    >
-      <div className="container mx-auto px-6 flex justify-between items-center">
-        {/* Logo */}
-        <Link href="/">
-          {mounted ? (
-            <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="h-10 cursor-pointer object-contain" />
-          ) : (
-            <div className="h-10 w-32 bg-transparent"></div>
-          )}
-        </Link>
-
-        {/* Desktop Nav */}
-        <div className="hidden md:flex space-x-8">
-          {navLinks.map((link) => (
-            <Link key={link.name} href={link.href}>
-              <span className="text-sm font-montserrat uppercase tracking-wide text-foreground/70 hover:text-white relative group cursor-pointer">
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#ff0033] transition-all duration-300 group-hover:w-full"></span>
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        {/* Icons */}
-        <div className="hidden md:flex items-center space-x-6 relative">
-          {mounted && (
-            <button 
-              onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
-              className="text-foreground/70 hover:text-[#ff0033] transition-colors"
-            >
-              {currentTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          )}
-          <button className="text-foreground/70 hover:text-[#ff0033] transition-colors">
-            <Search size={20} />
-          </button>
-          <Link href="/wishlist">
-            <button className="text-foreground/70 hover:text-[#ff0033] transition-colors">
-              <Heart size={20} />
-            </button>
-          </Link>
-          <Link href="/cart">
-            <button className="text-foreground/70 hover:text-[#ff0033] transition-colors relative">
-              <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#ff0033] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  {cartCount}
-                </span>
+    <>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+        className={`sticky w-full top-0 z-50 transition-all duration-300 bg-white/95 dark:bg-black/90 backdrop-blur-md ${
+          isScrolled ? "py-2 shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.8)]" : "py-3"
+        } border-b border-zinc-200 dark:border-white/5 ${pathname === '/' ? 'hidden' : ''}`}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          {/* Main row: Logo + Search + Icons */}
+          <div className="flex items-center gap-6">
+            {/* Logo */}
+            <Link href="/" className="flex-shrink-0">
+              {mounted ? (
+                <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="h-8 md:h-10 cursor-pointer object-contain" />
+              ) : (
+                <div className="h-10 w-28 bg-transparent"></div>
               )}
-            </button>
-          </Link>
-          
-          <div className="relative">
-            {user ? (
-              <button onClick={() => setDropdownOpen(!dropdownOpen)} className="text-foreground/70 hover:text-[#ff0033] transition-colors flex items-center gap-2">
-                <User size={20} />
-              </button>
-            ) : (
-              <Link href="/auth">
-                <button className="text-foreground/70 hover:text-[#ff0033] transition-colors font-montserrat text-sm font-bold uppercase tracking-widest">
-                  Login
+            </Link>
+
+            {/* Search Bar — centered between logo and icons */}
+            <div
+              onClick={() => router.push('/search')}
+              className="flex-1 max-w-xl mx-auto bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-lg px-4 py-2 flex items-center cursor-pointer hover:border-[#ff0033]/30 transition-colors"
+            >
+              <Search size={16} className="text-gray-500 mr-3 flex-shrink-0" />
+              <span className="font-poppins text-sm text-gray-500 truncate">Search for t-shirts, hoodies, sneakers...</span>
+            </div>
+
+            {/* Right icons */}
+            <div className="flex items-center gap-1 md:gap-3 flex-shrink-0">
+              {mounted && (
+                <button 
+                  onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')} 
+                  className="text-foreground/60 hover:text-[#ff0033] transition-colors p-2 relative"
+                  aria-label="Toggle Theme"
+                >
+                  {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
-              </Link>
-            )}
-
-            {dropdownOpen && user && (
-              <div className="absolute right-0 mt-4 w-48 bg-black border border-white/10 rounded-md shadow-2xl py-2 z-50 glassmorphism-dark">
-                <div className="px-4 py-2 border-b border-white/10">
-                  <p className="text-sm text-foreground font-poppins">{user.name}</p>
-                  <p className="text-xs text-foreground/60 capitalize">{user.role}</p>
-                </div>
-
-                <Link href="/profile" onClick={() => setDropdownOpen(false)}>
-                  <span className="flex items-center px-4 py-2 text-sm text-foreground/70 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors mt-1">
-                    <User size={16} className="mr-2" /> My Profile
+              )}
+              <Link href="/cart" className="text-foreground/60 hover:text-[#ff0033] transition-colors p-2 relative">
+                <ShoppingCart size={18} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#ff0033] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-[0_0_6px_rgba(255,0,51,0.5)]">
+                    {cartCount > 9 ? '9+' : cartCount}
                   </span>
+                )}
+              </Link>
+
+              {/* Account dropdown */}
+              <div className="relative hidden md:block">
+                {user ? (
+                  <button onClick={() => setDropdownOpen(!dropdownOpen)} className="text-foreground/60 hover:text-[#ff0033] transition-colors p-2 flex items-center gap-1">
+                    <User size={18} />
+                    <span className="text-xs font-montserrat font-medium hidden lg:block">{user.name?.split(' ')[0]}</span>
+                  </button>
+                ) : (
+                  <Link href="/auth">
+                    <button className="bg-[#ff0033] hover:bg-[#cc0029] text-white px-4 py-1.5 text-xs font-montserrat font-bold uppercase tracking-wider transition-colors rounded">
+                      Login
+                    </button>
+                  </Link>
+                )}
+
+                {dropdownOpen && user && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#111] border border-zinc-200 dark:border-white/10 rounded-lg shadow-2xl py-1 z-50">
+                    <div className="px-4 py-2.5 border-b border-zinc-200 dark:border-white/10">
+                      <p className="text-sm text-black dark:text-white font-poppins font-medium">{user.name}</p>
+                      <p className="text-[10px] text-gray-500 capitalize font-montserrat tracking-wider">{user.role}</p>
+                    </div>
+                    <Link href="/profile" onClick={() => setDropdownOpen(false)}>
+                      <span className="flex items-center px-4 py-2.5 text-sm text-zinc-600 dark:text-gray-400 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-black dark:hover:text-white cursor-pointer transition-colors">
+                        <User size={14} className="mr-2" /> My Profile
+                      </span>
+                    </Link>
+                    {(user.role === 'admin' || user.role === 'coadmin') && (
+                      <Link href="/admin" onClick={() => setDropdownOpen(false)}>
+                        <span className="flex items-center px-4 py-2.5 text-sm text-zinc-600 dark:text-gray-400 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-black dark:hover:text-white cursor-pointer transition-colors">
+                          <Settings size={14} className="mr-2" /> {user.role === 'admin' ? 'Admin Panel' : 'Staff Panel'}
+                        </span>
+                      </Link>
+                    )}
+                    <button onClick={handleLogout} className="flex items-center w-full text-left px-4 py-2.5 text-sm text-zinc-600 dark:text-gray-400 hover:bg-[#ff0033]/10 hover:text-[#ff0033] cursor-pointer transition-colors border-t border-zinc-200 dark:border-white/5">
+                      <LogOut size={14} className="mr-2" /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile menu toggle */}
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden text-foreground/60 hover:text-foreground transition-colors p-2">
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Category row — Flipkart style */}
+          <AnimatePresence>
+            {!isScrolled && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden flex items-center justify-center gap-1 md:gap-4 mt-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1"
+              >
+                {CATEGORIES.map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <Link
+                      key={cat.name}
+                      href={cat.href}
+                      className="flex flex-col items-center gap-1 px-3 md:px-5 py-1.5 min-w-[64px] group"
+                    >
+                      <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center group-hover:border-[#ff0033]/40 group-hover:bg-[#ff0033]/10 transition-all duration-300">
+                        <Icon size={14} className="text-zinc-500 dark:text-gray-400 group-hover:text-[#ff0033] transition-colors" />
+                      </div>
+                      <span className="text-[10px] md:text-[11px] font-montserrat font-medium text-zinc-600 dark:text-gray-500 group-hover:text-black dark:group-hover:text-white transition-colors whitespace-nowrap">
+                        {cat.name}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.nav>
+
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: -300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -300 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[60] flex"
+          >
+            <div className="w-[280px] bg-white dark:bg-[#0a0a0a] h-full border-r border-zinc-200 dark:border-white/10 flex flex-col p-6 overflow-y-auto text-foreground">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                  {mounted && <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="h-8 object-contain" />}
                 </Link>
-                
-                {user.role === 'admin' && (
-                  <Link href="/admin" onClick={() => setDropdownOpen(false)}>
-                    <span className="flex items-center px-4 py-2 text-sm text-foreground/70 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors">
-                      <Settings size={16} className="mr-2" /> Admin Dashboard
-                    </span>
-                  </Link>
-                )}
-                {user.role === 'coadmin' && (
-                  <Link href="/admin" onClick={() => setDropdownOpen(false)}>
-                    <span className="flex items-center px-4 py-2 text-sm text-foreground/70 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors">
-                      <Settings size={16} className="mr-2" /> Staff Dashboard
-                    </span>
-                  </Link>
-                )}
-                
-                <button onClick={handleLogout} className="flex items-center w-full text-left px-4 py-2 text-sm text-foreground/70 hover:bg-[#ff0033] hover:text-white cursor-pointer transition-colors">
-                  <LogOut size={16} className="mr-2" /> Logout
+                <button onClick={() => setMobileMenuOpen(false)} className="text-zinc-500 dark:text-gray-400 hover:text-foreground">
+                  <X size={20} />
                 </button>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Mobile View (Minimalist) */}
-        <div className="md:hidden flex items-center space-x-4">
-          {mounted && (
-            <button 
-              onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
-              className="text-foreground/70 hover:text-[#ff0033] transition-colors"
-            >
-              {currentTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          )}
-        </div>
-      </div>
-    </motion.nav>
+              {/* User section */}
+              {user ? (
+                <div className="mb-6 pb-4 border-b border-zinc-200 dark:border-white/10">
+                  <p className="text-black dark:text-white font-poppins font-medium text-sm">{user.name}</p>
+                  <p className="text-[10px] text-gray-500 capitalize font-montserrat tracking-wider mt-0.5">{user.role}</p>
+                </div>
+              ) : (
+                <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="mb-6 pb-4 border-b border-zinc-200 dark:border-white/10 block">
+                  <button className="w-full bg-[#ff0033] text-white py-2.5 text-xs font-montserrat font-bold uppercase tracking-wider rounded">Login / Register</button>
+                </Link>
+              )}
+
+              {/* Categories */}
+              <p className="text-[10px] text-zinc-400 dark:text-gray-600 font-montserrat uppercase tracking-[0.2em] mb-3">Shop by Category</p>
+              {CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                return (
+                  <Link key={cat.name} href={cat.href} onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 border-b border-zinc-100 dark:border-white/5 text-zinc-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
+                    <Icon size={16} className="text-zinc-400 dark:text-gray-500" />
+                    <span className="text-sm font-poppins">{cat.name}</span>
+                  </Link>
+                );
+              })}
+
+              {/* Quick links */}
+              <div className="mt-6 space-y-3">
+                {user && (
+                  <>
+                    <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-600 dark:text-gray-400 font-poppins hover:text-black dark:hover:text-white">My Profile</Link>
+                    <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-600 dark:text-gray-400 font-poppins hover:text-black dark:hover:text-white">Wishlist</Link>
+                    {(user.role === 'admin' || user.role === 'coadmin') && (
+                      <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="block text-sm text-zinc-600 dark:text-gray-400 font-poppins hover:text-black dark:hover:text-white">
+                        {user.role === 'admin' ? 'Admin Panel' : 'Staff Panel'}
+                      </Link>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Theme + Logout at bottom */}
+              <div className="mt-auto pt-6 border-t border-zinc-200 dark:border-white/10 space-y-3">
+                {mounted && (
+                  <button onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')} className="flex items-center gap-2 text-sm text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                    {currentTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                    {currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                  </button>
+                )}
+                {user && (
+                  <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="flex items-center gap-2 text-sm text-[#ff0033]">
+                    <LogOut size={16} /> Logout
+                  </button>
+                )}
+              </div>
+            </div>
+            {/* Backdrop */}
+            <div className="flex-1 bg-black/60" onClick={() => setMobileMenuOpen(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

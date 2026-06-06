@@ -4,7 +4,7 @@ import { RootState } from '@/store/store';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Package, ShoppingBag, Users, Settings, Archive, Tags, BadgePercent, Headphones, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Users, Settings, Archive, Tags, BadgePercent, Headphones, CalendarDays, Sparkles } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -50,6 +50,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {(isAdmin || user.permissions?.includes('manage_events')) && (
             <Link href="/admin/events" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
               <CalendarDays size={20} className="mr-3" /> Events & Announcements
+            </Link>
+          )}
+          {(isAdmin || user.permissions?.includes('manage_banners') || user.permissions?.includes('manage_events')) && (
+            <Link href="/admin/banners" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+              <Sparkles size={20} className="mr-3" /> Manage Banners
             </Link>
           )}
           {(isAdmin || user.permissions?.includes('manage_orders')) && (

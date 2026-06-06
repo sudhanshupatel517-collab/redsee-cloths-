@@ -26,6 +26,8 @@ export const viewport: Viewport = {
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 import BottomNav from "@/components/BottomNav";
+import RecentlyViewedSync from "@/components/RecentlyViewedSync";
+import WishlistSync from "@/components/WishlistSync";
 
 export default function RootLayout({
   children,
@@ -43,6 +45,8 @@ export default function RootLayout({
         >
           <StoreProvider>
             <AuthGuard>
+              <RecentlyViewedSync />
+              <WishlistSync />
               <Navbar />
               <main className="min-h-[100dvh]">
                 {children}

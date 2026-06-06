@@ -1,343 +1,1104 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { fetchHomeData } from "@/store/homeSlice";
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search as SearchIcon, MapPin, ChevronRight, Mic } from "lucide-react";
+import { 
+  ChevronRight, ChevronLeft, Clock, Zap, Star, ArrowRight, RefreshCw,
+  ShoppingBag, Search, MapPin, Crown, ShieldCheck, Truck, RotateCcw, Sparkles, Flame, Heart, User, Sun, Moon
+} from "lucide-react";
+import { useTheme } from "next-themes";
 import ProductCard from "@/components/ProductCard";
 import api from "@/lib/axios";
+import LoadingScreen from "@/components/LoadingScreen";
+import RecentlyViewedShelf from "@/components/RecentlyViewedShelf";
+
+// Category circles curated for luxury streetwear (Men and Women circles removed per user request)
+const STYLE_CATEGORIES = [
+  { name: "Oversized", slug: "oversized", img: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=200&q=80" },
+  { name: "Hoodies", slug: "hoodies", img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=200&q=80" },
+  { name: "Sneakers", slug: "sneakers", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=200&q=80" },
+  { name: "Accessories", slug: "accessories", img: "https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?w=200&q=80" },
+  { name: "Caps", slug: "caps", img: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=200&q=80" },
+  { name: "Jackets", slug: "jacket", img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200&q=80" },
+];
+
+const BRANDS = [
+  "REDSEE", "·", "LUXURY STREETWEAR", "·", "FW26 COLLECTION", "·",
+  "BORN IN DARKNESS", "·", "LIMITED DROPS", "·", "CYBERPUNK FASHION", "·",
+  "PREMIUM QUALITY", "·", "WORLDWIDE SHIPPING", "·", "EST. 2024", "·",
+];
+
+function BrandBar() {
+  return (
+    <div className="bg-zinc-50 dark:bg-[#0a0a0a] border-y border-zinc-200 dark:border-white/5 py-3 overflow-hidden relative transition-colors duration-300">
+      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-zinc-50 dark:from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-zinc-50 dark:from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
+      <div className="flex whitespace-nowrap animate-marquee w-max font-bebas text-xs md:text-sm tracking-[0.3em] uppercase">
+        {[...Array(2)].map((_, ri) => (
+          <div key={ri} className="flex">
+            {BRANDS.map((word, i) => (
+              <span
+                key={`${ri}-${i}`}
+                className={`px-4 ${
+                  word === "·" ? "text-[#ff0033] text-glow" : "text-zinc-700"
+                }`}
+              >
+                {word}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BrandBarReverse() {
+  const words = ["NEW DROP", "·", "EXCLUSIVE", "·", "REDSEE", "·", "LUXURY", "·", "DARK AESTHETICS", "·", "CYBERPUNK", "·", "STREETWEAR", "·"];
+  return (
+    <div className="bg-[#ff0033]/5 border-y border-[#ff0033]/10 py-2.5 overflow-hidden relative">
+      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white/20 dark:from-black/20 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white/20 dark:from-black/20 to-transparent z-10 pointer-events-none" />
+      <div className="flex whitespace-nowrap animate-marquee-reverse w-max font-montserrat text-[10px] font-semibold tracking-widest uppercase">
+        {[...Array(2)].map((_, ri) => (
+          <div key={ri} className="flex items-center">
+            {words.map((word, i) => (
+              <span
+                key={`${ri}-${i}`}
+                className={`px-4 ${
+                  word === "·" ? "text-[#ff0033]" : "text-zinc-500"
+                }`}
+              >
+                {word}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LookbookSection() {
+  const LOOKBOOK_ITEMS = [
+    {
+      img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
+      chapter: "CHAPTER 01",
+      title: "THE VOID",
+      span: "col-span-2 row-span-2 md:h-[450px]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80",
+      chapter: "CHAPTER 02",
+      title: "EARTH BOUND",
+      span: "col-span-1 row-span-1 md:h-[217px]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
+      chapter: "CHAPTER 03",
+      title: "SHIMMER",
+      span: "col-span-1 row-span-1 md:h-[217px]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80",
+      chapter: "CHAPTER 04",
+      title: "ELECTRIC BLUE",
+      span: "col-span-1 row-span-1 md:h-[217px]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80",
+      chapter: "CHAPTER 05",
+      title: "WATCHMAN",
+      span: "col-span-1 row-span-1 md:h-[217px]"
+    }
+  ];
+
+  return (
+    <section className="bg-zinc-50 dark:bg-[#080808] py-16 px-4 md:px-8 border-t border-zinc-200 dark:border-white/5 relative overflow-hidden transition-colors duration-300">
+      <div className="absolute -top-40 left-1/3 w-[500px] h-[500px] bg-[#ff0033]/3 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+          <div>
+            <span className="text-[10px] uppercase font-montserrat font-bold tracking-[0.2em] text-[#ff0033] block mb-1">
+              — Editorial Lookbook
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bebas text-black dark:text-white tracking-widest uppercase">
+              REDSEE <span className="text-[#ff0033] text-glow">STUDIOS</span>
+            </h2>
+          </div>
+          <p className="text-zinc-500 dark:text-zinc-400 text-xs font-poppins max-w-xs leading-relaxed">
+            A cinematic exploration of contemporary dark aesthetics, streetwear culture, and premium design details.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {LOOKBOOK_ITEMS.map((item, idx) => (
+            <div
+              key={idx}
+              className={`relative overflow-hidden rounded-xl bg-zinc-950 border border-white/5 group aspect-square md:aspect-auto ${item.span}`}
+            >
+              <img
+                src={item.img}
+                alt={item.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
+              
+              <div className="absolute bottom-4 left-4 right-4 translate-y-1 group-hover:translate-y-0 transition-transform">
+                <span className="text-[8px] font-montserrat font-bold tracking-widest text-[#ff0033] block mb-1 uppercase">
+                  {item.chapter}
+                </span>
+                <span className="text-sm font-bebas text-white tracking-wider block">
+                  {item.title}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const { banners, newArrivals, womensCollection, mensCollection, loading } = useSelector((state: RootState) => state.home);
   
-  const [activeTab, setActiveTab] = useState<'MEN' | 'WOMEN'>('MEN');
-  const [currentBanner, setCurrentBanner] = useState(0);
-  const [events, setEvents] = useState<any[]>([]);
+  // Destructure all required shelves from Redux store
+  const { 
+    banners, 
+    justDropped, 
+    trendingNow, 
+    bestSellers, 
+    mensCollection, 
+    womensCollection, 
+    limitedDrops, 
+    offersForYou, 
+    newArrivals, 
+    loading 
+  } = useSelector((state: RootState) => state.home);
+  
+  const { cartItems } = useSelector((state: RootState) => state.cart);
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const wishlistItems = useSelector((state: RootState) => state.wishlist.items) || [];
+  const wishlistCount = wishlistItems.length;
 
+  // States
+  const { resolvedTheme, setTheme } = useTheme();
+  const [themeMounted, setThemeMounted] = useState(false);
+  
   useEffect(() => {
-    dispatch(fetchHomeData());
-    // Fetch active events for the hero banner
-    api.get('/api/events').then(res => {
-      setEvents(res.data);
-      setCurrentBanner(0); // Reset banner index to prevent out-of-bounds crash
-    }).catch(console.error);
+    setThemeMounted(true);
+  }, []);
+
+  const currentTheme = resolvedTheme || 'dark';
+
+  const [currentBanner, setCurrentBanner] = useState(0);
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [carouselPaused, setCarouselPaused] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [shrunk, setShrunk] = useState(false);
+  
+  // Refs for drag-to-scroll and swipe behaviors
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftState = useRef(0);
+  const dragDistance = useRef(0);
+
+  // Dynamic filter states
+  const [activeGenderTab, setActiveGenderTab] = useState<"men" | "women">("men");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [loadingFiltered, setLoadingFiltered] = useState(false);
+
+  // Helper function to filter products client-side by gender
+  const getFilteredProducts = useCallback((productList: any[]) => {
+    if (!productList) return [];
+    return productList.filter((product: any) => {
+      const cat = (product.category || "").toLowerCase();
+      const name = (product.name || "").toLowerCase();
+      const tags = (product.tags || []).map((t: string) => t.toLowerCase());
+
+      const isWomen = cat.includes("women") || name.includes("women") || tags.includes("women") || tags.includes("woman");
+      const isMen = cat.includes("men") || name.includes("men") || tags.includes("men") || tags.includes("man") || cat.includes("oversized") || cat.includes("hoodie") || cat.includes("sneaker") || cat.includes("jacket") || cat.includes("cap"); // default men categories if not women
+      
+      if (activeGenderTab === "men") {
+        return isMen && !isWomen;
+      } else {
+        return isWomen;
+      }
+    });
+  }, [activeGenderTab]);
+
+  // Reset slide index when gender changes to prevent errors
+  useEffect(() => {
+    setCurrentBanner(0);
+  }, [activeGenderTab]);
+
+  // Geolocation & Delivery States
+  const [deliveryLocation, setDeliveryLocation] = useState("Mumbai 400001");
+  const [pincodeInput, setPincodeInput] = useState("");
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
+
+  const loadData = useCallback(() => {
+    setFetchError(false);
+    setLoadingTimedOut(false);
+    dispatch(fetchHomeData())
+      .unwrap()
+      .catch(() => setFetchError(true));
   }, [dispatch]);
 
-  // Auto-scroll banners (now using events if available, else fallback banners)
   useEffect(() => {
-    const bannerItems = events.length > 0 ? events : banners;
-    if (bannerItems.length > 1) {
-      const interval = setInterval(() => {
-        setCurrentBanner((prev) => (prev + 1) % bannerItems.length);
-      }, 5000);
+    loadData();
+  }, [loadData, retryCount]);
+
+  // Handle Header Shrinking on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setShrunk(window.scrollY > 80);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Handle active filters and query database dynamically
+  useEffect(() => {
+    if (activeCategory === "all") {
+      setFilteredProducts([]);
+      return;
+    }
+
+    const fetchFilteredProducts = async () => {
+      try {
+        setLoadingFiltered(true);
+        let url = `/api/products?`;
+        const params: string[] = [];
+        params.push(`category=${encodeURIComponent(activeCategory)}`);
+        params.push(`keyword=${encodeURIComponent(activeGenderTab)}`);
+        
+        const { data } = await api.get(url + params.join("&"));
+        setFilteredProducts(data);
+      } catch (err) {
+        console.error("Failed to fetch filtered products:", err);
+      } finally {
+        setLoadingFiltered(false);
+      }
+    };
+
+    const debounceFetch = setTimeout(fetchFilteredProducts, 150);
+    return () => clearTimeout(debounceFetch);
+  }, [activeCategory, activeGenderTab]);
+
+  // Detect location
+  const handleAutoDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          setDeliveryLocation("Detected Location (400001)");
+          setShowLocationModal(false);
+        } catch (e) {
+          setDeliveryLocation("Bengaluru 560001");
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      () => {
+        setDeliveryLocation("New Delhi 110001");
+        setDetectingLocation(false);
+        setShowLocationModal(false);
+      }
+    );
+  };
+
+  const handleManualPincodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pincodeInput.trim().length >= 4) {
+      setDeliveryLocation(`Pincode: ${pincodeInput}`);
+      setShowLocationModal(false);
+      setPincodeInput("");
+    }
+  };
+
+  // If loading takes longer than 8 seconds, stop showing skeletons and show fallback
+  useEffect(() => {
+    if (!loading) {
+      setLoadingTimedOut(false);
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setLoadingTimedOut(true);
+    }, 8000);
+    return () => clearTimeout(timeout);
+  }, [loading]);
+
+  const showLoading = loading && !loadingTimedOut && !fetchError;
+
+  // Filter banners based on active gender
+  const filteredBanners = banners.filter((b: any) => {
+    const title = (b.title || "").toLowerCase();
+    const desc = (b.description || "").toLowerCase();
+    if (activeGenderTab === "men") {
+      return !title.includes("women") && !desc.includes("women");
+    } else {
+      return !title.includes("men") && !desc.includes("men") || title.includes("women") || desc.includes("women");
+    }
+  });
+
+  // Curate active promotional slides
+  const slides = filteredBanners.length > 0 ? filteredBanners : [
+    {
+      title: activeGenderTab === "men" ? "MEN'S URBAN EXCLUSIVES" : "WOMEN'S CROWN DROPS",
+      description: "Upgrade your streetwear rotation with premium luxury designs.",
+      imageUrl: activeGenderTab === "men" 
+        ? "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&q=80&w=1000" 
+        : "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000",
+      linkUrl: activeGenderTab === "men" ? "/category/men" : "/category/women"
+    },
+    {
+      title: "BUY 1 HOODIE GET 1 TEE FREE",
+      description: "Exclusive Luxury Streetwear Promo • Limited Time Only",
+      imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=1000",
+      linkUrl: "/shop"
+    },
+    {
+      title: "MID-SEASON ANNOUNCEMENT - 20% OFF",
+      description: "Use code REDSEE20 on checkout. Valid on all collections.",
+      imageUrl: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&q=80&w=1000",
+      linkUrl: "/shop"
+    }
+  ];
+
+  // Helper to center target slide card smoothly
+  const scrollToBanner = (idx: number) => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const children = container.children;
+    if (children[idx]) {
+      const child = children[idx] as HTMLElement;
+      const targetScrollLeft = child.offsetLeft - (container.clientWidth - child.clientWidth) / 2;
+      container.scrollTo({
+        left: targetScrollLeft,
+        behavior: 'smooth'
+      });
+      setCurrentBanner(idx);
+    }
+  };
+
+  const goToBanner = (dir: 'prev' | 'next') => {
+    if (!sliderRef.current || slides.length < 2) return;
+    const container = sliderRef.current;
+    const cardWidth = container.firstElementChild?.clientWidth || container.clientWidth;
+    const gap = 16;
+    const step = cardWidth + gap;
+
+    let targetScrollLeft = container.scrollLeft;
+    if (dir === 'next') {
+      targetScrollLeft += step;
+      // Loop if at the very end
+      if (targetScrollLeft >= container.scrollWidth - container.clientWidth - 20) {
+        targetScrollLeft = 0;
+      }
+    } else {
+      targetScrollLeft -= step;
+      // Loop if at the very start
+      if (targetScrollLeft <= 10) {
+        targetScrollLeft = container.scrollWidth - container.clientWidth;
+      }
+    }
+
+    container.scrollTo({
+      left: targetScrollLeft,
+      behavior: 'smooth'
+    });
+  };
+
+  // Carousel auto-rotate
+  useEffect(() => {
+    if (slides.length > 1 && !carouselPaused) {
+      const interval = setInterval(() => goToBanner('next'), 5000);
       return () => clearInterval(interval);
     }
-  }, [events.length, banners.length]);
+  }, [slides.length, carouselPaused]);
+
+  // Drag to scroll handlers (for laptop/mouse drag)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!sliderRef.current) return;
+    isDragging.current = true;
+    startX.current = e.pageX - sliderRef.current.offsetLeft;
+    scrollLeftState.current = sliderRef.current.scrollLeft;
+    dragDistance.current = 0;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !sliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    sliderRef.current.scrollLeft = scrollLeftState.current - walk;
+    dragDistance.current = Math.abs(x - startX.current);
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDragging.current = false;
+  };
+
+  // Detect which slide is currently centered and update indicator state
+  const handleSliderScroll = () => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const containerCenter = container.scrollLeft + container.clientWidth / 2;
+    const children = container.children;
+    let closestIndex = 0;
+    let minDistance = Infinity;
+
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i] as HTMLElement;
+      const childCenter = child.offsetLeft + child.clientWidth / 2;
+      const distance = Math.abs(containerCenter - childCenter);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = i;
+      }
+    }
+
+    if (closestIndex !== currentBanner) {
+      setCurrentBanner(closestIndex);
+    }
+  };
+
+  const handleCardClick = (link: string) => {
+    if (dragDistance.current < 6) {
+      router.push(link);
+    }
+  };
 
   return (
-    <div className="bg-black min-h-screen pb-20 overflow-x-hidden">
+    <div className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white min-h-screen pb-24 overflow-x-hidden transition-colors duration-300">
+      <LoadingScreen onComplete={() => setLoaded(true)} />
       
-      {/* 1. TOP HEADER SECTION */}
-      <div className="relative z-40 bg-black/80 backdrop-blur-xl border-b border-white/5 py-3 px-4">
-        <div className="flex bg-white/5 p-1 rounded-2xl relative border border-white/10 shadow-inner">
-          {/* Animated Background Glow */}
-          <motion.div 
-            className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl bg-gradient-to-r from-[#ff0033]/90 to-[#99001f] shadow-[0_0_15px_rgba(255,0,51,0.4)]"
-            initial={false}
-            animate={{ 
-              x: activeTab === 'MEN' ? 0 : '100%',
-              left: activeTab === 'MEN' ? '4px' : '4px'
-            }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          />
-          
-          <button 
-            onClick={() => setActiveTab('MEN')}
-            className={`flex-1 py-2.5 text-xs font-montserrat font-bold tracking-[0.2em] relative z-10 transition-colors duration-300 ${activeTab === 'MEN' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
-          >
-            MEN
-          </button>
-          <button 
-            onClick={() => setActiveTab('WOMEN')}
-            className={`flex-1 py-2.5 text-xs font-montserrat font-bold tracking-[0.2em] relative z-10 transition-colors duration-300 ${activeTab === 'WOMEN' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
-          >
-            WOMEN
-          </button>
-        </div>
-      </div>
-
-      {/* 2. DELIVERY LOCATION BAR */}
-      <div className="px-4 py-3 bg-[#050505] border-b border-white/5 flex items-center justify-between cursor-pointer active:bg-white/5 transition-colors">
-        <div className="flex items-center space-x-2">
-          <MapPin size={16} className="text-[#ff0033]" />
-          <div>
-            <span className="text-[10px] text-gray-500 font-poppins block uppercase tracking-wider">Deliver to</span>
-            <span className="text-xs text-white font-montserrat font-bold">Lucknow, Uttar Pradesh 226001</span>
-          </div>
-        </div>
-        <ChevronRight size={16} className="text-gray-600" />
-      </div>
-
-      {/* 3. SEARCH BAR SECTION */}
-      <div className="px-4 py-4 bg-black">
-        <div 
-          onClick={() => router.push('/search')}
-          className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl px-4 py-3.5 flex items-center justify-between shadow-[inset_0_0_20px_rgba(255,0,51,0.02)] active:scale-[0.98] transition-transform"
-        >
-          <div className="flex items-center">
-            <SearchIcon size={18} className="text-gray-500 mr-3" />
-            <span className="font-poppins text-sm text-gray-500">Search for products, brands...</span>
-          </div>
-          <div className="border-l border-white/10 pl-3">
-            <Mic size={18} className="text-[#ff0033]" />
-          </div>
-        </div>
-      </div>
-
-      {/* 4. EVENT BANNER SECTION */}
-      <div className="relative w-full aspect-[4/5] md:aspect-[21/9] bg-[#050505] overflow-hidden">
-        {loading ? (
-          <div className="absolute inset-0 animate-pulse bg-white/5 flex items-center justify-center">
-             <div className="w-8 h-8 border-2 border-[#ff0033] border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : events.length > 0 ? (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`event-${currentBanner}`}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 w-full h-full"
-            >
-              {events[currentBanner % events.length]?.imageUrl ? (
-                <>
-                  <img
-                    src={events[currentBanner % events.length]?.imageUrl}
-                    alt={events[currentBanner % events.length]?.title || 'Event Poster'}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Subtle gradient overlay to ensure text/buttons are visible */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-                </>
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a0000] to-black flex flex-col items-center justify-center p-8 text-center border-y border-[#ff0033]/20 shadow-[inset_0_0_100px_rgba(255,0,51,0.1)]">
-                  <h2 className="text-5xl font-bebas text-white mb-2 tracking-widest drop-shadow-[0_0_10px_rgba(255,0,51,0.5)]">{events[currentBanner % events.length]?.title || 'NEW EVENT'}</h2>
-                  <p className="text-gray-400 font-poppins text-xs mb-6 max-w-lg">{events[currentBanner % events.length]?.description}</p>
-                </div>
-              )}
-              {events[currentBanner % events.length]?.link ? (
-                <button onClick={() => router.push(events[currentBanner % events.length].link)} className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full font-montserrat uppercase tracking-widest text-xs font-bold hover:bg-[#ff0033] hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,0,51,0.5)] z-20">
-                  Explore Event
-                </button>
-              ) : events[currentBanner % events.length]?.imageUrl && (
-                <div className="absolute bottom-10 left-0 right-0 text-center z-20 px-4">
-                  <h3 className="text-3xl font-bebas text-white tracking-widest drop-shadow-md">{events[currentBanner % events.length]?.title}</h3>
-                  <p className="text-gray-300 font-poppins text-sm max-w-lg mx-auto line-clamp-2 mt-1">{events[currentBanner % events.length]?.description}</p>
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        ) : banners.length > 0 ? (
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={`banner-${currentBanner}`}
-              src={banners[currentBanner]?.imageUrl}
-              alt={banners[currentBanner]?.title || 'Promotional Banner'}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          </AnimatePresence>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a0000] to-black flex flex-col items-center justify-center p-8 text-center border-y border-[#ff0033]/20 shadow-[inset_0_0_100px_rgba(255,0,51,0.1)]">
-             <span className="text-[#ff0033] font-montserrat font-bold tracking-[0.3em] text-[10px] uppercase mb-4 block">Redsee Exclusive</span>
-             <h2 className="text-5xl font-bebas text-white mb-2 tracking-widest drop-shadow-[0_0_10px_rgba(255,0,51,0.5)]">STREETWEAR<br/>REDEFINED</h2>
-             <p className="text-gray-400 font-poppins text-xs mb-6">Discover the new standard of luxury.</p>
-             <button onClick={() => router.push('/shop')} className="bg-white text-black px-8 py-3 rounded-full font-montserrat uppercase tracking-widest text-xs font-bold hover:bg-[#ff0033] hover:text-white transition-colors">
-               Explore
-             </button>
-          </div>
-        )}
+      <div 
+        style={{ 
+          opacity: loaded ? 1 : 0, 
+          transition: "opacity 0.6s ease 0.2s",
+          pointerEvents: loaded ? "auto" : "none"
+        }}
+      >
         
-        {/* Banner Pagination */}
-        {(events.length > 1 || banners.length > 1) && (
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-30">
-            {(events.length > 0 ? events : banners).map((_, idx) => (
-              <div 
-                key={idx} 
-                className={`h-1.5 rounded-full transition-all duration-300 ${currentBanner === idx ? 'w-6 bg-[#ff0033] shadow-[0_0_8px_#ff0033]' : 'w-1.5 bg-white/40'}`} 
+        {/* ============ STICKY AUTO-SHRINKING HOMEPAGE HEADER ============ */}
+        <header className={`sticky top-0 z-40 bg-white/95 dark:bg-black/95 border-b border-zinc-200 dark:border-white/5 transition-all duration-300 backdrop-blur-md ${shrunk ? "py-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.8)]" : "py-4"}`}>
+          <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4">
+            
+            {/* Logo */}
+            <Link href="/" className="flex-shrink-0">
+              <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className={`transition-all duration-300 object-contain ${shrunk ? "h-6 md:h-7" : "h-8 md:h-9"}`} />
+            </Link>
+
+            {/* Centered Search Bar */}
+            <div 
+              onClick={() => router.push('/search')}
+              className="flex-grow max-w-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-lg px-4 py-2 flex items-center cursor-pointer hover:border-[#ff0033]/30 transition-colors"
+            >
+              <Search size={15} className="text-zinc-500 dark:text-gray-500 mr-3 flex-shrink-0" />
+              <span className="font-poppins text-xs md:text-sm text-zinc-500 dark:text-gray-500 truncate select-none">Search products...</span>
+            </div>
+
+            {/* Quick Actions (Theme, Cart, Profile) */}
+            <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+              {themeMounted && (
+                <button 
+                  onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors relative"
+                  aria-label="Toggle Theme"
+                >
+                  {currentTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                </button>
+              )}
+              <Link href="/cart" className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors relative" aria-label="Cart">
+                <ShoppingBag size={16} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#ff0033] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-[0_0_8px_rgba(255,0,51,0.6)] animate-pulse">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+              <Link href="/profile" className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors" aria-label="Profile">
+                <User size={16} />
+              </Link>
+            </div>
+          </div>
+
+          {/* Inline filters for Men / Women - Segmented sliding toggle control */}
+          <div className={`transition-all duration-300 overflow-hidden ${shrunk ? "max-h-0 opacity-0 pointer-events-none" : "max-h-16 opacity-100 mt-3 border-t border-zinc-200 dark:border-white/5"}`}>
+            <div className="flex justify-center px-4 py-2.5">
+              <div className="relative flex w-full max-w-xs bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 rounded-full p-1 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]">
+                {/* Sliding indicator */}
+                <div 
+                  className="absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-[#ff0033] to-[#cc0029] shadow-[0_2px_12px_rgba(255,0,51,0.5)] transition-all duration-300 ease-out"
+                  style={{
+                    width: 'calc(50% - 6px)',
+                    left: activeGenderTab === 'men' ? '4px' : 'calc(50% + 2px)'
+                  }}
+                />
+                
+                <button
+                  onClick={() => {
+                    setActiveGenderTab('men');
+                    setActiveCategory('all');
+                  }}
+                  className={`relative z-10 flex-1 py-1.5 text-xs font-montserrat font-bold tracking-widest uppercase text-center transition-colors duration-300 ${
+                    activeGenderTab === 'men' ? 'text-white' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                  }`}
+                >
+                  Men
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setActiveGenderTab('women');
+                    setActiveCategory('all');
+                  }}
+                  className={`relative z-10 flex-1 py-1.5 text-xs font-montserrat font-bold tracking-widest uppercase text-center transition-colors duration-300 ${
+                    activeGenderTab === 'women' ? 'text-white' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                  }`}
+                >
+                  Women
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Dynamic Filter Results Page (Shows when category filter active) */}
+        {activeCategory !== "all" ? (
+          <div className="px-4 py-8 max-w-7xl mx-auto animate-fadeIn">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <span className="text-[10px] uppercase font-montserrat font-bold tracking-[0.2em] text-[#ff0033] block mb-1">Filtered Collection</span>
+                <h2 className="text-3xl font-bebas text-white tracking-widest uppercase">
+                  {activeCategory} • {activeGenderTab === "men" ? "Men's Collection" : "Women's Collection"}
+                </h2>
+              </div>
+              <button 
+                onClick={() => {
+                  setActiveCategory("all");
+                }}
+                className="text-xs font-montserrat uppercase tracking-wider text-gray-500 hover:text-white underline"
+              >
+                Clear Filters
+              </button>
+            </div>
+
+            {loadingFiltered ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="w-full">
+                    <div className="aspect-[3/4] bg-zinc-200 dark:bg-white/5 rounded-xl mb-3 skeleton" />
+                    <div className="h-4 bg-zinc-200 dark:bg-white/5 rounded w-3/4 mb-2 skeleton" />
+                    <div className="h-4 bg-zinc-200 dark:bg-white/5 rounded w-1/2 skeleton" />
+                  </div>
+                ))}
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    id={product._id}
+                    name={product.name}
+                    price={product.pricing?.finalPrice || 0}
+                    image={product.images?.[0] || ''}
+                    hoverImage={product.images?.[1] || product.images?.[0] || ''}
+                    category={product.category}
+                    rating={5}
+                    discount={product.pricing?.discountPercentage || 0}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-24 bg-zinc-50 dark:bg-white/[0.01] rounded-xl border border-zinc-200 dark:border-white/5">
+                <p className="text-zinc-550 dark:text-gray-500 font-poppins text-sm mb-4">No drops matching this combination.</p>
+                <button 
+                  onClick={() => {
+                    setActiveCategory("all");
+                  }}
+                  className="bg-[#ff0033] text-white text-xs px-5 py-2.5 font-montserrat font-bold tracking-wider rounded uppercase hover:bg-red-700 transition-colors"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Normal Flipkart-Inspired Homepage Flow */
+          <div className="animate-fadeIn">
+            
+            {/* ============ SECTION 1: CIRCULAR CATEGORIES ============ */}
+            <div className="bg-zinc-50 dark:bg-[#0b0b0b] border-b border-zinc-200 dark:border-white/5 py-6 transition-colors duration-300">
+              <div className="flex overflow-x-auto no-scrollbar px-4 gap-4 md:gap-8 md:justify-center">
+                {STYLE_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.slug}
+                    onClick={() => {
+                      if (cat.slug === "men" || cat.slug === "women") {
+                        setActiveGenderTab(cat.slug as any);
+                      } else {
+                        setActiveCategory(cat.slug);
+                      }
+                    }}
+                    className="flex flex-col items-center gap-2 min-w-[70px] cat-circle group cursor-pointer"
+                  >
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border border-zinc-200 dark:border-white/10 group-hover:border-[#ff0033]/60 transition-all duration-300 bg-zinc-200 dark:bg-[#141414]">
+                      <img src={cat.img} alt={cat.name} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-[10px] md:text-[11px] font-montserrat font-semibold text-zinc-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors whitespace-nowrap uppercase">
+                      {cat.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ============ SECTION 2: DELIVERY LOCATION BAR ============ */}
+            <div className="bg-zinc-100 dark:bg-[#0e0e0e] border-b border-zinc-200 dark:border-white/5 py-2.5 px-4 flex items-center justify-between text-[11px] font-poppins text-zinc-600 dark:text-gray-400 transition-colors duration-300">
+              <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
+                <div className="flex items-center gap-1.5 truncate">
+                  <MapPin size={13} className="text-[#ff0033] flex-shrink-0" />
+                  <span className="truncate">Deliver to <strong className="text-black dark:text-white">{deliveryLocation}</strong></span>
+                </div>
+                <button 
+                  onClick={() => setShowLocationModal(true)} 
+                  className="text-[#ff0033] font-montserrat font-bold uppercase tracking-wider text-[10px] hover:text-black dark:hover:text-white transition-all ml-2"
+                >
+                  Change Location
+                </button>
+              </div>
+            </div>
+
+            {/* ============ SECTION 3: COMPACT HERO SLIDER ============ */}
+            <div className="relative w-full mt-4">
+              {showLoading ? (
+                <div className="max-w-7xl mx-auto px-4 md:px-6">
+                  <div className="w-full h-[22vh] md:h-[32vh] rounded-2xl skeleton" />
+                </div>
+              ) : (
+                <div className="relative group w-full">
+                  {/* Scroll Container */}
+                  <div
+                    ref={sliderRef}
+                    onScroll={handleSliderScroll}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUpOrLeave}
+                    onMouseLeave={handleMouseUpOrLeave}
+                    className="flex gap-4 overflow-x-auto px-4 md:px-8 py-2 snap-x snap-mandatory no-scrollbar cursor-grab active:cursor-grabbing select-none scroll-smooth"
+                  >
+                    {slides.map((item: any, idx: number) => {
+                      const imgSrc = item.imageUrl || item.img || '';
+                      const title = item.title || '';
+                      const desc = item.description || item.sub || '';
+                      const link = item.linkUrl || item.link || item.href || '/shop';
+
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => handleCardClick(link)}
+                          className="w-[85vw] md:w-[65vw] lg:w-[55vw] h-[22vh] md:h-[32vh] flex-shrink-0 snap-center rounded-2xl overflow-hidden relative border border-white/5 shadow-2xl transition-transform duration-300"
+                        >
+                          <img
+                            src={imgSrc}
+                            alt={title || `Slide ${idx + 1}`}
+                            className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+                            draggable={false}
+                          />
+
+                          {/* Gradients */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/20 to-black/85 pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent pointer-events-none" />
+
+                          {/* Text Overlay */}
+                          <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-8 z-10 w-full select-none">
+                            <span className="bg-[#ff0033] text-white text-[7px] md:text-[8px] font-montserrat font-bold uppercase tracking-widest px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(255,0,51,0.5)] w-max mb-1 md:mb-2">
+                              EXCLUSIVE DROP
+                            </span>
+                            <h2 className="text-lg md:text-3xl lg:text-4xl font-bebas text-white tracking-wider leading-none mb-0.5 md:mb-1 uppercase text-glow">
+                              {title}
+                            </h2>
+                            <p className="text-gray-300 text-[9px] md:text-xs font-poppins max-w-[95%] md:max-w-[80%] line-clamp-1 md:line-clamp-2 mb-2 md:mb-4">
+                              {desc}
+                            </p>
+                            <div className="flex">
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleCardClick(link); }}
+                                className="bg-[#ff0033] hover:bg-[#cc0029] text-white px-3 py-1 md:px-5 md:py-2 text-[9px] md:text-xs font-montserrat font-bold uppercase tracking-widest transition-all rounded shadow-md active:scale-95 cursor-pointer"
+                              >
+                                Shop Now
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Left / Right Controls */}
+                  {slides.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goToBanner('prev'); }}
+                        className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black/90 transition-all z-20 cursor-pointer shadow-lg"
+                        aria-label="Previous slide"
+                      >
+                        <ChevronLeft size={20} className="text-white" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goToBanner('next'); }}
+                        className="absolute right-6 md:right-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black/90 transition-all z-20 cursor-pointer shadow-lg"
+                        aria-label="Next slide"
+                      >
+                        <ChevronRight size={20} className="text-white" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Indicators */}
+                  {slides.length > 1 && (
+                    <div className="flex justify-center gap-1.5 mt-3">
+                      {slides.map((_: any, idx: number) => (
+                        <button
+                          key={idx}
+                          onClick={(e) => { e.stopPropagation(); scrollToBanner(idx); }}
+                          className={`rounded-full transition-all duration-300 ${
+                            idx === currentBanner
+                              ? 'w-6 h-2 bg-[#ff0033] shadow-[0_0_8px_rgba(255,0,51,0.6)]'
+                              : 'w-2 h-2 bg-white/40 hover:bg-white/70'
+                          }`}
+                          aria-label={`Go to slide ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <BrandBarReverse />
+
+            {/* ============ CONTINUE SHOPPING / RECENTLY VIEWED ============ */}
+            <RecentlyViewedShelf />
+
+            {/* ============ SECTION 4: JUST DROPPED ============ */}
+            <ProductShelf
+              title="Just Dropped"
+              subtitle="Latest releases & fresh designs"
+              products={getFilteredProducts(justDropped)}
+              loading={showLoading}
+              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+            />
+
+            {/* ============ SECTION 5: TRENDING NOW ============ */}
+            <ProductShelf
+              title="Trending Now"
+              subtitle="Hot picks & viral looks"
+              products={getFilteredProducts(trendingNow)}
+              loading={showLoading}
+              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+            />
+
+            {/* ============ SECTION 6: BEST SELLERS ============ */}
+            <ProductShelf
+              title="Best Sellers"
+              subtitle="Redsee classics & most wanted"
+              products={getFilteredProducts(bestSellers)}
+              loading={showLoading}
+              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+            />
+
+            {/* ============ SECTION 7: MEN'S COLLECTION ============ */}
+            {activeGenderTab === "men" && (
+              <ProductShelf
+                title="Men Collection"
+                subtitle="Luxury drops for men"
+                products={getFilteredProducts(mensCollection)}
+                loading={showLoading}
+                link="/category/men"
               />
-            ))}
+            )}
+
+            {/* ============ SECTION 8: WOMEN'S COLLECTION ============ */}
+            {activeGenderTab === "women" && (
+              <ProductShelf
+                title="Women Collection"
+                subtitle="Futuristic collection for women"
+                products={getFilteredProducts(womensCollection)}
+                loading={showLoading}
+                link="/category/women"
+              />
+            )}
+
+            {/* ============ SECTION 9: LIMITED DROPS ============ */}
+            <LimitedDropShelf
+              title="Limited Drops"
+              subtitle="Scarcity releases - low stock alert"
+              products={getFilteredProducts(limitedDrops)}
+              loading={showLoading}
+            />
+
+            {/* ============ SECTION 10: OFFERS FOR YOU ============ */}
+            <ProductShelf
+              title="Offers For You"
+              subtitle="Unmissable bargains & promo discounts"
+              products={getFilteredProducts(offersForYou)}
+              loading={showLoading}
+              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+            />
+
+            {/* ============ SECTION 11: NEW ARRIVALS ============ */}
+            <ProductShelf
+              title="New Arrivals"
+              subtitle="Latest designs added to store"
+              products={getFilteredProducts(newArrivals)}
+              loading={showLoading}
+              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+            />
+
+            <BrandBar />
+
+            {/* ============ SECTION 12: EDITORIAL LOOKBOOK ============ */}
+            <LookbookSection />
           </div>
         )}
-      </div>
 
-      {/* 5. NEWLY ADDED ITEMS SECTION (Horizontal Scroll) */}
-      <div className="mt-8">
-        <div className="px-4 flex justify-between items-end mb-4">
-          <h2 className="text-2xl font-bebas text-white tracking-widest uppercase flex items-center">
-            <span className="w-2 h-2 rounded-full bg-[#ff0033] shadow-[0_0_8px_#ff0033] mr-2 animate-pulse"></span>
-            Newly Added
-          </h2>
-          <Link href="/shop" className="text-[10px] font-montserrat font-bold text-gray-500 uppercase tracking-widest flex items-center">
+        {/* ============ SECTION 13: TRUST BADGES ============ */}
+        <div className="bg-zinc-50 dark:bg-[#0a0a0a] border-t border-zinc-200 dark:border-white/5 py-12 px-4 md:px-8 transition-colors duration-300">
+          <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { title: "Premium Quality", desc: "Crafted from choice materials", icon: Crown },
+              { title: "Secure Payments", desc: "100% encrypted checkout", icon: ShieldCheck },
+              { title: "Fast Delivery", desc: "Express delivery straight to door", icon: Truck },
+              { title: "Easy Returns", desc: "Hassle-free 14-day replacement", icon: RotateCcw },
+            ].map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <div key={idx} className="flex flex-col items-center text-center p-4 rounded-xl bg-white dark:bg-white/[0.01] border border-zinc-200 dark:border-white/5 shadow-sm dark:shadow-none">
+                  <div className="w-10 h-10 rounded-full bg-[#ff0033]/10 border border-[#ff0033]/20 flex items-center justify-center text-[#ff0033] mb-3">
+                    <Icon size={18} />
+                  </div>
+                  <h4 className="text-black dark:text-white text-xs font-montserrat font-bold uppercase tracking-wider mb-1">{item.title}</h4>
+                  <p className="text-zinc-500 dark:text-gray-500 text-[10px] font-poppins leading-relaxed">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ============ PINCODE SELECTOR MODAL ============ */}
+        {showLocationModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
+            {/* Backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/60"
+              onClick={() => setShowLocationModal(false)}
+            />
+
+            {/* Modal Body */}
+            <div 
+              className="relative bg-white dark:bg-[#111] border border-zinc-200 dark:border-white/10 rounded-2xl w-full max-w-sm p-6 shadow-2xl z-10 animate-fadeIn"
+            >
+              <h3 className="text-xl font-bebas text-black dark:text-white tracking-wider mb-2">Delivery Location</h3>
+              <p className="text-zinc-500 dark:text-gray-400 text-xs font-poppins mb-5">Select where you want your streetwear drops delivered.</p>
+
+              {/* Autodetect Button */}
+              <button
+                onClick={handleAutoDetectLocation}
+                disabled={detectingLocation}
+                className="w-full bg-[#ff0033] text-white py-3 rounded-lg font-montserrat font-bold tracking-widest text-[11px] uppercase flex items-center justify-center space-x-2 transition-colors disabled:opacity-50 mb-4"
+              >
+                <MapPin size={14} className={detectingLocation ? "animate-bounce" : ""} />
+                <span>{detectingLocation ? "Locating..." : "Use Current Location"}</span>
+              </button>
+
+              <div className="flex items-center my-4">
+                <hr className="flex-grow border-zinc-200 dark:border-white/5" />
+                <span className="px-3 text-[10px] font-montserrat text-zinc-400 dark:text-gray-500 uppercase tracking-widest">Or Enter Pincode</span>
+                <hr className="flex-grow border-zinc-200 dark:border-white/5" />
+              </div>
+
+              {/* Manual Input */}
+              <form onSubmit={handleManualPincodeSubmit} className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. 400001"
+                  value={pincodeInput}
+                  onChange={(e) => setPincodeInput(e.target.value)}
+                  className="flex-1 bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/10 rounded-lg px-3 py-2.5 text-black dark:text-white text-xs font-poppins outline-none focus:border-[#ff0033] transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="bg-black dark:bg-white text-white dark:text-black hover:bg-[#ff0033] dark:hover:bg-[#ff0033] hover:text-white dark:hover:text-white px-4 rounded-lg font-montserrat font-bold text-xs uppercase transition-colors"
+                >
+                  Apply
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Error / Retry Banner */}
+        {(fetchError || loadingTimedOut) && (
+          <div className="mx-4 mt-4 bg-[#1a0000] border border-[#ff0033]/20 rounded-lg px-4 py-3 flex items-center justify-between">
+            <p className="text-gray-400 text-xs font-poppins">
+              {fetchError ? 'Could not load latest products.' : 'Loading is taking longer than usual.'}
+            </p>
+            <button
+              onClick={() => setRetryCount(c => c + 1)}
+              className="flex items-center gap-1.5 text-[#ff0033] text-xs font-montserrat font-bold uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <RefreshCw size={12} /> Retry
+            </button>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+// Reusable horizontal product shelf component
+interface ShelfProps {
+  title: string;
+  subtitle: string;
+  products: any[];
+  loading: boolean;
+  link: string;
+}
+
+function ProductShelf({ title, subtitle, products, loading, link }: ShelfProps) {
+  if (!loading && products.length === 0) return null;
+
+  return (
+    <section className="px-4 py-10 md:px-8 border-b border-zinc-200 dark:border-white/5 bg-white dark:bg-[#0a0a0a] relative overflow-hidden transition-colors duration-300">
+      {/* Subtle decorative glow */}
+      <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-[#ff0033]/2 rounded-full blur-[90px] pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <span className="text-[10px] uppercase font-montserrat font-bold tracking-[0.2em] text-[#ff0033] block mb-1">
+              — {subtitle}
+            </span>
+            <h2 className="text-2xl md:text-3xl font-bebas text-black dark:text-white tracking-widest uppercase">
+              {title}
+            </h2>
+          </div>
+          <Link 
+            href={link} 
+            className="text-[10px] font-montserrat font-bold text-zinc-500 dark:text-gray-500 uppercase tracking-widest flex items-center hover:text-black dark:hover:text-white transition-colors"
+          >
             View All <ChevronRight size={12} className="ml-0.5" />
           </Link>
         </div>
-        
-        <div className="flex overflow-x-auto no-scrollbar pl-4 pr-4 pb-6 space-x-4">
+
+        <div className="flex overflow-x-auto no-scrollbar pb-3 gap-4 snap-x snap-mandatory">
           {loading ? (
-            // Skeleton loaders
-            [1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-[160px] md:w-[220px] flex-shrink-0 animate-pulse">
-                <div className="aspect-[4/5] bg-white/5 rounded-2xl mb-3"></div>
-                <div className="h-3 bg-white/5 rounded w-3/4 mb-2"></div>
-                <div className="h-3 bg-white/5 rounded w-1/2"></div>
-              </div>
-            ))
-          ) : newArrivals.length > 0 ? (
-            newArrivals.map((product) => (
-              <div key={product._id} className="w-[160px] md:w-[220px] flex-shrink-0 snap-start">
-                <ProductCard 
-                  id={product._id}
-                  name={product.name}
-                  price={product.pricing?.basePrice || 0}
-                  image={product.images?.[0]?.url || ''}
-                  hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
-                  category={product.category}
-                  rating={5}
-                  discount={product.pricing?.discount || 0}
-                />
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="w-[170px] md:w-[220px] flex-shrink-0">
+                <div className="aspect-[3/4] bg-zinc-200 dark:bg-white/5 rounded-xl mb-3 skeleton" />
+                <div className="h-4 bg-zinc-200 dark:bg-white/5 rounded w-3/4 mb-2 skeleton" />
+                <div className="h-4 bg-zinc-200 dark:bg-white/5 rounded w-1/2 skeleton" />
               </div>
             ))
           ) : (
-             <div className="px-4 text-sm text-gray-500 font-poppins">No products found.</div>
+            products.map((product: any) => (
+              <div key={product._id} className="w-[170px] md:w-[220px] flex-shrink-0 snap-start">
+                <ProductCard
+                  id={product._id}
+                  name={product.name}
+                  price={product.pricing?.finalPrice || 0}
+                  image={product.images?.[0] || ''}
+                  hoverImage={product.images?.[1] || product.images?.[0] || ''}
+                  category={product.category}
+                  rating={5}
+                  discount={product.pricing?.discountPercentage || 0}
+                />
+              </div>
+            ))
           )}
         </div>
       </div>
+    </section>
+  );
+}
 
-      {/* 6. WOMEN'S STORE SECTION */}
-      {activeTab === 'WOMEN' && (
-        <section className="px-4 py-8 bg-[#0a0a0a] border-y border-white/5 mt-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#ff0033]/5 rounded-full blur-[100px] pointer-events-none"></div>
-          <div className="flex justify-between items-end mb-6 relative z-10">
-            <div>
-              <span className="text-[#ff0033] text-[10px] uppercase font-montserrat font-bold tracking-[0.2em] block mb-1">Curated</span>
-              <h2 className="text-3xl font-bebas text-white tracking-widest uppercase">Women's Store</h2>
-            </div>
-            <Link href="/category/Women" className="text-[#ff0033] text-[10px] font-montserrat font-bold uppercase tracking-widest flex items-center">
-              Explore <ChevronRight size={12} className="ml-0.5" />
-            </Link>
-          </div>
+// Limited drop scarcity alert shelf
+function LimitedDropShelf({ title, subtitle, products, loading }: { title: string; subtitle: string; products: any[]; loading: boolean }) {
+  if (!loading && products.length === 0) return null;
 
-          <div className="grid grid-cols-2 gap-3 relative z-10">
-            {womensCollection.slice(0, 4).map((product) => (
-              <ProductCard 
-                  key={product._id}
-                  id={product._id}
-                  name={product.name}
-                  price={product.pricing?.basePrice || 0}
-                  image={product.images?.[0]?.url || ''}
-                  hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
-                  category={product.category}
-                  rating={5}
-                  discount={product.pricing?.discount || 0}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 7. ALTERNATING OFFER SECTIONS */}
-      <section className="px-4 py-8 mt-4">
-        <h2 className="text-2xl font-bebas text-white tracking-widest uppercase mb-6 text-center">Featured Drops</h2>
-        
-        <div className="grid grid-cols-1 gap-4">
-          {/* Large Card */}
-          <div className="relative aspect-square md:aspect-[21/9] group overflow-hidden rounded-3xl bg-zinc-900 border border-white/10 cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-            <img 
-              src="https://images.unsplash.com/photo-1550614000-4b95d466f911?q=80&w=1000&auto=format&fit=crop" 
-              className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-            <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
-              <span className="bg-[#ff0033] text-white text-[9px] font-montserrat font-bold uppercase tracking-widest px-2 py-1 rounded w-max mb-3 shadow-[0_0_10px_#ff0033]">New Collection</span>
-              <h3 className="text-4xl font-bebas text-white mb-1 tracking-widest">CYBERPUNK ERA</h3>
-              <p className="text-gray-300 text-xs font-poppins mb-4 max-w-[80%]">Metallic finishes and oversized silhouettes for the modern distopia.</p>
-            </div>
-          </div>
-
-          {/* Medium Split Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative aspect-[4/5] group overflow-hidden rounded-3xl bg-zinc-900 border border-white/10 cursor-pointer">
-              <img 
-                src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800&auto=format&fit=crop" 
-                className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-              <div className="absolute inset-x-0 bottom-0 p-4 z-10">
-                <h3 className="text-2xl font-bebas text-white tracking-widest">ACCESSORIES</h3>
-                <p className="text-[#ff0033] text-[10px] font-montserrat font-bold uppercase tracking-widest mt-1">Up to 40% Off</p>
-              </div>
-            </div>
-            
-            <div className="relative aspect-[4/5] group overflow-hidden rounded-3xl bg-zinc-900 border border-white/10 cursor-pointer">
-              <img 
-                src="https://images.unsplash.com/photo-1608228079968-c7681eaef812?q=80&w=800&auto=format&fit=crop" 
-                className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-              <div className="absolute inset-x-0 bottom-0 p-4 z-10">
-                <h3 className="text-2xl font-bebas text-white tracking-widest">SNEAKERS</h3>
-                <p className="text-[#ff0033] text-[10px] font-montserrat font-bold uppercase tracking-widest mt-1">Limited Stock</p>
-              </div>
-            </div>
+  return (
+    <section className="px-4 py-10 md:px-8 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-[#0b0b0b] relative overflow-hidden transition-colors duration-300">
+      <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-[#ff0033]/2 rounded-full blur-[120px] pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 mb-6">
+          <Flame size={18} className="text-[#ff0033] animate-pulse" />
+          <div>
+            <span className="text-[10px] uppercase font-montserrat font-bold tracking-[0.2em] text-[#ff0033] block mb-0.5">
+              — {subtitle}
+            </span>
+            <h2 className="text-2xl md:text-3xl font-bebas text-black dark:text-white tracking-widest uppercase">
+              {title}
+            </h2>
           </div>
         </div>
-      </section>
 
-      {/* 8. MEN'S STORE SECTION */}
-      {activeTab === 'MEN' && (
-        <section className="px-4 py-8 bg-[#0a0a0a] border-y border-white/5 mt-4 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-[100px] pointer-events-none"></div>
-          <div className="flex justify-between items-end mb-6 relative z-10">
-            <div>
-              <span className="text-white/50 text-[10px] uppercase font-montserrat font-bold tracking-[0.2em] block mb-1">Essential</span>
-              <h2 className="text-3xl font-bebas text-white tracking-widest uppercase">Men's Store</h2>
-            </div>
-            <Link href="/category/Men" className="text-white/50 hover:text-white transition-colors text-[10px] font-montserrat font-bold uppercase tracking-widest flex items-center">
-              Explore <ChevronRight size={12} className="ml-0.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 relative z-10">
-            {mensCollection.slice(0, 4).map((product) => (
-              <ProductCard 
-                  key={product._id}
-                  id={product._id}
-                  name={product.name}
-                  price={product.pricing?.basePrice || 0}
-                  image={product.images?.[0]?.url || ''}
-                  hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
-                  category={product.category}
-                  rating={5}
-                  discount={product.pricing?.discount || 0}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Footer Buffer for BottomNav */}
-      <div className="h-10"></div>
-    </div>
+        <div className="flex overflow-x-auto no-scrollbar pb-3 gap-4 snap-x snap-mandatory">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="w-[170px] md:w-[220px] flex-shrink-0">
+                <div className="aspect-[3/4] bg-zinc-200 dark:bg-white/5 rounded-xl mb-3 skeleton" />
+                <div className="h-4 bg-zinc-200 dark:bg-white/5 rounded w-3/4 mb-2 skeleton" />
+                <div className="h-4 bg-zinc-200 dark:bg-white/5 rounded w-1/2 skeleton" />
+              </div>
+            ))
+          ) : (
+            products.map((product: any, idx: number) => {
+              const stocks = [3, 5, 8, 12, 15];
+              const left = stocks[idx % stocks.length];
+              return (
+                <div key={product._id} className="w-[170px] md:w-[220px] flex-shrink-0 snap-start relative">
+                  <ProductCard
+                    id={product._id}
+                    name={product.name}
+                    price={product.pricing?.finalPrice || 0}
+                    image={product.images?.[0] || ''}
+                    hoverImage={product.images?.[1] || product.images?.[0] || ''}
+                    category={product.category}
+                    rating={4.9}
+                    discount={product.pricing?.discountPercentage || 0}
+                  />
+                  <div className="absolute bottom-[108px] left-2 bg-black/85 backdrop-blur-md px-2 py-0.5 rounded border border-[#ff0033]/30 text-[8px] font-bold text-white tracking-wider flex items-center gap-1 z-10 shadow-[0_0_8px_rgba(255,0,51,0.2)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#ff0033] animate-ping" />
+                    ONLY {left} LEFT
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </section>
   );
 }

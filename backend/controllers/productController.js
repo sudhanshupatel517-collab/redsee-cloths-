@@ -7,10 +7,11 @@ const getProducts = async (req, res) => {
   try {
     const keyword = req.query.keyword
       ? {
-          name: {
-            $regex: req.query.keyword,
-            $options: 'i',
-          },
+          $or: [
+            { name: { $regex: req.query.keyword, $options: "i" } },
+            { category: { $regex: req.query.keyword, $options: "i" } },
+            { tags: { $in: [new RegExp(req.query.keyword, "i")] } }
+          ]
         }
       : {};
 
@@ -171,6 +172,28 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+// @desc    Get batch products by IDs
+// @route   POST /api/products/batch
+// @access  Public
+const getProductsBatch = async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids)) {
+    return res.status(400).json({ message: 'Product IDs array is required' });
+  }
+  try {
+    const products = await Product.find({ _id: { $in: ids }, published: true });
+    // Map them to preserve requested order
+    const idMap = new Map(products.map(p => [p._id.toString(), p]));
+    const sortedProducts = ids
+      .map(id => idMap.get(id.toString()))
+      .filter(p => p != null);
+
+    res.json(sortedProducts);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error fetching batch products', error: error.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getAdminProducts,
@@ -178,4 +201,5 @@ module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductsBatch,
 };

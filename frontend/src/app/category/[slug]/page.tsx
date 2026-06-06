@@ -1,12 +1,14 @@
 "use client";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { fetchProducts } from "@/store/productSlice";
 import ProductGrid from "@/components/ProductGrid";
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1);
+export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const unwrappedParams = React.use(params);
+  const slug = unwrappedParams.slug;
+  const categoryName = slug.charAt(0).toUpperCase() + slug.slice(1);
   const dispatch = useDispatch<AppDispatch>();
   const { products, loading } = useSelector((state: RootState) => state.products);
 

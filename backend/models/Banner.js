@@ -14,6 +14,10 @@ const bannerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    description: {
+      type: String,
+      trim: true,
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -21,6 +25,12 @@ const bannerSchema = new mongoose.Schema(
     order: {
       type: Number,
       default: 0,
+    },
+    startDate: {
+      type: Date,
+    },
+    endDate: {
+      type: Date,
     },
   },
   {

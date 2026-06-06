@@ -7,6 +7,7 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductsBatch,
 } = require('../controllers/productController');
 const { protect, coadmin } = require('../middleware/authMiddleware');
 
@@ -16,6 +17,9 @@ router.route('/')
 
 router.route('/admin')
   .get(protect, coadmin, getAdminProducts);
+
+router.route('/batch')
+  .post(getProductsBatch);
 
 router.route('/:id')
   .get(getProductById)

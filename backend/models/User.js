@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   tempPassword: { type: String },
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },
   role: { type: String, enum: ['user', 'coadmin', 'admin'], default: 'user' },
-  permissions: [{ type: String, enum: ['manage_products', 'manage_inventory', 'manage_orders', 'manage_discounts', 'manage_support', 'manage_categories'] }],
+  permissions: [{ type: String, enum: ['manage_products', 'manage_inventory', 'manage_orders', 'manage_discounts', 'manage_support', 'manage_categories', 'manage_banners', 'manage_events'] }],
   addresses: [{
     street: String,
     city: String,
@@ -32,7 +32,11 @@ const userSchema = new mongoose.Schema({
     color: String
   }],
   rewards: { type: Number, default: 0 },
-  orderHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
+  orderHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
+  recentlyViewed: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true, index: true },
+    viewedAt: { type: Date, default: Date.now }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

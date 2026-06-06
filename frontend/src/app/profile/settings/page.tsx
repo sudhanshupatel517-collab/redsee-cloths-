@@ -80,18 +80,18 @@ export default function SettingsPage() {
   };
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-bebas text-white tracking-widest uppercase mb-1">Account Settings</h1>
-      <p className="text-gray-400 font-poppins text-sm mb-8">Manage your account security and preferences.</p>
+      <h1 className="text-2xl md:text-3xl font-bebas text-zinc-900 dark:text-white tracking-widest uppercase mb-1">Account Settings</h1>
+      <p className="text-zinc-600 dark:text-gray-400 font-poppins text-sm mb-8">Manage your account security and preferences.</p>
 
       <div className="space-y-6">
         
         {user?.role === 'user' && (
-          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+          <div className="bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 rounded-2xl p-6">
             <div className="flex items-center mb-4">
               <Key className="text-[#ff0033] mr-3" size={20} />
-              <h2 className="text-lg font-montserrat font-bold text-white">Password & Security</h2>
+              <h2 className="text-lg font-montserrat font-bold text-zinc-900 dark:text-white">Password & Security</h2>
             </div>
-            <p className="text-gray-500 font-poppins text-sm mb-4">Set or update your password to enable email login.</p>
+            <p className="text-zinc-600 dark:text-gray-500 font-poppins text-sm mb-4">Set or update your password to enable email login.</p>
             
             <AnimatePresence>
               {message.text && (
@@ -114,7 +114,7 @@ export default function SettingsPage() {
             {!isChangingPassword ? (
               <button 
                 onClick={() => { setIsChangingPassword(true); setStep(1); }}
-                className="border border-white/20 hover:border-[#ff0033] text-white hover:text-[#ff0033] px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
+                className="border border-zinc-200 dark:border-white/20 hover:border-[#ff0033] text-zinc-800 dark:text-white hover:text-[#ff0033] px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
               >
                 {user?.hasPassword ? 'Change Password' : 'Set Password'}
               </button>
@@ -131,33 +131,33 @@ export default function SettingsPage() {
                   >
                     {user?.hasPassword && (
                       <div>
-                        <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Current Password</label>
+                        <label className="block text-xs font-montserrat tracking-widest text-zinc-500 uppercase mb-2">Current Password</label>
                         <input 
                           type="password" 
                           value={currentPassword}
                           onChange={(e) => setCurrentPassword(e.target.value)}
-                          className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                          className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-zinc-900 dark:text-white outline-none transition-colors"
                           required
                         />
                       </div>
                     )}
                     <div>
-                      <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">New Password</label>
+                      <label className="block text-xs font-montserrat tracking-widest text-zinc-500 uppercase mb-2">New Password</label>
                       <input 
                         type="password" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                        className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-zinc-900 dark:text-white outline-none transition-colors"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Confirm Password</label>
+                      <label className="block text-xs font-montserrat tracking-widest text-zinc-500 uppercase mb-2">Confirm Password</label>
                       <input 
                         type="password" 
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                        className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-zinc-900 dark:text-white outline-none transition-colors"
                         required
                       />
                     </div>
@@ -175,7 +175,7 @@ export default function SettingsPage() {
                           setIsChangingPassword(false);
                           setMessage({ text: '', type: '' });
                         }}
-                        className="border border-white/20 hover:bg-white/5 text-gray-400 hover:text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
+                        className="border border-zinc-200 dark:border-white/20 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-zinc-900 dark:hover:text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
                       >
                         Cancel
                       </button>
@@ -193,13 +193,13 @@ export default function SettingsPage() {
                     className="space-y-4 max-w-md"
                   >
                     <div>
-                      <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Enter 6-Digit OTP</label>
+                      <label className="block text-xs font-montserrat tracking-widest text-zinc-500 uppercase mb-2">Enter 6-Digit OTP</label>
                       <input 
                         type="text" 
                         maxLength={6}
                         value={otp}
                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                        className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-center text-white font-bebas text-2xl tracking-[0.5em] outline-none transition-colors"
+                        className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-center text-zinc-900 dark:text-white font-bebas text-2xl tracking-[0.5em] outline-none transition-colors"
                         required
                       />
                     </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                       <button 
                         type="button"
                         onClick={() => setStep(1)}
-                        className="border border-white/20 hover:bg-white/5 text-gray-400 hover:text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
+                        className="border border-zinc-200 dark:border-white/20 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-zinc-900 dark:hover:text-white px-6 py-2.5 rounded-lg font-montserrat font-bold text-xs tracking-widest uppercase transition-colors"
                       >
                         Back
                       </button>
@@ -226,20 +226,20 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+        <div className="bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 rounded-2xl p-6">
           <div className="flex items-center mb-4">
             <Bell className="text-[#ff0033] mr-3" size={20} />
-            <h2 className="text-lg font-montserrat font-bold text-white">Notifications</h2>
+            <h2 className="text-lg font-montserrat font-bold text-zinc-900 dark:text-white">Notifications</h2>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-montserrat text-sm">Email Notifications</p>
-                <p className="text-gray-500 font-poppins text-xs">Receive updates on your orders and promotions.</p>
+                <p className="text-zinc-800 dark:text-white font-montserrat text-sm">Email Notifications</p>
+                <p className="text-zinc-500 dark:text-gray-500 font-poppins text-xs">Receive updates on your orders and promotions.</p>
               </div>
               <div 
                 onClick={() => setEmailNotif(!emailNotif)}
-                className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${emailNotif ? 'bg-[#ff0033]' : 'bg-gray-700'}`}
+                className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${emailNotif ? 'bg-[#ff0033]' : 'bg-zinc-200 dark:bg-zinc-700'}`}
               >
                 <motion.div 
                   layout
@@ -251,12 +251,12 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white font-montserrat text-sm">SMS Notifications</p>
-                <p className="text-gray-500 font-poppins text-xs">Receive delivery updates via text message.</p>
+                <p className="text-zinc-800 dark:text-white font-montserrat text-sm">SMS Notifications</p>
+                <p className="text-zinc-500 dark:text-gray-500 font-poppins text-xs">Receive delivery updates via text message.</p>
               </div>
               <div 
                 onClick={() => setSmsNotif(!smsNotif)}
-                className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${smsNotif ? 'bg-[#ff0033]' : 'bg-gray-700'}`}
+                className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${smsNotif ? 'bg-[#ff0033]' : 'bg-zinc-200 dark:bg-zinc-700'}`}
               >
                 <motion.div 
                   layout
@@ -270,12 +270,12 @@ export default function SettingsPage() {
         </div>
 
         {user?.role === 'user' && (
-          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+          <div className="bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/5 rounded-2xl p-6">
             <div className="flex items-center mb-4">
               <Shield className="text-[#ff0033] mr-3" size={20} />
-              <h2 className="text-lg font-montserrat font-bold text-white">Data & Privacy</h2>
+              <h2 className="text-lg font-montserrat font-bold text-zinc-900 dark:text-white">Data & Privacy</h2>
             </div>
-            <p className="text-gray-500 font-poppins text-sm mb-4">Manage how your data is used or request account deletion.</p>
+            <p className="text-zinc-500 dark:text-gray-500 font-poppins text-sm mb-4">Manage how your data is used or request account deletion.</p>
             <button className="text-red-500 hover:text-red-400 font-montserrat font-bold text-xs tracking-widest uppercase transition-colors">
               Delete Account
             </button>

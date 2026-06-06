@@ -45,8 +45,8 @@ export default function ProfileSidebar() {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* User Info Header */}
-      <div className="flex items-center space-x-4 mb-8 p-4 bg-white/[0.02] rounded-xl border border-white/5 shadow-inner">
-        <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-[#ff0033] to-[#7a0000] border-2 border-white/10 flex items-center justify-center flex-shrink-0 relative group">
+      <div className="flex items-center space-x-4 mb-8 p-4 bg-zinc-100 dark:bg-white/[0.02] rounded-xl border border-zinc-200 dark:border-white/5 shadow-inner">
+        <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-[#ff0033] to-[#7a0000] border-2 border-zinc-300 dark:border-white/10 flex items-center justify-center flex-shrink-0 relative group">
           {user?.avatar ? (
              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
           ) : (
@@ -57,8 +57,8 @@ export default function ProfileSidebar() {
           </div>
         </div>
         <div className="overflow-hidden">
-          <h3 className="text-white font-montserrat font-bold truncate text-sm">{user?.name || 'User'}</h3>
-          <p className="text-gray-500 text-xs truncate font-poppins">{user?.email || ''}</p>
+          <h3 className="text-black dark:text-white font-montserrat font-bold truncate text-sm">{user?.name || 'User'}</h3>
+          <p className="text-zinc-500 dark:text-gray-500 text-xs truncate font-poppins">{user?.email || ''}</p>
         </div>
       </div>
 
@@ -75,16 +75,16 @@ export default function ProfileSidebar() {
               onClick={() => setIsMobileOpen(false)}
               className={`relative flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-300 group ${
                 isActive 
-                  ? 'bg-gradient-to-r from-[#ff0033]/20 to-transparent border border-[#ff0033]/30 shadow-[0_0_15px_rgba(255,0,51,0.15)]' 
-                  : 'hover:bg-white/[0.05] border border-transparent'
+                  ? 'bg-gradient-to-r from-[#ff0033]/20 to-transparent border border-[#ff0033]/30 shadow-[0_4px_12px_rgba(255,0,51,0.05)] dark:shadow-[0_0_15px_rgba(255,0,51,0.15)]' 
+                  : 'hover:bg-zinc-100 dark:hover:bg-white/[0.05] border border-transparent'
               }`}
             >
               <div className="flex items-center space-x-3 relative z-10">
                 <Icon 
                   size={18} 
-                  className={`transition-colors ${isActive ? 'text-[#ff0033]' : 'text-gray-400 group-hover:text-white'}`} 
+                  className={`transition-colors ${isActive ? 'text-[#ff0033]' : 'text-zinc-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white'}`} 
                 />
-                <span className={`font-montserrat text-sm tracking-wide transition-colors ${isActive ? 'text-white font-bold' : 'text-gray-400 group-hover:text-white'}`}>
+                <span className={`font-montserrat text-sm tracking-wide transition-colors ${isActive ? 'text-[#ff0033] dark:text-white font-bold' : 'text-zinc-650 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white'}`}>
                   {link.name}
                 </span>
               </div>
@@ -103,10 +103,10 @@ export default function ProfileSidebar() {
       </nav>
 
       {/* Logout Button */}
-      <div className="mt-8 pt-6 border-t border-white/10">
+      <div className="mt-8 pt-6 border-t border-zinc-200 dark:border-white/10">
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.05] border border-transparent hover:border-white/10 transition-all group"
+          className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-zinc-550 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.05] border border-transparent hover:border-zinc-200 dark:hover:border-white/10 transition-all group"
         >
           <LogOut size={18} className="group-hover:text-[#ff0033] transition-colors" />
           <span className="font-montserrat text-sm tracking-widest uppercase">Logout</span>
@@ -118,25 +118,25 @@ export default function ProfileSidebar() {
   return (
     <>
       {/* Mobile Toggle Button */}
-      <div className="md:hidden flex items-center justify-between bg-white/[0.02] border border-white/10 p-4 rounded-xl mb-6">
+      <div className="md:hidden flex items-center justify-between bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10 p-4 rounded-xl mb-6">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff0033] to-[#7a0000] flex items-center justify-center">
             <span className="font-bebas text-white tracking-widest">{user?.name?.charAt(0) || 'U'}</span>
           </div>
-          <span className="text-white font-montserrat font-bold text-sm tracking-widest uppercase">
+          <span className="text-black dark:text-white font-montserrat font-bold text-sm tracking-widest uppercase">
             {sidebarLinks.find(l => l.href === pathname)?.name || 'Dashboard'}
           </span>
         </div>
         <button 
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-zinc-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
         >
           {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden md:block h-full glassmorphism-dark border border-white/10 rounded-2xl p-6 relative shadow-2xl">
+      <div className="hidden md:block h-full bg-white dark:bg-[#0c0c0c] border border-zinc-200 dark:border-white/10 rounded-2xl p-6 relative shadow-lg dark:shadow-2xl transition-colors duration-300">
         <SidebarContent />
       </div>
 
@@ -148,7 +148,7 @@ export default function ProfileSidebar() {
           opacity: isMobileOpen ? 1 : 0,
           marginTop: isMobileOpen ? '1rem' : 0
         }}
-        className="md:hidden overflow-hidden glassmorphism-dark border border-white/10 rounded-2xl px-4"
+        className="md:hidden overflow-hidden bg-white dark:bg-[#0c0c0c] border border-zinc-200 dark:border-white/10 rounded-2xl px-4 transition-colors duration-300"
       >
         <div className="py-6">
           <SidebarContent />

@@ -125,4 +125,223 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile };
+// @desc    Add product to recently viewed list
+// @route   POST /api/users/recently-viewed
+// @access  Private
+const addRecentlyViewed = async (req, res) => {
+  const { productId } = req.body;
+  if (!productId) {
+    return res.status(400).json({ message: 'Product ID is required' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.recentlyViewed) {
+      user.recentlyViewed = [];
+    }
+
+    // Remove duplicates if already exists
+    user.recentlyViewed = user.recentlyViewed.filter(
+      (item) => item.productId && item.productId.toString() !== productId.toString()
+    );
+
+    // Add most recently viewed at first position
+    user.recentlyViewed.unshift({ productId, viewedAt: new Date() });
+
+    // Cap at 20 products
+    if (user.recentlyViewed.length > 20) {
+      user.recentlyViewed = user.recentlyViewed.slice(0, 20);
+    }
+
+    await user.save();
+    res.status(200).json({ message: 'Product added to recently viewed list' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Get user's recently viewed products list
+// @route   GET /api/users/recently-viewed
+// @access  Private
+const getRecentlyViewed = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate({
+      path: 'recentlyViewed.productId',
+      model: 'Product'
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Filter out items where the populated product might be null (e.g. deleted products)
+    const validProducts = user.recentlyViewed
+      .filter((item) => item.productId != null)
+      .map((item) => item.productId);
+
+    res.status(200).json(validProducts);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Merge guest recently viewed items (from localStorage) with user's profile
+// @route   POST /api/users/recently-viewed/merge
+// @access  Private
+const mergeRecentlyViewed = async (req, res) => {
+  const { history } = req.body;
+  if (!history || !Array.isArray(history)) {
+    return res.status(400).json({ message: 'History array is required' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.recentlyViewed) {
+      user.recentlyViewed = [];
+    }
+
+    const combined = [...user.recentlyViewed];
+
+    history.forEach((localItem) => {
+      if (!localItem.productId) return;
+      const index = combined.findIndex(
+        (dbItem) => dbItem.productId && dbItem.productId.toString() === localItem.productId.toString()
+      );
+      if (index > -1) {
+        // If both exist, preserve the latest timestamp
+        const dbTime = new Date(combined[index].viewedAt).getTime();
+        const localTime = new Date(localItem.viewedAt).getTime();
+        if (localTime > dbTime) {
+          combined[index].viewedAt = new Date(localItem.viewedAt);
+        }
+      } else {
+        combined.push({
+          productId: localItem.productId,
+          viewedAt: new Date(localItem.viewedAt)
+        });
+      }
+    });
+
+    // Sort by viewedAt desc
+    combined.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime());
+
+    // Slice to cap at 20
+    user.recentlyViewed = combined.slice(0, 20);
+
+    await user.save();
+    res.status(200).json({ message: 'Recently viewed list merged successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Toggle product in wishlist
+// @route   POST /api/users/wishlist
+// @access  Private
+const toggleWishlist = async (req, res) => {
+  const { productId } = req.body;
+  if (!productId) {
+    return res.status(400).json({ message: 'Product ID is required' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.wishlist) {
+      user.wishlist = [];
+    }
+
+    const index = user.wishlist.indexOf(productId);
+    let isAdded = false;
+
+    if (index > -1) {
+      // Remove from wishlist
+      user.wishlist.splice(index, 1);
+    } else {
+      // Add to wishlist
+      user.wishlist.push(productId);
+      isAdded = true;
+    }
+
+    await user.save();
+    res.status(200).json({ 
+      message: isAdded ? 'Added to wishlist' : 'Removed from wishlist',
+      wishlist: user.wishlist
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Get user's wishlist
+// @route   GET /api/users/wishlist
+// @access  Private
+const getWishlist = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate('wishlist');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user.wishlist || []);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Merge guest wishlist items with user's profile wishlist
+// @route   POST /api/users/wishlist/merge
+// @access  Private
+const mergeWishlist = async (req, res) => {
+  const { wishlistIds } = req.body;
+  if (!wishlistIds || !Array.isArray(wishlistIds)) {
+    return res.status(400).json({ message: 'wishlistIds array is required' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.wishlist) {
+      user.wishlist = [];
+    }
+
+    // Combine and remove duplicates
+    const combinedSet = new Set([
+      ...user.wishlist.map(id => id.toString()),
+      ...wishlistIds.map(id => id.toString())
+    ]);
+
+    user.wishlist = Array.from(combinedSet);
+
+    await user.save();
+    res.status(200).json({ message: 'Wishlist merged successfully', wishlist: user.wishlist });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  updateUserProfile,
+  addRecentlyViewed,
+  getRecentlyViewed,
+  mergeRecentlyViewed,
+  toggleWishlist,
+  getWishlist,
+  mergeWishlist
+};
