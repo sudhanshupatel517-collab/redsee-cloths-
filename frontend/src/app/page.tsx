@@ -180,6 +180,7 @@ export default function Home() {
     limitedDrops, 
     offersForYou, 
     newArrivals, 
+    categories,
     loading 
   } = useSelector((state: RootState) => state.home);
   
@@ -357,6 +358,15 @@ export default function Home() {
       return !title.includes("men") && !desc.includes("men") || title.includes("women") || desc.includes("women");
     }
   });
+
+  // Curate circular categories dynamically from database, fallback to STYLE_CATEGORIES
+  const displayCategories = categories && categories.length > 0 
+    ? categories.map((c: any) => ({
+        name: c.name,
+        slug: c.slug,
+        img: c.imageUrl || '/overts.png'
+      }))
+    : STYLE_CATEGORIES;
 
   // Curate active promotional slides
   const slides = filteredBanners.length > 0 ? filteredBanners : [
@@ -649,7 +659,7 @@ export default function Home() {
             {/* ============ SECTION 1: CIRCULAR CATEGORIES ============ */}
             <div className="bg-zinc-50 dark:bg-[#0b0b0b] border-b border-zinc-200 dark:border-white/5 py-6 transition-colors duration-300">
               <div className="flex overflow-x-auto no-scrollbar px-4 gap-4 md:gap-8 md:justify-center">
-                {STYLE_CATEGORIES.map((cat) => (
+                {displayCategories.map((cat) => (
                   <button
                     key={cat.slug}
                     onClick={() => {

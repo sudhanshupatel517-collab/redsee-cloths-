@@ -62,6 +62,23 @@ export default function AddProduct() {
     );
   };
 
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDbCategories = async () => {
+      try {
+        const { data } = await api.get('/api/categories');
+        setDbCategories(data);
+        if (data && data.length > 0) {
+          setCategory(data[0].name);
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+      }
+    };
+    fetchDbCategories();
+  }, []);
+
   useEffect(() => {
     if (!user || !['admin', 'coadmin'].includes(user.role)) {
       router.push('/');
@@ -155,21 +172,29 @@ export default function AddProduct() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Category</label>
-                  <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none">
-                    <option>Men's Oversized Tees</option>
-                    <option>Men's Hoodies</option>
-                    <option>Men's Cargo</option>
-                    <option>Men's Lowers</option>
-                    <option>Men's Shirts</option>
-                    <option>Men's Streetwear Jackets</option>
-                    <option>Women's Oversized Tees</option>
-                    <option>Women's Hoodies</option>
-                    <option>Women's Cargo</option>
-                    <option>Women's Lowers</option>
-                    <option>Women's Shirts</option>
-                    <option>Women's Streetwear Jackets</option>
-                    <option>Accessories</option>
-                    <option>Sneakers</option>
+                  <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none cursor-pointer">
+                    {dbCategories.length > 0 ? (
+                      dbCategories.map((cat: any) => (
+                        <option key={cat._id} value={cat.name}>{cat.name}</option>
+                      ))
+                    ) : (
+                      <>
+                        <option>Men's Oversized Tees</option>
+                        <option>Men's Hoodies</option>
+                        <option>Men's Cargo</option>
+                        <option>Men's Lowers</option>
+                        <option>Men's Shirts</option>
+                        <option>Men's Streetwear Jackets</option>
+                        <option>Women's Oversized Tees</option>
+                        <option>Women's Hoodies</option>
+                        <option>Women's Cargo</option>
+                        <option>Women's Lowers</option>
+                        <option>Women's Shirts</option>
+                        <option>Women's Streetwear Jackets</option>
+                        <option>Accessories</option>
+                        <option>Sneakers</option>
+                      </>
+                    )}
                   </select>
                 </div>
                 <div>

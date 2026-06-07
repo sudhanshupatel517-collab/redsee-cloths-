@@ -1,20 +1,44 @@
 "use client";
-import React, { useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { fetchProducts } from "@/store/productSlice";
 import ProductGrid from "@/components/ProductGrid";
+import api from "@/lib/axios";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const unwrappedParams = React.use(params);
   const slug = unwrappedParams.slug;
-  const categoryName = slug.charAt(0).toUpperCase() + slug.slice(1);
   const dispatch = useDispatch<AppDispatch>();
   const { products, loading } = useSelector((state: RootState) => state.products);
 
+  const [categoryName, setCategoryName] = useState(
+    slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ')
+  );
+
   useEffect(() => {
-    dispatch(fetchProducts({ category: categoryName }));
-  }, [dispatch, categoryName]);
+    const resolveCategory = async () => {
+      try {
+        const { data } = await api.get('/api/categories');
+        const matched = data.find((c: any) => c.slug === slug);
+        if (matched) {
+          setCategoryName(matched.name);
+          dispatch(fetchProducts({ category: matched.name }));
+        } else {
+          const fallbackName = slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+          setCategoryName(fallbackName);
+          dispatch(fetchProducts({ category: fallbackName }));
+        }
+      } catch (err) {
+        console.error("Failed to resolve category name from DB:", err);
+        const fallbackName = slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+        setCategoryName(fallbackName);
+        dispatch(fetchProducts({ category: fallbackName }));
+      }
+    };
+    resolveCategory();
+  }, [dispatch, slug]);
 
   return (
     <div className="pt-10 min-h-screen bg-black pb-20">

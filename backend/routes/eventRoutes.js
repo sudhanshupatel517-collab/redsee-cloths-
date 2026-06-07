@@ -6,12 +6,12 @@ const {
   updateEvent,
   deleteEvent,
 } = require('../controllers/eventController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, coadmin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.route('/').get(getEvents).post(protect, admin, createEvent);
-router.route('/admin').get(protect, admin, getAdminEvents);
-router.route('/:id').put(protect, admin, updateEvent).delete(protect, admin, deleteEvent);
+router.route('/').get(getEvents).post(protect, coadmin, createEvent);
+router.route('/admin').get(protect, coadmin, getAdminEvents);
+router.route('/:id').put(protect, coadmin, updateEvent).delete(protect, coadmin, deleteEvent);
 
 module.exports = router;

@@ -156,9 +156,9 @@ export default function ManageProducts() {
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-2 border-t border-zinc-100 dark:border-white/5">
-                  <button className="text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors p-2 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-lg flex items-center justify-center flex-1 text-xs font-montserrat uppercase tracking-wider border border-zinc-200 dark:border-white/10 cursor-pointer">
+                  <Link href={`/admin/products/edit/${product._id}`} className="text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors p-2 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-lg flex items-center justify-center flex-1 text-xs font-montserrat uppercase tracking-wider border border-zinc-200 dark:border-white/10 cursor-pointer">
                     <Edit2 size={14} className="mr-1.5" /> Edit
-                  </button>
+                  </Link>
                   <button onClick={() => deleteProduct(product._id)} className="text-zinc-600 dark:text-gray-400 hover:text-[#ff0033] transition-colors p-2 hover:bg-red-500/10 rounded-lg flex items-center justify-center flex-1 text-xs font-montserrat uppercase tracking-wider border border-red-500/20 cursor-pointer">
                     <Trash2 size={14} className="mr-1.5" /> Delete
                   </button>
@@ -234,9 +234,9 @@ export default function ManageProducts() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right space-x-3">
-                        <button className="text-zinc-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors p-2 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-lg inline-flex cursor-pointer">
+                        <Link href={`/admin/products/edit/${product._id}`} className="text-zinc-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors p-2 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-lg inline-flex cursor-pointer">
                           <Edit2 size={16} />
-                        </button>
+                        </Link>
                         <button onClick={() => deleteProduct(product._id)} className="text-zinc-500 dark:text-gray-400 hover:text-[#ff0033] transition-colors p-2 hover:bg-red-500/10 rounded-lg inline-flex cursor-pointer">
                           <Trash2 size={16} />
                         </button>
