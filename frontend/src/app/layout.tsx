@@ -6,8 +6,39 @@ import StoreProvider from "@/components/StoreProvider";
 import AuthGuard from "@/components/AuthGuard";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://redsee.com"),
   title: "Redsee | Futuristic Fashion",
-  description: "Premium e-commerce clothing dropshipping platform.",
+  description: "Premium futuristic fashion and streetwear by Redsee",
+  applicationName: "Redsee",
+  openGraph: {
+    title: "Redsee | Futuristic Fashion",
+    description: "Premium futuristic streetwear.",
+    images: [
+      {
+        url: "/logo-dark.png",
+        width: 500,
+        height: 500,
+        alt: "Redsee Logo",
+      }
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Redsee | Futuristic Fashion",
+    description: "Premium futuristic streetwear.",
+    images: ["/logo-dark.png"],
+  },
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico?v=2" },
+      { url: "/favicon.png?v=2", type: "image/png" }
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png?v=2" }
+    ]
+  }
 };
 
 import type { Viewport } from 'next';
@@ -17,10 +48,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0A0A0A' },
-  ],
+  themeColor: "#ff003c",
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
