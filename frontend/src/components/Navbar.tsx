@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings, Sun, Moon, Shirt, Footprints, Crown, Sparkles, Layers, Gem } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Menu, X, LogOut, Settings, Sun, Moon, Shirt, Footprints, Crown, Sparkles, Layers, Gem, Flame } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { logout } from "@/store/authSlice";
@@ -15,8 +15,9 @@ const CATEGORIES = [
   { name: "Women", href: "/category/women", icon: Crown, color: "#ff0033" },
   { name: "Oversized", href: "/category/oversized", icon: Layers, color: "#ff0033" },
   { name: "Hoodies", href: "/category/hoodies", icon: Sparkles, color: "#ff0033" },
-  { name: "Sneakers", href: "/category/sneakers", icon: Footprints, color: "#ff0033" },
-  { name: "Accessories", href: "/shop", icon: Gem, color: "#ff0033" },
+  { name: "Cargo", href: "/category/cargo", icon: Layers, color: "#ff0033" },
+  { name: "Lower", href: "/category/lower", icon: Flame, color: "#ff0033" },
+  { name: "Shirts", href: "/category/shirts", icon: Shirt, color: "#ff0033" },
 ];
 
 const Navbar = () => {
@@ -86,13 +87,13 @@ const Navbar = () => {
               {mounted && (
                 <button 
                   onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')} 
-                  className="text-foreground/60 hover:text-[#ff0033] transition-colors p-2 relative"
+                  className="hidden md:flex text-foreground/60 hover:text-[#ff0033] transition-colors p-2 relative"
                   aria-label="Toggle Theme"
                 >
                   {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
               )}
-              <Link href="/cart" className="text-foreground/60 hover:text-[#ff0033] transition-colors p-2 relative">
+              <Link href="/cart" className="hidden md:flex text-foreground/60 hover:text-[#ff0033] transition-colors p-2 relative">
                 <ShoppingCart size={18} />
                 {cartCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-[#ff0033] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-[0_0_6px_rgba(255,0,51,0.5)]">

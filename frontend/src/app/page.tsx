@@ -20,9 +20,9 @@ import RecentlyViewedShelf from "@/components/RecentlyViewedShelf";
 const STYLE_CATEGORIES = [
   { name: "Oversized", slug: "oversized", img: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=200&q=80" },
   { name: "Hoodies", slug: "hoodies", img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=200&q=80" },
-  { name: "Sneakers", slug: "sneakers", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=200&q=80" },
-  { name: "Accessories", slug: "accessories", img: "https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?w=200&q=80" },
-  { name: "Caps", slug: "caps", img: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=200&q=80" },
+  { name: "Cargo", slug: "cargo", img: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=200&q=80" },
+  { name: "Lower", slug: "lower", img: "https://images.unsplash.com/photo-1552664688-cf412ec27db2?w=200&q=80" },
+  { name: "Shirts", slug: "shirts", img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=200&q=80" },
   { name: "Jackets", slug: "jacket", img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200&q=80" },
 ];
 
@@ -521,13 +521,13 @@ export default function Home() {
               {themeMounted && (
                 <button 
                   onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
-                  className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors relative"
+                  className="hidden md:flex p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors relative"
                   aria-label="Toggle Theme"
                 >
                   {currentTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                 </button>
               )}
-              <Link href="/cart" className="p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors relative" aria-label="Cart">
+              <Link href="/cart" className="hidden md:flex p-2 rounded-full bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors relative" aria-label="Cart">
                 <ShoppingBag size={16} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#ff0033] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-[0_0_8px_rgba(255,0,51,0.6)] animate-pulse">
