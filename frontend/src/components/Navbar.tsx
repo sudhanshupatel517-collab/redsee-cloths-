@@ -148,36 +148,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Category row — Flipkart style */}
-          <AnimatePresence>
-            {!isScrolled && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden flex items-center justify-center gap-1 md:gap-4 mt-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1"
-              >
-                {CATEGORIES.map((cat) => {
-                  const Icon = cat.icon;
-                  return (
-                    <Link
-                      key={cat.name}
-                      href={cat.href}
-                      className="flex flex-col items-center gap-1 px-3 md:px-5 py-1.5 min-w-[64px] group"
-                    >
-                      <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center group-hover:border-[#ff0033]/40 group-hover:bg-[#ff0033]/10 transition-all duration-300">
-                        <Icon size={14} className="text-zinc-500 dark:text-gray-400 group-hover:text-[#ff0033] transition-colors" />
-                      </div>
-                      <span className="text-[10px] md:text-[11px] font-montserrat font-medium text-zinc-600 dark:text-gray-500 group-hover:text-black dark:group-hover:text-white transition-colors whitespace-nowrap">
-                        {cat.name}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
+
         </div>
       </motion.nav>
 
