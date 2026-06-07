@@ -87,8 +87,8 @@ export default function RecentlyViewedShelf() {
             ))
           ) : (
             items.map((product: any) => {
-              const image = product.images?.[0]?.url || product.images?.[0] || '';
-              const hoverImage = product.images?.[1]?.url || product.images?.[0]?.url || product.images?.[0] || '';
+              const image = typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '');
+              const hoverImage = typeof product.images?.[1] === 'string' ? product.images[1] : (product.images?.[1]?.url || image);
               const finalPrice = product.pricing?.finalPrice || product.pricing?.basePrice || 0;
               const discount = product.pricing?.discountPercentage || product.pricing?.discount || 0;
 

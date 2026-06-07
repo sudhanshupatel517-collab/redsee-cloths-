@@ -109,29 +109,29 @@ export default function SearchPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black pt-safe pb-24">
+    <div className="min-h-screen bg-background pt-safe pb-24 transition-colors duration-300">
       {/* Search Header */}
-      <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-lg px-4 py-3 border-b border-white/5 flex items-center space-x-3">
-        <button onClick={() => router.back()} className="text-gray-400 hover:text-white p-2 -ml-2 rounded-full active:bg-white/5 transition-colors">
+      <div className="sticky top-0 z-50 bg-background/90 backdrop-blur-lg px-4 py-3 border-b border-zinc-200 dark:border-white/5 flex items-center space-x-3">
+        <button onClick={() => router.back()} className="text-zinc-500 dark:text-gray-400 hover:text-foreground p-2 -ml-2 rounded-full active:bg-zinc-100 dark:active:bg-white/5 transition-colors">
           <ArrowLeft size={22} />
         </button>
 
         <form onSubmit={handleSearchSubmit} className="flex-1 relative flex items-center">
-          <SearchIcon size={16} className="absolute left-4.5 text-gray-500" />
+          <SearchIcon size={16} className="absolute left-4.5 text-zinc-500" />
           <input
             type="text"
             autoFocus
             placeholder="Search Hoodies, Tees, Jackets..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 focus:border-[#ff0033] rounded-full pl-11 pr-20 py-2.5 text-white text-sm font-poppins outline-none transition-all"
+            className="w-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-full pl-11 pr-20 py-2.5 text-foreground text-sm font-poppins outline-none transition-all"
           />
           <div className="absolute right-3 flex items-center space-x-2.5">
             {query && (
               <button 
                 type="button" 
                 onClick={() => setQuery('')}
-                className="text-gray-500 hover:text-white"
+                className="text-zinc-550 dark:text-gray-500 hover:text-foreground"
               >
                 <X size={16} />
               </button>
@@ -141,7 +141,7 @@ export default function SearchPage() {
                 type="button"
                 onClick={toggleVoiceSearch}
                 className={`p-1.5 rounded-full transition-all ${
-                  isListening ? 'bg-[#ff0033] text-white animate-pulse' : 'text-gray-500 hover:text-white'
+                  isListening ? 'bg-[#ff0033] text-white animate-pulse' : 'text-zinc-550 dark:text-gray-500 hover:text-foreground'
                 }`}
                 title="Voice search"
               >
@@ -157,15 +157,15 @@ export default function SearchPage() {
         {isListening && (
           <div className="mb-6 bg-[#ff0033]/5 border border-[#ff0033]/25 rounded-xl p-4 flex flex-col items-center justify-center animate-pulse">
             <Mic size={32} className="text-[#ff0033] mb-2 animate-bounce" />
-            <p className="text-white font-montserrat font-medium text-xs tracking-wider uppercase">Listening...</p>
-            <p className="text-gray-400 text-xs font-poppins mt-1">Speak now to search REDSEE collection</p>
+            <p className="text-foreground font-montserrat font-medium text-xs tracking-wider uppercase">Listening...</p>
+            <p className="text-zinc-500 dark:text-gray-400 text-xs font-poppins mt-1">Speak now to search REDSEE collection</p>
           </div>
         )}
 
         {/* Live suggestions / Instant results shelf */}
         {query.trim() && (
           <div>
-            <h3 className="text-xs font-montserrat uppercase tracking-widest text-gray-400 font-bold mb-4">
+            <h3 className="text-xs font-montserrat uppercase tracking-widest text-zinc-500 dark:text-gray-400 font-bold mb-4">
               Instant Results
             </h3>
 
@@ -173,9 +173,9 @@ export default function SearchPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="animate-pulse">
-                    <div className="aspect-[3/4] bg-white/5 rounded-xl mb-2"></div>
-                    <div className="h-3 bg-white/5 rounded w-3/4 mb-1.5"></div>
-                    <div className="h-3 bg-white/5 rounded w-1/2"></div>
+                    <div className="aspect-[3/4] bg-zinc-100 dark:bg-white/5 rounded-xl mb-2"></div>
+                    <div className="h-3 bg-zinc-100 dark:bg-white/5 rounded w-3/4 mb-1.5"></div>
+                    <div className="h-3 bg-zinc-100 dark:bg-white/5 rounded w-1/2"></div>
                   </div>
                 ))}
               </div>
@@ -186,18 +186,18 @@ export default function SearchPage() {
                     key={product._id}
                     id={product._id}
                     name={product.name}
-                    price={product.pricing?.basePrice || 0}
-                    image={product.images?.[0]?.url || ''}
-                    hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
+                    price={product.pricing?.finalPrice || product.pricing?.basePrice || product.price || 0}
+                    image={typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')}
+                    hoverImage={typeof product.images?.[1] === 'string' ? product.images[1] : (product.images?.[1]?.url || (typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')))}
                     category={product.category}
                     rating={5}
-                    discount={product.pricing?.discount || 0}
+                    discount={product.pricing?.discountPercentage || product.pricing?.discount || 0}
                   />
                 ))}
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500 font-poppins text-sm">No products matched "{query}"</p>
+                <p className="text-zinc-500 dark:text-gray-500 font-poppins text-sm">No products matched "{query}"</p>
               </div>
             )}
           </div>

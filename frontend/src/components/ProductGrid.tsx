@@ -25,12 +25,12 @@ const ProductGrid = ({ title, products }: ProductGridProps) => {
             key={product._id}
             id={product._id}
             name={product.name}
-            price={product.pricing?.basePrice || 0}
-            image={product.images?.[0]?.url || ''}
-            hoverImage={product.images?.[1]?.url || product.images?.[0]?.url || ''}
+            price={product.pricing?.finalPrice || product.pricing?.basePrice || product.price || 0}
+            image={typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')}
+            hoverImage={typeof product.images?.[1] === 'string' ? product.images[1] : (product.images?.[1]?.url || (typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')))}
             category={product.category}
             rating={5}
-            discount={product.pricing?.discount || 0}
+            discount={product.pricing?.discountPercentage || product.pricing?.discount || 0}
           />
         ))}
       </div>

@@ -20,7 +20,7 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('Razorpay');
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 150 ? 0 : 15;
+  const shipping = subtotal >= 999 ? 0 : 99;
   const tax = subtotal * 0.08;
   const totalAmount = subtotal > 0 ? subtotal + shipping + tax : 0;
 
@@ -180,7 +180,7 @@ export default function Checkout() {
                     <div className="flex-1">
                       <h4 className="text-sm font-poppins text-black dark:text-white line-clamp-1">{item.title}</h4>
                       <p className="text-xs text-zinc-500 dark:text-gray-500 font-poppins mt-1">Size: {item.size} | Qty: {item.quantity}</p>
-                      <p className="text-sm font-poppins font-bold text-black dark:text-white mt-1">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="text-sm font-poppins font-bold text-black dark:text-white mt-1">₹{(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -189,19 +189,19 @@ export default function Checkout() {
               <div className="border-t border-zinc-200 dark:border-white/10 pt-4 space-y-3 mb-4">
                 <div className="flex justify-between text-sm font-poppins text-zinc-600 dark:text-gray-300">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm font-poppins text-zinc-600 dark:text-gray-300">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                  <span>{shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between text-sm font-poppins text-zinc-600 dark:text-gray-300">
                   <span>Tax (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>₹{tax.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-zinc-200 dark:border-white/10 pt-3 flex justify-between font-poppins font-bold text-black dark:text-white text-lg">
                   <span>Total</span>
-                  <span>${totalAmount.toFixed(2)}</span>
+                  <span>₹{totalAmount.toFixed(2)}</span>
                 </div>
               </div>
 

@@ -181,10 +181,10 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             </div>
 
             <div className="flex items-end space-x-3 mb-6">
-              <span className="text-3xl md:text-4xl font-poppins font-bold text-black dark:text-white leading-none">${displayPrice}</span>
+              <span className="text-3xl md:text-4xl font-poppins font-bold text-black dark:text-white leading-none">₹{displayPrice}</span>
               {displayDiscount > 0 && originalPrice > 0 && (
                 <span className="text-lg md:text-xl text-zinc-400 dark:text-gray-500 line-through mb-1">
-                  ${originalPrice}
+                  ₹{originalPrice}
                 </span>
               )}
               {displayDiscount > 0 && (
@@ -263,7 +263,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             <div className="border-t border-zinc-200 dark:border-white/5 pt-6 space-y-4 mb-8">
               <div className="flex items-center space-x-3 text-sm text-zinc-600 dark:text-gray-400 font-poppins bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5">
                 <Truck size={20} className="text-[#ff0033]" />
-                <span>Free express shipping on orders over $150</span>
+                <span>Free express shipping on orders over ₹150</span>
               </div>
               <div className="flex items-center space-x-3 text-sm text-zinc-600 dark:text-gray-400 font-poppins bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5">
                 <ShieldAlert size={20} className="text-[#ff0033]" />
@@ -287,7 +287,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             className="flex-1 bg-[#ff0033] text-white active:scale-[0.98] rounded-lg transition-transform flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-xs space-x-2 shadow-[0_0_15px_rgba(255,0,51,0.3)]"
           >
             <ShoppingBag size={16} />
-            <span>Add To Cart - ${(displayPrice * quantity).toFixed(2)}</span>
+            <span>Add To Cart - ₹{(displayPrice * quantity).toFixed(2)}</span>
           </button>
         </div>
       </div>

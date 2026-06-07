@@ -630,8 +630,8 @@ export default function Home() {
                     id={product._id}
                     name={product.name}
                     price={product.pricing?.finalPrice || 0}
-                    image={product.images?.[0] || ''}
-                    hoverImage={product.images?.[1] || product.images?.[0] || ''}
+                    image={typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')}
+                    hoverImage={typeof product.images?.[1] === 'string' ? product.images[1] : (product.images?.[1]?.url || (typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')))}
                     category={product.category}
                     rating={5}
                     discount={product.pricing?.discountPercentage || 0}
@@ -1038,8 +1038,8 @@ function ProductShelf({ title, subtitle, products, loading, link }: ShelfProps) 
                   id={product._id}
                   name={product.name}
                   price={product.pricing?.finalPrice || 0}
-                  image={product.images?.[0] || ''}
-                  hoverImage={product.images?.[1] || product.images?.[0] || ''}
+                  image={typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')}
+                  hoverImage={typeof product.images?.[1] === 'string' ? product.images[1] : (product.images?.[1]?.url || (typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')))}
                   category={product.category}
                   rating={5}
                   discount={product.pricing?.discountPercentage || 0}
@@ -1093,8 +1093,8 @@ function LimitedDropShelf({ title, subtitle, products, loading }: { title: strin
                     id={product._id}
                     name={product.name}
                     price={product.pricing?.finalPrice || 0}
-                    image={product.images?.[0] || ''}
-                    hoverImage={product.images?.[1] || product.images?.[0] || ''}
+                    image={typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')}
+                    hoverImage={typeof product.images?.[1] === 'string' ? product.images[1] : (product.images?.[1]?.url || (typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '')))}
                     category={product.category}
                     rating={4.9}
                     discount={product.pricing?.discountPercentage || 0}

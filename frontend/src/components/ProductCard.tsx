@@ -12,8 +12,8 @@ interface ProductProps {
   id: string;
   name: string;
   price: number;
-  image: string;
-  hoverImage: string;
+  image: any;
+  hoverImage: any;
   category: string;
   rating?: number;
   discount?: number;
@@ -27,11 +27,20 @@ const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
   const isWishlisted = wishlistItems.some((item: any) => item._id === id);
 
+  const getImageUrl = (img: any): string => {
+    if (!img) return "";
+    if (typeof img === "string") return img;
+    return img.url || "";
+  };
+
+  const imgUrl = getImageUrl(image);
+  const hoverImgUrl = hoverImage ? getImageUrl(hoverImage) : imgUrl;
+
   const getProductObj = () => {
     return {
       _id: id,
       name,
-      images: [image, hoverImage],
+      images: [imgUrl, hoverImgUrl],
       pricing: {
         finalPrice: price,
         basePrice: price,
@@ -59,7 +68,7 @@ const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating
     dispatch(addToCart({
       product: id,
       title: name,
-      image: image,
+      image: imgUrl,
       price: price,
       quantity: 1,
       size: "M",
@@ -109,7 +118,7 @@ const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating
         className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900 block"
       >
         <img 
-          src={isHovered && hoverImage ? hoverImage : image} 
+          src={isHovered ? hoverImgUrl : imgUrl} 
           alt={name}
           className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
@@ -144,10 +153,10 @@ const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating
           <div className="flex flex-col">
             {discount && discount > 0 ? (
               <span className="text-[10px] text-zinc-400 dark:text-gray-500 line-through font-poppins mb-0.5">
-                ${(price / (1 - discount / 100)).toFixed(2)}
+                ₹{(price / (1 - discount / 100)).toFixed(2)}
               </span>
             ) : null}
-            <span className="text-sm md:text-base font-bold font-poppins text-black dark:text-white leading-none">${price}</span>
+            <span className="text-sm md:text-base font-bold font-poppins text-black dark:text-white leading-none">₹{price}</span>
           </div>
 
           <button 

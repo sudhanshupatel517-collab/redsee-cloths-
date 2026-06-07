@@ -41,12 +41,12 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   }, [dispatch, slug]);
 
   return (
-    <div className="pt-10 min-h-screen bg-black pb-20">
+    <div className="pt-10 min-h-screen bg-background pb-20 transition-colors duration-300">
       <div className="container mx-auto px-6 mb-10 text-center">
-        <h1 className="text-5xl md:text-6xl font-bebas text-white tracking-wider mb-4 uppercase">
+        <h1 className="text-5xl md:text-6xl font-bebas text-zinc-900 dark:text-white tracking-wider mb-4 uppercase">
           {categoryName} COLLECTION
         </h1>
-        <p className="text-gray-400 font-poppins max-w-2xl mx-auto">
+        <p className="text-zinc-600 dark:text-zinc-400 font-poppins max-w-2xl mx-auto">
           Discover the latest trends and styles in our {categoryName} collection. Elevate your aesthetic.
         </p>
       </div>

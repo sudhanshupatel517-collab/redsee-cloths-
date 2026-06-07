@@ -30,7 +30,7 @@ export default function BottomNav() {
 
   const navItems = [
     { name: 'Home', path: '/', icon: Home },
-    { name: 'Category', path: '/shop', icon: LayoutGrid },
+    { name: 'Category', path: '/categories', icon: LayoutGrid },
     { 
       name: 'Theme', 
       isAction: true,
@@ -52,7 +52,7 @@ export default function BottomNav() {
               <div className="relative">
                 <Icon 
                   size={22} 
-                  className={`transition-colors duration-300 ${isActive ? 'text-[#ff0033]' : 'text-gray-500 hover:text-white dark:hover:text-white'}`} 
+                  className={`transition-colors duration-300 ${isActive ? 'text-[#ff0033]' : 'text-gray-500 hover:text-zinc-800 dark:hover:text-white'}`} 
                 />
                 {isActive && (
                   <motion.div
@@ -67,7 +67,7 @@ export default function BottomNav() {
                   </span>
                 ) : null}
               </div>
-              <span className={`text-[10px] mt-1 font-montserrat tracking-wider transition-colors duration-300 ${isActive ? 'text-black dark:text-white' : 'text-gray-500 hover:text-white dark:hover:text-white'}`}>
+              <span className={`text-[10px] mt-1 font-montserrat tracking-wider transition-colors duration-300 ${isActive ? 'text-black dark:text-white' : 'text-gray-500 hover:text-zinc-800 dark:hover:text-white'}`}>
                 {item.name}
               </span>
             </>

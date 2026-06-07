@@ -21,7 +21,7 @@ export default function Cart() {
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 150 ? 0 : 15;
+  const shipping = subtotal >= 999 ? 0 : 99;
   const total = subtotal > 0 ? subtotal + shipping : 0;
 
   return (
@@ -66,10 +66,10 @@ export default function Cart() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs font-poppins text-zinc-700 dark:text-foreground/80 mb-2">
-                      Add <span className="font-bold text-[#ff0033]">${(150 - subtotal).toFixed(2)}</span> more to get <span className="font-bold text-black dark:text-white">Free Shipping!</span>
+                      Add <span className="font-bold text-[#ff0033]">₹{(999 - subtotal).toFixed(2)}</span> more to get <span className="font-bold text-black dark:text-white">Free Shipping!</span>
                     </p>
                     <div className="h-1.5 w-full bg-zinc-200 dark:bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#ff0033] rounded-full" style={{ width: `${Math.min((subtotal / 150) * 100, 100)}%` }}></div>
+                      <div className="h-full bg-[#ff0033] rounded-full" style={{ width: `${Math.min((subtotal / 999) * 100, 100)}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -86,7 +86,7 @@ export default function Cart() {
                       <p className="text-[10px] md:text-xs font-montserrat uppercase font-bold tracking-widest text-zinc-400 dark:text-gray-500 mb-1">
                         {item.color} | {item.size}
                       </p>
-                      <span className="text-sm md:text-base font-poppins font-bold text-black dark:text-white">${item.price.toFixed(2)}</span>
+                      <span className="text-sm md:text-base font-poppins font-bold text-black dark:text-white">₹{item.price.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between items-end mt-4">
@@ -116,17 +116,17 @@ export default function Cart() {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm font-poppins text-zinc-500 dark:text-gray-400">
                     <span>Subtotal</span>
-                    <span className="text-black dark:text-white">${subtotal.toFixed(2)}</span>
+                    <span className="text-black dark:text-white">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-poppins text-zinc-500 dark:text-gray-400">
                     <span>Estimated Shipping</span>
                     <span className={shipping === 0 ? "text-[#ff0033] font-bold" : "text-black dark:text-white"}>
-                      {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+                      {shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="border-t border-zinc-200 dark:border-white/10 pt-3 mt-3 flex justify-between font-poppins font-bold text-black dark:text-white text-lg">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -134,7 +134,7 @@ export default function Cart() {
                 <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-t border-zinc-200 dark:border-white/10 p-4 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_20px_rgba(0,0,0,0.5)] transition-colors duration-300">
                   <div className="flex items-center justify-between mb-3 px-1">
                     <span className="text-sm font-poppins text-zinc-500 dark:text-gray-400">Total</span>
-                    <span className="text-xl font-poppins font-bold text-black dark:text-white">${total.toFixed(2)}</span>
+                    <span className="text-xl font-poppins font-bold text-black dark:text-white">₹{total.toFixed(2)}</span>
                   </div>
                   <Link href="/checkout">
                     <button className="w-full bg-[#ff0033] text-white py-3.5 rounded-xl font-montserrat uppercase tracking-wider font-bold text-xs flex items-center justify-center space-x-2 active:scale-[0.98] transition-transform shadow-[0_0_20px_rgba(255,0,51,0.3)]">

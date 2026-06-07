@@ -32,7 +32,7 @@ export default function AdminDashboard() {
             <h3 className="text-gray-400 font-montserrat text-sm uppercase">Total Revenue</h3>
             <TrendingUp className="text-[#ff0033]" size={24} />
           </div>
-          <p className="text-3xl font-bebas text-white">${stats?.totalRevenue?.toFixed(2) || '0.00'}</p>
+          <p className="text-3xl font-bebas text-white">₹{stats?.totalRevenue?.toFixed(2) || '0.00'}</p>
         </div>
         
         <div className="glassmorphism-dark p-6 rounded-xl border border-white/5">

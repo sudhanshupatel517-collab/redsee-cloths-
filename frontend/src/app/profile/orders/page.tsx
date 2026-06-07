@@ -206,8 +206,8 @@ export default function OrdersPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-poppins font-bold text-black dark:text-white">${(item.price * item.quantity).toFixed(2)}</span>
-                        <p className="text-[10px] text-zinc-400 dark:text-gray-500 font-poppins">${item.price.toFixed(2)} each</p>
+                        <span className="text-sm font-poppins font-bold text-black dark:text-white">₹{(item.price * item.quantity).toFixed(2)}</span>
+                        <p className="text-[10px] text-zinc-400 dark:text-gray-500 font-poppins">₹{item.price.toFixed(2)} each</p>
                       </div>
                     </div>
                   );
@@ -227,7 +227,7 @@ export default function OrdersPage() {
                 </div>
                 <div className="flex items-baseline space-x-2 self-end sm:self-auto">
                   <span className="text-xs text-zinc-500 font-poppins uppercase tracking-wider">Grand Total:</span>
-                  <span className="text-xl font-poppins font-bold text-black dark:text-white">${order.totalAmount.toFixed(2)}</span>
+                  <span className="text-xl font-poppins font-bold text-black dark:text-white">₹{order.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
