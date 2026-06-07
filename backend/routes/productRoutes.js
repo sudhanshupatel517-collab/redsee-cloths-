@@ -8,12 +8,16 @@ const {
   updateProduct,
   deleteProduct,
   getProductsBatch,
+  deleteSeedProducts,
 } = require('../controllers/productController');
 const { protect, coadmin } = require('../middleware/authMiddleware');
 
 router.route('/')
   .get(getProducts)
   .post(protect, coadmin, createProduct);
+
+router.route('/seed')
+  .delete(protect, coadmin, deleteSeedProducts);
 
 router.route('/admin')
   .get(protect, coadmin, getAdminProducts);

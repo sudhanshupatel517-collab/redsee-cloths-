@@ -82,7 +82,63 @@ export default function AdminOrders() {
           </button>
         </div>
 
-        <div className="bg-foreground/5 border border-border rounded-xl overflow-hidden backdrop-blur-md">
+        {/* Mobile View: Order Cards */}
+        <div className="md:hidden space-y-4">
+          {loading ? (
+            <div className="py-12 text-center text-foreground/50 font-poppins">Loading Orders...</div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="py-12 text-center text-foreground/50 font-poppins">No orders found.</div>
+          ) : (
+            filteredOrders.map((order) => (
+              <div key={order._id} className="bg-foreground/5 border border-border rounded-xl p-4 flex flex-col space-y-3 shadow-sm dark:shadow-none">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-poppins font-bold text-foreground">#{order._id.substring(0, 10).toUpperCase()}</p>
+                    <p className="text-xs text-foreground/50 font-poppins mt-0.5">{new Date(order.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div className="text-right relative">
+                    <div className="inline-block text-left relative">
+                      <select 
+                        value={order.orderStatus}
+                        onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                        className={`appearance-none outline-none pl-3 pr-8 py-1 rounded-lg text-[10px] font-montserrat tracking-wider uppercase font-bold cursor-pointer transition-colors border ${
+                          order.orderStatus === 'Delivered' ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20' : 
+                          order.orderStatus === 'Shipped' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20' : 
+                          order.orderStatus === 'Cancelled' ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20' : 
+                          'bg-orange-500/10 text-orange-500 border-orange-500/20 hover:bg-orange-500/20'
+                        }`}
+                      >
+                        {statuses.map(status => (
+                          <option key={status} value={status} className="bg-background text-foreground">{status}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={12} className={`absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${
+                        order.orderStatus === 'Delivered' ? 'text-green-500' : 
+                        order.orderStatus === 'Shipped' ? 'text-blue-500' : 
+                        order.orderStatus === 'Cancelled' ? 'text-red-500' : 
+                        'text-orange-500'
+                      }`} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border/50 flex justify-between items-center text-xs">
+                  <div>
+                    <p className="text-foreground/90 font-poppins font-medium">{order.userId?.name || 'Guest'}</p>
+                    <p className="text-foreground/50 font-poppins">{order.userId?.email || 'N/A'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-foreground/50 font-montserrat uppercase tracking-wider text-[10px]">Total Amount</p>
+                    <p className="text-foreground font-poppins font-bold text-sm">₹{order.totalAmount}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden md:block bg-foreground/5 border border-border rounded-xl overflow-hidden backdrop-blur-md">
           <div className="overflow-x-auto min-h-[400px]">
             <table className="w-full text-left border-collapse">
               <thead>

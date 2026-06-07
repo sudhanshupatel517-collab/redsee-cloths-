@@ -15,7 +15,7 @@ const getProducts = async (req, res) => {
         }
       : {};
 
-    const category = req.query.category ? { category: req.query.category } : {};
+    const category = req.query.category ? { category: { $regex: req.query.category, $options: "i" } } : {};
 
     const products = await Product.find({ ...keyword, ...category, published: true }).sort({ createdAt: -1 });
     res.json(products);
@@ -194,6 +194,18 @@ const getProductsBatch = async (req, res) => {
   }
 };
 
+// @desc    Delete all seeded products (where createdBy does not exist)
+// @route   DELETE /api/products/seed
+// @access  Private/Admin
+const deleteSeedProducts = async (req, res) => {
+  try {
+    const result = await Product.deleteMany({ createdBy: { $exists: false } });
+    res.json({ message: `Successfully deleted ${result.deletedCount} seed products.` });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error deleting seed products', error: error.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getAdminProducts,
@@ -202,4 +214,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getProductsBatch,
+  deleteSeedProducts,
 };

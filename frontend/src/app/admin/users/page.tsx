@@ -152,7 +152,51 @@ export default function StaffManagement() {
           </div>
         </div>
 
-        <div className="bg-foreground/5 border border-border rounded-xl overflow-hidden backdrop-blur-md">
+        {/* Mobile View: Staff Cards */}
+        <div className="md:hidden space-y-4">
+          {loading ? (
+            <div className="py-8 text-center text-foreground/50 font-poppins">Loading staff...</div>
+          ) : filteredStaff.length === 0 ? (
+            <div className="py-8 text-center text-foreground/50 font-poppins">No staff members found.</div>
+          ) : (
+            filteredStaff.map((s) => (
+              <div key={s._id} className="bg-foreground/5 border border-border rounded-xl p-4 flex flex-col space-y-3 shadow-sm dark:shadow-none">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-poppins font-medium text-foreground">{s.name}</p>
+                    <p className="text-xs text-foreground/50 font-poppins">{s.email}</p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-montserrat tracking-wider uppercase flex items-center w-max space-x-1 ${
+                    s.role === 'admin' ? 'bg-[#ff0033]/10 text-[#ff0033] border border-[#ff0033]/20' : 
+                    'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                  }`}>
+                    <Shield size={10} />
+                    <span>{s.role}</span>
+                  </span>
+                </div>
+
+                <div className="pt-2 border-t border-border/50 text-xs font-poppins text-foreground/75">
+                  <p className="text-foreground/50 text-[10px] font-montserrat tracking-wider uppercase mb-1">Permissions</p>
+                  <p>{s.role === 'admin' ? 'All Permissions' : s.permissions?.length > 0 ? s.permissions.join(', ') : 'None'}</p>
+                </div>
+
+                <div className="flex justify-end space-x-2 pt-2 border-t border-border/50">
+                  <button onClick={() => openModal(s)} className="text-foreground/50 hover:text-foreground transition-colors p-2 hover:bg-foreground/5 rounded-lg flex items-center justify-center flex-1 text-xs font-montserrat uppercase tracking-wider border border-border cursor-pointer">
+                    <Edit2 size={14} className="mr-1.5" /> Edit
+                  </button>
+                  {s.role !== 'admin' && (
+                    <button onClick={() => handleDelete(s._id)} className="text-foreground/50 hover:text-[#ff0033] transition-colors p-2 hover:bg-[#ff0033]/10 rounded-lg flex items-center justify-center flex-1 text-xs font-montserrat uppercase tracking-wider border border-[#ff0033]/20 cursor-pointer">
+                      <Trash2 size={14} className="mr-1.5" /> Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden md:block bg-foreground/5 border border-border rounded-xl overflow-hidden backdrop-blur-md">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -193,11 +237,11 @@ export default function StaffManagement() {
                         {s.role === 'admin' ? 'All Permissions' : s.permissions?.length > 0 ? s.permissions.join(', ') : 'None'}
                       </td>
                       <td className="px-6 py-4 text-right space-x-3">
-                        <button onClick={() => openModal(s)} className="text-foreground/50 hover:text-foreground transition-colors p-2 hover:bg-foreground/5 rounded-lg inline-flex">
+                        <button onClick={() => openModal(s)} className="text-foreground/50 hover:text-foreground transition-colors p-2 hover:bg-foreground/5 rounded-lg inline-flex cursor-pointer">
                           <Edit2 size={16} />
                         </button>
                         {s.role !== 'admin' && (
-                          <button onClick={() => handleDelete(s._id)} className="text-foreground/50 hover:text-[#ff0033] transition-colors p-2 hover:bg-[#ff0033]/10 rounded-lg inline-flex">
+                          <button onClick={() => handleDelete(s._id)} className="text-foreground/50 hover:text-[#ff0033] transition-colors p-2 hover:bg-[#ff0033]/10 rounded-lg inline-flex cursor-pointer">
                             <Trash2 size={16} />
                           </button>
                         )}

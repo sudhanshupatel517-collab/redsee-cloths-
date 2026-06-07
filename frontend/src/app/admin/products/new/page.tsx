@@ -20,7 +20,7 @@ export default function AddProduct() {
   // Form State
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Men\'s Oversized Tees');
+  const [category, setCategory] = useState("Men's Oversized Tees");
   const [brand, setBrand] = useState('Redsee');
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
@@ -33,6 +33,34 @@ export default function AddProduct() {
   // Variants State
   const [variants, setVariants] = useState<{size: string, color: string, stock: number}[]>([]);
   const [currentVariant, setCurrentVariant] = useState({ size: 'M', color: 'Black', stock: 10 });
+
+  // Quick Variant Generator State
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(['M', 'L', 'XL']);
+  const [bulkColor, setBulkColor] = useState('Onyx Black');
+  const [bulkStock, setBulkStock] = useState(15);
+
+  const handleBulkAddVariants = () => {
+    if (!bulkColor.trim()) return alert('Please enter a color for bulk variants');
+    if (selectedSizes.length === 0) return alert('Please select at least one size');
+    
+    const newVariants = selectedSizes.map(size => ({
+      size,
+      color: bulkColor.trim(),
+      stock: bulkStock
+    }));
+    
+    const filteredNew = newVariants.filter(nv => 
+      !variants.some(v => v.size === nv.size && v.color.toLowerCase() === nv.color.toLowerCase())
+    );
+    
+    setVariants([...variants, ...filteredNew]);
+  };
+
+  const handleSizeToggle = (size: string) => {
+    setSelectedSizes(prev => 
+      prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
+    );
+  };
 
   useEffect(() => {
     if (!user || !['admin', 'coadmin'].includes(user.role)) {
@@ -93,17 +121,17 @@ export default function AddProduct() {
   };
 
   return (
-    <div className="w-full py-4">
+    <div className="w-full py-4 text-foreground">
       <div className="max-w-4xl mx-auto">
-        <Link href="/admin/products" className="inline-flex items-center space-x-2 text-gray-500 hover:text-white transition-colors font-montserrat text-xs tracking-widest uppercase mb-8">
+        <Link href="/admin/products" className="inline-flex items-center space-x-2 text-zinc-500 hover:text-black dark:hover:text-white transition-colors font-montserrat text-xs tracking-widest uppercase mb-8">
           <ArrowLeft size={16} />
           <span>Back to Inventory</span>
         </Link>
 
-        <h1 className="text-3xl md:text-4xl font-bebas text-white tracking-widest uppercase mb-8">Create New Product</h1>
+        <h1 className="text-3xl md:text-4xl font-bebas text-black dark:text-white tracking-widest uppercase mb-8">Create New Product</h1>
 
         {message && (
-          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg font-poppins text-sm">
+          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 text-red-500 dark:text-red-400 rounded-lg font-poppins text-sm">
             {message}
           </div>
         )}
@@ -111,53 +139,62 @@ export default function AddProduct() {
         <form onSubmit={handleSubmit} className="space-y-8">
           
           {/* BASIC INFO */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-md">
-            <h2 className="text-xl font-bebas text-white tracking-widest uppercase mb-6 flex items-center border-b border-white/10 pb-4">
+          <div className="bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl p-6 md:p-8 shadow-sm dark:shadow-none">
+            <h2 className="text-xl font-bebas text-black dark:text-white tracking-widest uppercase mb-6 flex items-center border-b border-zinc-200 dark:border-white/10 pb-4">
               <Package className="mr-3 text-[#ff0033]" /> Basic Information
             </h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Product Name</label>
-                <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors" placeholder="e.g. Stealth Bomber Jacket" />
+                <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Product Name</label>
+                <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors" placeholder="e.g. Stealth Bomber Jacket" />
               </div>
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Description</label>
-                <textarea required rows={4} value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors resize-none" placeholder="Enter luxurious product details..."></textarea>
+                <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Description</label>
+                <textarea required rows={4} value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors resize-none" placeholder="Enter luxurious product details..."></textarea>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Category</label>
-                  <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors appearance-none">
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Category</label>
+                  <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none">
                     <option>Men's Oversized Tees</option>
                     <option>Men's Hoodies</option>
+                    <option>Men's Cargo</option>
+                    <option>Men's Lowers</option>
+                    <option>Men's Shirts</option>
                     <option>Men's Streetwear Jackets</option>
-                    <option>Sneakers</option>
+                    <option>Women's Oversized Tees</option>
+                    <option>Women's Hoodies</option>
+                    <option>Women's Cargo</option>
+                    <option>Women's Lowers</option>
+                    <option>Women's Shirts</option>
+                    <option>Women's Streetwear Jackets</option>
                     <option>Accessories</option>
+                    <option>Sneakers</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Brand</label>
-                  <input required type="text" value={brand} onChange={e => setBrand(e.target.value)} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors" />
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Brand</label>
+                  <input required type="text" value={brand} onChange={e => setBrand(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* PRICING */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-md">
-            <h2 className="text-xl font-bebas text-white tracking-widest uppercase mb-6 border-b border-white/10 pb-4">Pricing Strategy</h2>
+          <div className="bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl p-6 md:p-8 shadow-sm dark:shadow-none">
+            <h2 className="text-xl font-bebas text-black dark:text-white tracking-widest uppercase mb-6 border-b border-zinc-200 dark:border-white/10 pb-4">Pricing Strategy</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Original Price (₹)</label>
-                <input required type="number" min="0" value={originalPrice} onChange={e => setOriginalPrice(Number(e.target.value))} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors" />
+                <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Original Price (₹)</label>
+                <input required type="number" min="0" value={originalPrice} onChange={e => setOriginalPrice(Number(e.target.value))} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors" />
               </div>
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Discount (%)</label>
-                <input type="number" min="0" max="100" value={discountPercentage} onChange={e => setDiscountPercentage(Number(e.target.value))} className="w-full bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-white outline-none transition-colors" />
+                <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Discount (%)</label>
+                <input type="number" min="0" max="100" value={discountPercentage} onChange={e => setDiscountPercentage(Number(e.target.value))} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors" />
               </div>
               <div>
-                <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Final Price (Auto)</label>
-                <div className="w-full bg-black/80 border border-white/5 rounded-lg px-4 py-3 text-[#ff0033] font-bold outline-none cursor-not-allowed">
+                <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Final Price (Auto)</label>
+                <div className="w-full bg-zinc-200 dark:bg-black/80 border border-zinc-300 dark:border-white/5 rounded-lg px-4 py-3 text-[#ff0033] font-bold outline-none cursor-not-allowed">
                   ₹{Math.round(originalPrice - (originalPrice * discountPercentage) / 100)}
                 </div>
               </div>
@@ -165,25 +202,69 @@ export default function AddProduct() {
           </div>
 
           {/* VARIANTS */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-md">
-            <h2 className="text-xl font-bebas text-white tracking-widest uppercase mb-6 border-b border-white/10 pb-4">Product Variants (Inventory)</h2>
+          <div className="bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl p-6 md:p-8 shadow-sm dark:shadow-none">
+            <h2 className="text-xl font-bebas text-black dark:text-white tracking-widest uppercase mb-6 border-b border-zinc-200 dark:border-white/10 pb-4">Product Variants (Inventory)</h2>
             
-            {/* Add Variant Box */}
-            <div className="bg-black/40 p-4 rounded-lg border border-white/5 mb-6">
+            {/* Quick Generator Box */}
+            <div className="bg-zinc-50 dark:bg-black/40 p-5 rounded-lg border border-zinc-200 dark:border-white/5 mb-6">
+              <h3 className="text-xs font-montserrat tracking-widest text-[#ff0033] uppercase font-bold mb-4">⚡ Quick Bulk Size Generator</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Select Sizes to Generate</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].map(size => {
+                      const isSelected = selectedSizes.includes(size);
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => handleSizeToggle(size)}
+                          className={`px-3 py-1.5 rounded text-xs font-montserrat font-bold border transition-all cursor-pointer ${
+                            isSelected 
+                              ? 'bg-[#ff0033] border-[#ff0033] text-white' 
+                              : 'bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-zinc-700 dark:text-gray-400 hover:border-zinc-400 dark:hover:border-white/30'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                  <div>
+                    <label className="block text-[10px] font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Color Name</label>
+                    <input type="text" placeholder="e.g. Onyx Black" value={bulkColor} onChange={e => setBulkColor(e.target.value)} className="w-full bg-white dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-3 py-2 text-black dark:text-white text-sm outline-none transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Default Stock</label>
+                    <input type="number" min="0" value={bulkStock} onChange={e => setBulkStock(Number(e.target.value))} className="w-full bg-white dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-3 py-2 text-black dark:text-white text-sm outline-none transition-colors" />
+                  </div>
+                  <button type="button" onClick={handleBulkAddVariants} className="bg-zinc-800 hover:bg-zinc-700 dark:bg-white/10 dark:hover:bg-white/20 text-white px-4 py-2 rounded-lg font-montserrat tracking-widest uppercase text-xs transition-colors flex items-center justify-center h-[38px] cursor-pointer">
+                    Generate Variants
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Manual Variant Box */}
+            <div className="bg-zinc-100 dark:bg-black/20 p-5 rounded-lg border border-zinc-200 dark:border-white/5 mb-6">
+              <h3 className="text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-bold mb-4">Or Add Single Variant Manually</h3>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Size</label>
-                  <input type="text" placeholder="S, M, L, XL" value={currentVariant.size} onChange={e => setCurrentVariant({...currentVariant, size: e.target.value.toUpperCase()})} className="w-full bg-white/5 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-2.5 text-white outline-none transition-colors" />
+                  <label className="block text-[10px] font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Size</label>
+                  <input type="text" placeholder="S, M, L, XL" value={currentVariant.size} onChange={e => setCurrentVariant({...currentVariant, size: e.target.value.toUpperCase()})} className="w-full bg-white dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-3 py-2 text-black dark:text-white text-sm outline-none transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Color</label>
-                  <input type="text" placeholder="Onyx Black" value={currentVariant.color} onChange={e => setCurrentVariant({...currentVariant, color: e.target.value})} className="w-full bg-white/5 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-2.5 text-white outline-none transition-colors" />
+                  <label className="block text-[10px] font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Color</label>
+                  <input type="text" placeholder="Onyx Black" value={currentVariant.color} onChange={e => setCurrentVariant({...currentVariant, color: e.target.value})} className="w-full bg-white dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-3 py-2 text-black dark:text-white text-sm outline-none transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-gray-500 uppercase mb-2">Stock</label>
-                  <input type="number" min="0" value={currentVariant.stock} onChange={e => setCurrentVariant({...currentVariant, stock: Number(e.target.value)})} className="w-full bg-white/5 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-2.5 text-white outline-none transition-colors" />
+                  <label className="block text-[10px] font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Stock</label>
+                  <input type="number" min="0" value={currentVariant.stock} onChange={e => setCurrentVariant({...currentVariant, stock: Number(e.target.value)})} className="w-full bg-white dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-3 py-2 text-black dark:text-white text-sm outline-none transition-colors" />
                 </div>
-                <button type="button" onClick={handleAddVariant} className="bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-lg font-montserrat tracking-widest uppercase text-xs transition-colors flex items-center justify-center h-[42px]">
+                <button type="button" onClick={handleAddVariant} className="bg-zinc-800 hover:bg-zinc-700 dark:bg-white/10 dark:hover:bg-white/20 text-white px-4 py-2 rounded-lg font-montserrat tracking-widest uppercase text-xs transition-colors flex items-center justify-center h-[38px] cursor-pointer">
                   <Plus size={16} className="mr-2" /> Add
                 </button>
               </div>
@@ -192,14 +273,15 @@ export default function AddProduct() {
             {/* Variants List */}
             {variants.length > 0 && (
               <div className="space-y-2">
+                <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Added Variants ({variants.length})</label>
                 {variants.map((v, idx) => (
-                  <div key={idx} className="flex items-center justify-between bg-black/60 px-4 py-3 rounded-lg border border-white/5">
-                    <div className="flex space-x-6 font-poppins text-sm text-gray-300">
-                      <span className="font-bold text-white w-12">{v.size}</span>
+                  <div key={idx} className="flex items-center justify-between bg-zinc-50 dark:bg-black/60 px-4 py-3 rounded-lg border border-zinc-200 dark:border-white/5">
+                    <div className="flex space-x-6 font-poppins text-sm text-zinc-600 dark:text-gray-300">
+                      <span className="font-bold text-zinc-800 dark:text-white w-12">{v.size}</span>
                       <span className="w-32">{v.color}</span>
-                      <span className={v.stock > 10 ? 'text-green-400' : 'text-orange-400'}>{v.stock} in stock</span>
+                      <span className={v.stock > 10 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}>{v.stock} in stock</span>
                     </div>
-                    <button type="button" onClick={() => removeVariant(idx)} className="text-gray-500 hover:text-[#ff0033] transition-colors"><X size={18} /></button>
+                    <button type="button" onClick={() => removeVariant(idx)} className="text-zinc-400 hover:text-[#ff0033] transition-colors cursor-pointer"><X size={18} /></button>
                   </div>
                 ))}
               </div>
@@ -208,18 +290,18 @@ export default function AddProduct() {
 
           {/* MEDIA & TAGS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-md">
-              <h2 className="text-xl font-bebas text-white tracking-widest uppercase mb-6 flex items-center border-b border-white/10 pb-4">
+            <div className="bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl p-6 md:p-8 shadow-sm dark:shadow-none">
+              <h2 className="text-xl font-bebas text-black dark:text-white tracking-widest uppercase mb-6 flex items-center border-b border-zinc-200 dark:border-white/10 pb-4">
                 <ImageIcon className="mr-3 text-[#ff0033]" /> Product Images
               </h2>
               <ImageUpload images={images} onChange={setImages} />
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 md:p-8 backdrop-blur-md">
-              <h2 className="text-xl font-bebas text-white tracking-widest uppercase mb-6 border-b border-white/10 pb-4">Visibility & Tags</h2>
+            <div className="bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl p-6 md:p-8 shadow-sm dark:shadow-none">
+              <h2 className="text-xl font-bebas text-black dark:text-white tracking-widest uppercase mb-6 border-b border-zinc-200 dark:border-white/10 pb-4">Visibility & Tags</h2>
               <div className="flex space-x-2 mb-6">
-                <input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="e.g. streetwear" className="flex-1 bg-black/40 border border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-2.5 text-white outline-none transition-colors text-sm" />
-                <button type="button" onClick={handleAddTag} className="bg-white/10 hover:bg-white/20 px-4 rounded-lg"><Plus size={18} className="text-white" /></button>
+                <input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="e.g. streetwear" className="flex-1 bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-2.5 text-black dark:text-white outline-none transition-colors text-sm" />
+                <button type="button" onClick={handleAddTag} className="bg-zinc-100 hover:bg-zinc-200 dark:bg-white/10 dark:hover:bg-white/20 px-4 rounded-lg cursor-pointer"><Plus size={18} className="text-black dark:text-white" /></button>
               </div>
               <div className="flex flex-wrap gap-2 mb-8">
                 {tags.map(tag => (
@@ -229,24 +311,24 @@ export default function AddProduct() {
                 ))}
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-white/10">
-                <label className="flex items-center space-x-3 cursor-pointer">
-                  <input type="checkbox" checked={published} onChange={e => setPublished(e.target.checked)} className="w-5 h-5 accent-[#ff0033] bg-black/40 border-white/10" />
-                  <span className="text-white font-poppins text-sm">Publish to Storefront</span>
+              <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-white/10">
+                <label className="flex items-center space-x-3 cursor-pointer select-none">
+                  <input type="checkbox" checked={published} onChange={e => setPublished(e.target.checked)} className="w-5 h-5 accent-[#ff0033] bg-zinc-100 dark:bg-black/40 border-zinc-200 dark:border-white/10 rounded" />
+                  <span className="text-zinc-800 dark:text-white font-poppins text-sm">Publish to Storefront</span>
                 </label>
-                <label className="flex items-center space-x-3 cursor-pointer">
-                  <input type="checkbox" checked={featured} onChange={e => setFeatured(e.target.checked)} className="w-5 h-5 accent-[#ff0033] bg-black/40 border-white/10" />
-                  <span className="text-white font-poppins text-sm">Feature on Homepage</span>
+                <label className="flex items-center space-x-3 cursor-pointer select-none">
+                  <input type="checkbox" checked={featured} onChange={e => setFeatured(e.target.checked)} className="w-5 h-5 accent-[#ff0033] bg-zinc-100 dark:bg-black/40 border-zinc-200 dark:border-white/10 rounded" />
+                  <span className="text-zinc-800 dark:text-white font-poppins text-sm">Feature on Homepage</span>
                 </label>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-white/10">
+          <div className="flex justify-end pt-4 border-t border-zinc-200 dark:border-white/10">
             <button 
               disabled={loading} 
               type="submit" 
-              className="flex items-center space-x-2 bg-[#ff0033] hover:bg-[#cc0029] text-white px-8 py-4 rounded-lg font-montserrat font-bold tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(255,0,51,0.3)] hover:shadow-[0_0_30px_rgba(255,0,51,0.5)] disabled:opacity-50"
+              className="flex items-center space-x-2 bg-[#ff0033] hover:bg-[#cc0029] text-white px-8 py-4 rounded-lg font-montserrat font-bold tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(255,0,51,0.3)] hover:shadow-[0_0_30px_rgba(255,0,51,0.5)] disabled:opacity-50 cursor-pointer"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
               <span>{loading ? 'Creating...' : 'Create Product'}</span>
