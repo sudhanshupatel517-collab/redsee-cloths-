@@ -18,12 +18,12 @@ import RecentlyViewedShelf from "@/components/RecentlyViewedShelf";
 
 // Category circles curated for luxury streetwear (Men and Women circles removed per user request)
 const STYLE_CATEGORIES = [
-  { name: "Oversized", slug: "oversized", img: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=200&q=80" },
-  { name: "Hoodies", slug: "hoodies", img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=200&q=80" },
-  { name: "Cargo", slug: "cargo", img: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=200&q=80" },
-  { name: "Lower", slug: "lower", img: "https://images.unsplash.com/photo-1552664688-cf412ec27db2?w=200&q=80" },
-  { name: "Shirts", slug: "shirts", img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=200&q=80" },
-  { name: "Jackets", slug: "jacket", img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200&q=80" },
+  { name: "Oversized", slug: "oversized", img: "/overts.png" },
+  { name: "Hoodies", slug: "hoodies", img: "/hoodie.png" },
+  { name: "Cargo", slug: "cargo", img: "/cargo.png" },
+  { name: "Lower", slug: "lower", img: "/lower.png" },
+  { name: "Shirts", slug: "shirts", img: "/shirt.png" },
+  { name: "Jackets", slug: "jacket", img: "/jacket.png" },
 ];
 
 const BRANDS = [
