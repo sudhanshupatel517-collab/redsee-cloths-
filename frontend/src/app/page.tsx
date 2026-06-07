@@ -359,13 +359,15 @@ export default function Home() {
     }
   });
 
-  // Curate circular categories dynamically from database, fallback to STYLE_CATEGORIES
+  // Curate circular categories dynamically from database, filter by gender tab and exclude subcategories
   const displayCategories = categories && categories.length > 0 
-    ? categories.map((c: any) => ({
-        name: c.name,
-        slug: c.slug,
-        img: c.imageUrl || '/overts.png'
-      }))
+    ? categories
+        .filter((c: any) => !c.parentCategory && c.section?.toLowerCase() === activeGenderTab.toLowerCase())
+        .map((c: any) => ({
+          name: c.name,
+          slug: c.slug,
+          img: c.imageUrl || '/overts.png'
+        }))
     : STYLE_CATEGORIES;
 
   // Curate active promotional slides
