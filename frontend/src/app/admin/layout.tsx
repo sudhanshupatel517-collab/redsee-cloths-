@@ -96,9 +96,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link href="/admin/categories" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
                   <Tags size={20} className="mr-3" /> Categories
                 </Link>
-                <Link href="/admin/events" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
-                  <CalendarDays size={20} className="mr-3" /> Events & Announcements
-                </Link>
                 <Link href="/admin/banners" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
                   <Sparkles size={20} className="mr-3" /> Manage Banners
                 </Link>
@@ -165,9 +162,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/categories" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
             <Tags size={20} className="mr-3" /> Categories
-          </Link>
-          <Link href="/admin/events" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
-            <CalendarDays size={20} className="mr-3" /> Events & Announcements
           </Link>
           <Link href="/admin/banners" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
             <Sparkles size={20} className="mr-3" /> Manage Banners

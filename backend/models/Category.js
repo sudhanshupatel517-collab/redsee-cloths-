@@ -5,13 +5,21 @@ const categorySchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Please add a category name'],
-      unique: true,
       trim: true,
     },
     slug: {
       type: String,
       required: true,
       unique: true,
+    },
+    section: {
+      type: String,
+      enum: ['Men', 'Women'],
+    },
+    parentCategory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      default: null,
     },
     imageUrl: {
       type: String,

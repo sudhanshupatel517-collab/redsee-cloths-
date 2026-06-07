@@ -17,7 +17,9 @@ const getCategories = async (req, res) => {
 // @access  Private/Admin
 const getAdminCategories = async (req, res) => {
   try {
-    const categories = await Category.find({}).sort({ order: 1 });
+    const categories = await Category.find({})
+      .populate('parentCategory', 'name slug')
+      .sort({ order: 1 });
     res.json(categories);
   } catch (error) {
     res.status(500).json({ message: 'Server Error fetching admin categories' });
@@ -29,13 +31,17 @@ const getAdminCategories = async (req, res) => {
 // @access  Private/Admin
 const createCategory = async (req, res) => {
   try {
-    const { name, imageUrl, isActive, order } = req.body;
+    const { name, imageUrl, isActive, order, section, parentCategory } = req.body;
     
     if (!name) {
       return res.status(400).json({ message: 'Name is required' });
     }
 
-    const slug = name.toLowerCase().replace(/[\s_]/g, '-').replace(/[^\w-]+/g, '');
+    let baseSlug = name.toLowerCase().replace(/[\s_]/g, '-').replace(/[^\w-]+/g, '');
+    let slug = baseSlug;
+    if (section && (!parentCategory || parentCategory === '')) {
+      slug = `${baseSlug}-${section.toLowerCase()}`;
+    }
 
     const categoryExists = await Category.findOne({ slug });
     if (categoryExists) {
@@ -45,6 +51,8 @@ const createCategory = async (req, res) => {
     const category = new Category({
       name,
       slug,
+      section,
+      parentCategory: parentCategory || null,
       imageUrl: imageUrl || '',
       isActive: isActive !== undefined ? isActive : true,
       order: order || 0,
@@ -62,15 +70,26 @@ const createCategory = async (req, res) => {
 // @access  Private/Admin
 const updateCategory = async (req, res) => {
   try {
-    const { name, imageUrl, isActive, order } = req.body;
+    const { name, imageUrl, isActive, order, section, parentCategory } = req.body;
 
     const category = await Category.findById(req.params.id);
 
     if (category) {
-      if (name) {
-        category.name = name;
-        category.slug = name.toLowerCase().replace(/[\s_]/g, '-').replace(/[^\w-]+/g, '');
+      if (name || section || parentCategory !== undefined) {
+        const targetName = name || category.name;
+        const targetSection = section || category.section;
+        const targetParent = parentCategory !== undefined ? parentCategory : category.parentCategory;
+        
+        let baseSlug = targetName.toLowerCase().replace(/[\s_]/g, '-').replace(/[^\w-]+/g, '');
+        if (targetSection && (!targetParent || targetParent === '')) {
+          category.slug = `${baseSlug}-${targetSection.toLowerCase()}`;
+        } else {
+          category.slug = baseSlug;
+        }
+        category.name = targetName;
       }
+      category.section = section !== undefined ? section : category.section;
+      category.parentCategory = parentCategory !== undefined ? (parentCategory || null) : category.parentCategory;
       category.imageUrl = imageUrl !== undefined ? imageUrl : category.imageUrl;
       category.isActive = isActive !== undefined ? isActive : category.isActive;
       category.order = order !== undefined ? order : category.order;

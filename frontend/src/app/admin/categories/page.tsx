@@ -13,6 +13,13 @@ interface Category {
   slug: string;
   isActive: boolean;
   order: number;
+  imageUrl?: string;
+  section?: 'Men' | 'Women';
+  parentCategory?: {
+    _id: string;
+    name: string;
+    slug: string;
+  } | null;
 }
 
 export default function ManageCategories() {
@@ -29,6 +36,9 @@ export default function ManageCategories() {
   const [newCatSlug, setNewCatSlug] = useState('');
   const [newCatImageUrl, setNewCatImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [categoryType, setCategoryType] = useState<'navbar' | 'subcategory'>('navbar');
+  const [newCatSection, setNewCatSection] = useState<'Men' | 'Women'>('Men');
+  const [newCatParentId, setNewCatParentId] = useState('');
   
   useEffect(() => {
     if (!user || !['admin', 'coadmin'].includes(user.role)) {
@@ -72,12 +82,27 @@ export default function ManageCategories() {
   const createCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName || !newCatSlug) return;
+    if (categoryType === 'subcategory' && !newCatParentId) {
+      alert('Please select a parent category');
+      return;
+    }
+    
+    const parent = categories.find(c => c._id === newCatParentId);
+    const section = categoryType === 'navbar' ? newCatSection : parent?.section;
+    const parentCategory = categoryType === 'subcategory' ? newCatParentId : null;
     
     try {
-      await api.post('/api/categories', { name: newCatName, slug: newCatSlug, imageUrl: newCatImageUrl });
+      await api.post('/api/categories', { 
+        name: newCatName, 
+        slug: newCatSlug, 
+        imageUrl: newCatImageUrl,
+        section,
+        parentCategory
+      });
       setNewCatName('');
       setNewCatSlug('');
       setNewCatImageUrl('');
+      setNewCatParentId('');
       setIsCreating(false);
       fetchCategories();
     } catch (err: any) {
@@ -148,6 +173,47 @@ export default function ManageCategories() {
                 <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">URL Slug</label>
                 <input required type="text" value={newCatSlug} onChange={e => setNewCatSlug(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors" placeholder="winter-jackets" />
               </div>
+              <div>
+                <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Category Type</label>
+                <select 
+                  value={categoryType} 
+                  onChange={e => setCategoryType(e.target.value as 'navbar' | 'subcategory')} 
+                  className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors font-poppins"
+                >
+                  <option value="navbar">Navbar Category (Top-level)</option>
+                  <option value="subcategory">Subcategory</option>
+                </select>
+              </div>
+              {categoryType === 'navbar' ? (
+                <div>
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Section</label>
+                  <select 
+                    value={newCatSection} 
+                    onChange={e => setNewCatSection(e.target.value as 'Men' | 'Women')} 
+                    className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors font-poppins"
+                  >
+                    <option value="Men">Men</option>
+                    <option value="Women">Women</option>
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Parent Category</label>
+                  <select 
+                    required
+                    value={newCatParentId} 
+                    onChange={e => setNewCatParentId(e.target.value)} 
+                    className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors font-poppins"
+                  >
+                    <option value="">Select Parent Category...</option>
+                    {categories.filter(c => !c.parentCategory).map(c => (
+                      <option key={c._id} value={c._id}>
+                        {c.name} {c.section ? `(${c.section})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="md:col-span-2">
                 <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Category Image / Circular Icon</label>
                 <input 
@@ -190,6 +256,9 @@ export default function ManageCategories() {
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.02]">
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-medium">Category Name</th>
+                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-medium">Type</th>
+                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-medium">Section</th>
+                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-medium">Parent Category</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-medium">Slug / URL</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-medium">Visibility</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-zinc-500 dark:text-gray-500 uppercase font-medium text-right">Actions</th>
@@ -198,7 +267,7 @@ export default function ManageCategories() {
               <tbody className="divide-y divide-zinc-200 dark:divide-white/5">
                 {loading ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-10 text-center">
+                    <td colSpan={7} className="px-6 py-10 text-center">
                       <div className="flex justify-center items-center space-x-3 text-zinc-500 dark:text-gray-400">
                         <div className="w-5 h-5 border-2 border-[#ff0033] border-t-transparent rounded-full animate-spin"></div>
                         <span className="font-poppins text-sm">Loading categories...</span>
@@ -207,7 +276,7 @@ export default function ManageCategories() {
                   </tr>
                 ) : filteredCategories.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-10 text-center text-zinc-500 dark:text-gray-500 font-poppins text-sm">
+                    <td colSpan={7} className="px-6 py-10 text-center text-zinc-500 dark:text-gray-500 font-poppins text-sm">
                       No categories found. Create one to get started.
                     </td>
                   </tr>
@@ -225,6 +294,15 @@ export default function ManageCategories() {
                           )}
                           <p className="text-zinc-800 dark:text-white font-bold font-poppins">{category.name}</p>
                         </div>
+                      </td>
+                      <td className="px-6 py-4 font-poppins text-sm text-zinc-700 dark:text-gray-300">
+                        {category.parentCategory ? 'Subcategory' : 'Navbar Category'}
+                      </td>
+                      <td className="px-6 py-4 font-poppins text-sm text-zinc-700 dark:text-gray-300">
+                        {category.section || '-'}
+                      </td>
+                      <td className="px-6 py-4 font-poppins text-sm text-zinc-700 dark:text-gray-300">
+                        {category.parentCategory ? category.parentCategory.name : '-'}
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-zinc-500 dark:text-gray-400 text-sm font-mono bg-zinc-100 dark:bg-black px-2 py-1 rounded border border-zinc-200 dark:border-white/10">/{category.slug}</span>

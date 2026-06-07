@@ -24,7 +24,10 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   // Form State
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
+  const [selectedSection, setSelectedSection] = useState<'Men' | 'Women'>('Men');
+  const [selectedNavbarCategory, setSelectedNavbarCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  const [bannerId, setBannerId] = useState('');
   const [brand, setBrand] = useState('Redsee');
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
@@ -44,6 +47,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const [bulkStock, setBulkStock] = useState(15);
 
   const [dbCategories, setDbCategories] = useState<any[]>([]);
+  const [banners, setBanners] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user || !['admin', 'coadmin'].includes(user.role)) {
@@ -57,15 +61,26 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       try {
         setFetching(true);
         // Fetch categories
-        const catRes = await api.get('/api/categories');
+        const catRes = await api.get('/api/categories/admin');
         setDbCategories(catRes.data);
+
+        // Fetch banners
+        try {
+          const bannerRes = await api.get('/api/banners');
+          setBanners(bannerRes.data);
+        } catch (bannerErr) {
+          console.error('Failed to load banners:', bannerErr);
+        }
 
         // Fetch product
         const prodRes = await api.get(`/api/products/${id}`);
         const p = prodRes.data;
         setName(p.name || '');
         setDescription(p.description || '');
-        setCategory(p.category || '');
+        setSelectedSection(p.section || 'Men');
+        setSelectedNavbarCategory(p.navbarCategory || '');
+        setSelectedSubcategory(p.category || '');
+        setBannerId(p.bannerId?._id || p.bannerId || '');
         setBrand(p.brand || 'Redsee');
         setOriginalPrice(p.pricing?.originalPrice || 0);
         setDiscountPercentage(p.pricing?.discountPercentage || 0);
@@ -85,6 +100,17 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       fetchInitialData();
     }
   }, [id]);
+
+  const handleSectionChange = (val: 'Men' | 'Women') => {
+    setSelectedSection(val);
+    setSelectedNavbarCategory('');
+    setSelectedSubcategory('');
+  };
+
+  const handleNavbarCategoryChange = (val: string) => {
+    setSelectedNavbarCategory(val);
+    setSelectedSubcategory('');
+  };
 
   const handleBulkAddVariants = () => {
     if (!bulkColor.trim()) return alert('Please enter a color for bulk variants');
@@ -130,6 +156,9 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedSection) return alert('Please select a section');
+    if (!selectedNavbarCategory) return alert('Please select a navbar category');
+    if (!selectedSubcategory) return alert('Please select a subcategory');
     if (variants.length === 0) return alert('Please add at least one product variant (size/color/stock)');
     if (images.length === 0) return alert('Please add at least one image URL');
 
@@ -140,7 +169,10 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       await api.put(`/api/products/${id}`, {
         name,
         description,
-        category,
+        section: selectedSection,
+        navbarCategory: selectedNavbarCategory,
+        category: selectedSubcategory, // subcategory is saved in category field
+        bannerId: bannerId || null,
         brand,
         pricing: {
           originalPrice,
@@ -204,35 +236,65 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Category</label>
-                  <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none cursor-pointer">
-                    {dbCategories.length > 0 ? (
-                      dbCategories.map((cat: any) => (
-                        <option key={cat._id} value={cat.name}>{cat.name}</option>
-                      ))
-                    ) : (
-                      <>
-                        <option>Men's Oversized Tees</option>
-                        <option>Men's Hoodies</option>
-                        <option>Men's Cargo</option>
-                        <option>Men's Lowers</option>
-                        <option>Men's Shirts</option>
-                        <option>Men's Streetwear Jackets</option>
-                        <option>Women's Oversized Tees</option>
-                        <option>Women's Hoodies</option>
-                        <option>Women's Cargo</option>
-                        <option>Women's Lowers</option>
-                        <option>Women's Shirts</option>
-                        <option>Women's Streetwear Jackets</option>
-                        <option>Accessories</option>
-                        <option>Sneakers</option>
-                      </>
-                    )}
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Section</label>
+                  <select 
+                    value={selectedSection} 
+                    onChange={e => handleSectionChange(e.target.value as 'Men' | 'Women')} 
+                    className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none cursor-pointer font-poppins"
+                  >
+                    <option value="Men">Men</option>
+                    <option value="Women">Women</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Brand</label>
                   <input required type="text" value={brand} onChange={e => setBrand(e.target.value)} className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Navbar Category</label>
+                  <select 
+                    required
+                    value={selectedNavbarCategory} 
+                    onChange={e => handleNavbarCategoryChange(e.target.value)} 
+                    className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none cursor-pointer font-poppins"
+                  >
+                    <option value="">Select Navbar Category...</option>
+                    {dbCategories.filter(cat => !cat.parentCategory && cat.section === selectedSection).map(cat => (
+                      <option key={cat._id} value={cat.name}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Subcategory</label>
+                  <select 
+                    required
+                    value={selectedSubcategory} 
+                    onChange={e => setSelectedSubcategory(e.target.value)} 
+                    className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none cursor-pointer font-poppins"
+                  >
+                    <option value="">Select Subcategory...</option>
+                    {(() => {
+                      const parentCatObj = dbCategories.find(cat => !cat.parentCategory && cat.section === selectedSection && cat.name === selectedNavbarCategory);
+                      return parentCatObj 
+                        ? dbCategories.filter(cat => cat.parentCategory?._id === parentCatObj._id || cat.parentCategory === parentCatObj._id).map(cat => (
+                          <option key={cat._id} value={cat.name}>{cat.name}</option>
+                        ))
+                        : [];
+                    })()}
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Ongoing Banner (Optional)</label>
+                  <select 
+                    value={bannerId} 
+                    onChange={e => setBannerId(e.target.value)} 
+                    className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none cursor-pointer font-poppins"
+                  >
+                    <option value="">No Active Banner</option>
+                    {banners.map(b => (
+                      <option key={b._id} value={b._id}>{b.title || `Banner - ${b.linkUrl}`}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

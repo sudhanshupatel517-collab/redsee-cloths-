@@ -10,14 +10,25 @@ const getProducts = async (req, res) => {
           $or: [
             { name: { $regex: req.query.keyword, $options: "i" } },
             { category: { $regex: req.query.keyword, $options: "i" } },
+            { navbarCategory: { $regex: req.query.keyword, $options: "i" } },
             { tags: { $in: [new RegExp(req.query.keyword, "i")] } }
           ]
         }
       : {};
 
-    const category = req.query.category ? { category: { $regex: req.query.category, $options: "i" } } : {};
+    const category = req.query.category 
+      ? { 
+          $or: [
+            { category: { $regex: req.query.category, $options: "i" } }, 
+            { navbarCategory: { $regex: req.query.category, $options: "i" } }
+          ] 
+        } 
+      : {};
 
-    const products = await Product.find({ ...keyword, ...category, published: true }).sort({ createdAt: -1 });
+    const section = req.query.section ? { section: { $regex: `^${req.query.section}$`, $options: "i" } } : {};
+    const banner = req.query.banner ? { bannerId: req.query.banner } : {};
+
+    const products = await Product.find({ ...keyword, ...category, ...section, ...banner, published: true }).sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'Server Error fetching products', error: error.message });
@@ -61,6 +72,9 @@ const createProduct = async (req, res) => {
       name,
       description,
       category,
+      section,
+      navbarCategory,
+      bannerId,
       brand,
       pricing,
       variants,
@@ -78,6 +92,9 @@ const createProduct = async (req, res) => {
       slug,
       description,
       category,
+      section: section || 'Men',
+      navbarCategory: navbarCategory || '',
+      bannerId: bannerId || null,
       brand: brand || 'Redsee',
       pricing,
       variants,
@@ -104,6 +121,9 @@ const updateProduct = async (req, res) => {
       name,
       description,
       category,
+      section,
+      navbarCategory,
+      bannerId,
       brand,
       pricing,
       variants,
@@ -122,6 +142,9 @@ const updateProduct = async (req, res) => {
       }
       product.description = description || product.description;
       product.category = category || product.category;
+      product.section = section || product.section;
+      product.navbarCategory = navbarCategory !== undefined ? navbarCategory : product.navbarCategory;
+      product.bannerId = bannerId !== undefined ? (bannerId || null) : product.bannerId;
       product.brand = brand || product.brand;
       product.pricing = pricing || product.pricing;
       product.variants = variants || product.variants;
