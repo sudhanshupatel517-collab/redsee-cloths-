@@ -23,8 +23,8 @@ export default function BottomNav() {
 
   const currentTheme = resolvedTheme || 'dark';
 
-  // Do not show bottom nav on admin routes or auth routes
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/auth') || pathname?.startsWith('/checkout')) {
+  // Do not show bottom nav on admin routes, auth, checkout, or product pages
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/auth') || pathname?.startsWith('/checkout') || pathname?.startsWith('/product/')) {
     return null;
   }
 

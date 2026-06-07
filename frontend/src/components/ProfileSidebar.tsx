@@ -118,7 +118,10 @@ export default function ProfileSidebar() {
   return (
     <>
       {/* Mobile Toggle Button */}
-      <div className="md:hidden flex items-center justify-between bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10 p-4 rounded-xl mb-6">
+      <div 
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="md:hidden flex items-center justify-between bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10 p-4 rounded-xl mb-6 cursor-pointer hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors"
+      >
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff0033] to-[#7a0000] flex items-center justify-center">
             <span className="font-bebas text-white tracking-widest">{user?.name?.charAt(0) || 'U'}</span>
@@ -127,12 +130,9 @@ export default function ProfileSidebar() {
             {sidebarLinks.find(l => l.href === pathname)?.name || 'Dashboard'}
           </span>
         </div>
-        <button 
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="text-zinc-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
-        >
-          {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="text-zinc-500 dark:text-gray-400">
+          {isMobileOpen ? <X size={20} /> : <ChevronRight size={20} className="transform transition-transform rotate-90" />}
+        </div>
       </div>
 
       {/* Desktop Sidebar */}
