@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const Banner = require('../models/Banner');
 const Category = require('../models/Category');
+const Lookbook = require('../models/Lookbook');
 
 // @desc    Get aggregated homepage data
 // @route   GET /api/homepage
@@ -19,7 +20,8 @@ const getHomepageData = async (req, res) => {
       limitedDrops,
       offersForYou,
       newArrivals,
-      categories
+      categories,
+      lookbook
     ] = await Promise.all([
       Banner.find({
         isActive: true,
@@ -36,7 +38,8 @@ const getHomepageData = async (req, res) => {
       Product.find({ published: true }).sort({ createdAt: 1 }).limit(8),
       Product.find({ published: true, 'pricing.discountPercentage': { $gt: 0 } }).sort({ 'pricing.discountPercentage': -1 }).limit(8),
       Product.find({ published: true }).sort({ createdAt: -1 }).skip(2).limit(8),
-      Category.find({ isActive: true }).sort({ order: 1 })
+      Category.find({ isActive: true }).sort({ order: 1 }),
+      Lookbook.find({ isActive: true }).sort({ order: 1 })
     ]);
 
     res.json({
@@ -49,7 +52,8 @@ const getHomepageData = async (req, res) => {
       limitedDrops,
       offersForYou,
       newArrivals,
-      categories
+      categories,
+      lookbook
     });
   } catch (error) {
     res.status(500).json({ message: 'Server Error fetching homepage data', error: error.message });

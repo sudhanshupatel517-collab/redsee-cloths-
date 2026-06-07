@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   tempPassword: { type: String },
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },
   role: { type: String, enum: ['user', 'coadmin', 'admin'], default: 'user' },
-  permissions: [{ type: String, enum: ['manage_products', 'manage_inventory', 'manage_orders', 'manage_discounts', 'manage_support', 'manage_categories', 'manage_banners', 'manage_events'] }],
+  permissions: [{ type: String, enum: ['manage_products', 'manage_inventory', 'manage_orders', 'manage_discounts', 'manage_support', 'manage_categories', 'manage_banners', 'manage_events', 'manage_studio'] }],
   addresses: [{
     street: String,
     city: String,

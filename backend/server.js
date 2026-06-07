@@ -56,6 +56,7 @@ const bannerRoutes = require('./routes/bannerRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const homepageRoutes = require('./routes/homepageRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const lookbookRoutes = require('./routes/lookbookRoutes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes); // keep for backward compat
@@ -67,6 +68,7 @@ app.use('/api/banners', bannerRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/homepage', homepageRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/studio', lookbookRoutes);
 
 app.get('/', (req, res) => {
     res.send('Redsee API is running');

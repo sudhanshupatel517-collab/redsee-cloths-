@@ -9,6 +9,16 @@ export interface Banner {
   isActive: boolean;
 }
 
+export interface LookbookItem {
+  _id: string;
+  imageUrl: string;
+  chapter: string;
+  title: string;
+  span: string;
+  isActive: boolean;
+  order: number;
+}
+
 export interface HomeState {
   banners: Banner[];
   justDropped: any[];
@@ -20,6 +30,7 @@ export interface HomeState {
   offersForYou: any[];
   newArrivals: any[];
   categories: any[];
+  lookbook: LookbookItem[];
   loading: boolean;
   error: string | null;
 }
@@ -35,6 +46,7 @@ const initialState: HomeState = {
   offersForYou: [],
   newArrivals: [],
   categories: [],
+  lookbook: [],
   loading: false,
   error: null,
 };
@@ -74,6 +86,7 @@ const homeSlice = createSlice({
         state.offersForYou = action.payload.offersForYou || [];
         state.newArrivals = action.payload.newArrivals || [];
         state.categories = action.payload.categories || [];
+        state.lookbook = action.payload.lookbook || [];
       })
       .addCase(fetchHomeData.rejected, (state, action) => {
         state.loading = false;

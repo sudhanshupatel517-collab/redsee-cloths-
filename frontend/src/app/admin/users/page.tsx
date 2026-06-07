@@ -32,7 +32,8 @@ export default function StaffManagement() {
     { id: 'manage_orders', label: 'Manage Orders' },
     { id: 'manage_discounts', label: 'Manage Discounts' },
     { id: 'manage_categories', label: 'Manage Categories' },
-    { id: 'manage_support', label: 'Customer Support' }
+    { id: 'manage_support', label: 'Customer Support' },
+    { id: 'manage_studio', label: 'Manage Studio' }
   ];
 
   useEffect(() => {

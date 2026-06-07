@@ -84,38 +84,42 @@ function BrandBarReverse() {
 }
 
 function LookbookSection() {
-  const LOOKBOOK_ITEMS = [
+  const { lookbook } = useSelector((state: RootState) => state.home);
+
+  const fallbackItems = [
     {
-      img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
+      imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
       chapter: "CHAPTER 01",
       title: "THE VOID",
       span: "col-span-2 row-span-2 md:h-[450px]"
     },
     {
-      img: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80",
+      imageUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80",
       chapter: "CHAPTER 02",
       title: "EARTH BOUND",
       span: "col-span-1 row-span-1 md:h-[217px]"
     },
     {
-      img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
+      imageUrl: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
       chapter: "CHAPTER 03",
       title: "SHIMMER",
       span: "col-span-1 row-span-1 md:h-[217px]"
     },
     {
-      img: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80",
+      imageUrl: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80",
       chapter: "CHAPTER 04",
       title: "ELECTRIC BLUE",
       span: "col-span-1 row-span-1 md:h-[217px]"
     },
     {
-      img: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80",
+      imageUrl: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80",
       chapter: "CHAPTER 05",
       title: "WATCHMAN",
       span: "col-span-1 row-span-1 md:h-[217px]"
     }
   ];
+
+  const itemsToRender = lookbook && lookbook.length > 0 ? lookbook : fallbackItems;
 
   return (
     <section className="bg-zinc-50 dark:bg-[#080808] py-16 px-4 md:px-8 border-t border-zinc-200 dark:border-white/5 relative overflow-hidden transition-colors duration-300">
@@ -137,13 +141,13 @@ function LookbookSection() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {LOOKBOOK_ITEMS.map((item, idx) => (
+          {itemsToRender.map((item, idx) => (
             <div
-              key={idx}
+              key={item._id || idx}
               className={`relative overflow-hidden rounded-xl bg-zinc-950 border border-white/5 group aspect-square md:aspect-auto ${item.span}`}
             >
               <img
-                src={item.img}
+                src={item.imageUrl}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />

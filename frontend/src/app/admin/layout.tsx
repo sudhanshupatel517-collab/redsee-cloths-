@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, Package, ShoppingBag, Users, Settings, Archive, Tags, 
-  BadgePercent, Headphones, CalendarDays, Sparkles, Menu, X, User, LogOut 
+  BadgePercent, Headphones, CalendarDays, Sparkles, Menu, X, User, LogOut, Camera
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logout } from '@/store/authSlice';
@@ -99,6 +99,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link href="/admin/banners" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
                   <Sparkles size={20} className="mr-3" /> Manage Banners
                 </Link>
+                <Link href="/admin/studio" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
+                  <Camera size={20} className="mr-3" /> Studio Management
+                </Link>
                 <Link href="/admin/orders" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
                   <ShoppingBag size={20} className="mr-3" /> Orders
                 </Link>
@@ -165,6 +168,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/banners" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
             <Sparkles size={20} className="mr-3" /> Manage Banners
+          </Link>
+          <Link href="/admin/studio" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+            <Camera size={20} className="mr-3" /> Studio Management
           </Link>
           <Link href="/admin/orders" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
             <ShoppingBag size={20} className="mr-3" /> Orders
