@@ -2,7 +2,7 @@ const Order = require('../models/Order');
 
 const createOrder = async (req, res) => {
   try {
-    const { products, shippingAddress, paymentMethod, totalAmount } = req.body;
+    const { products, shippingAddress, paymentMethod, totalAmount, razorpayPaymentId } = req.body;
 
     if (products && products.length === 0) {
       return res.status(400).json({ message: 'No order items' });
@@ -17,8 +17,9 @@ const createOrder = async (req, res) => {
         shippingAddress,
         paymentMethod,
         totalAmount,
-        paymentStatus: 'Completed',
-        orderStatus: 'Confirmed'
+        paymentStatus: paymentMethod === 'UPI' ? 'Pending' : 'Completed',
+        orderStatus: 'Confirmed',
+        razorpayPaymentId
       });
     }
 
@@ -28,6 +29,7 @@ const createOrder = async (req, res) => {
       shippingAddress,
       paymentMethod,
       totalAmount,
+      razorpayPaymentId,
     });
 
     const createdOrder = await order.save();
@@ -71,11 +73,13 @@ const getAllOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, paymentStatus } = req.body;
     const order = await Order.findById(req.params.id);
 
     if (order) {
-      order.orderStatus = status;
+      if (status !== undefined) order.orderStatus = status;
+      if (paymentStatus !== undefined) order.paymentStatus = paymentStatus;
+      
       if (status === 'Delivered') {
         order.isDelivered = true;
         order.deliveredAt = Date.now();

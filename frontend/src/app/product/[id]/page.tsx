@@ -82,6 +82,11 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
     }));
   };
 
+  const handleBuyNow = () => {
+    handleAddToCart();
+    router.push("/checkout");
+  };
+
   if (loading) {
     return (
       <div className="bg-background min-h-screen flex justify-center items-center">
@@ -247,9 +252,12 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 <input type="text" value={quantity} readOnly className="w-12 bg-transparent text-center font-poppins text-black dark:text-white outline-none" />
                 <button onClick={() => setQuantity(quantity + 1)} className="px-4 text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors">+</button>
               </div>
-              <button onClick={handleAddToCart} className="flex-1 bg-[#ff0033] text-white hover:bg-[#cc0029] rounded-lg transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2">
+              <button onClick={handleAddToCart} className="flex-1 bg-zinc-800 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2">
                 <ShoppingBag size={18} />
                 <span>Add To Cart</span>
+              </button>
+              <button onClick={handleBuyNow} className="flex-1 bg-[#ff0033] text-white hover:bg-[#cc0029] rounded-lg transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2 shadow-[0_0_15px_rgba(255,0,51,0.3)]">
+                <span>Buy Now</span>
               </button>
               <button 
                 onClick={handleWishlistToggle}
@@ -277,17 +285,23 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
       {/* Mobile Sticky Bottom Add-to-Cart Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-t border-zinc-200 dark:border-white/10 p-3 pb-safe transition-colors duration-300">
         <div className="flex space-x-3">
-          <div className="flex border border-zinc-300 dark:border-white/10 rounded-lg overflow-hidden bg-zinc-100 dark:bg-white/5">
+          <div className="flex border border-zinc-300 dark:border-white/10 rounded-lg overflow-hidden bg-zinc-100 dark:bg-white/5 flex-shrink-0">
             <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 text-zinc-700 dark:text-white active:bg-zinc-200 dark:active:bg-white/10 transition-colors">-</button>
             <input type="text" value={quantity} readOnly className="w-8 bg-transparent text-center font-poppins text-black dark:text-white text-sm outline-none" />
             <button onClick={() => setQuantity(quantity + 1)} className="px-3 text-zinc-700 dark:text-white active:bg-zinc-200 dark:active:bg-white/10 transition-colors">+</button>
           </div>
           <button 
             onClick={handleAddToCart} 
-            className="flex-1 bg-[#ff0033] text-white active:scale-[0.98] rounded-lg transition-transform flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-xs space-x-2 shadow-[0_0_15px_rgba(255,0,51,0.3)]"
+            className="flex-1 bg-zinc-800 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-black dark:text-white active:scale-[0.98] rounded-lg transition-transform flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-[10px] space-x-1.5"
           >
-            <ShoppingBag size={16} />
-            <span>Add To Cart - ₹{(displayPrice * quantity).toFixed(2)}</span>
+            <ShoppingBag size={14} />
+            <span>Add To Cart</span>
+          </button>
+          <button 
+            onClick={handleBuyNow} 
+            className="flex-1 bg-[#ff0033] text-white active:scale-[0.98] rounded-lg transition-transform flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-[10px] shadow-[0_0_15px_rgba(255,0,51,0.3)]"
+          >
+            <span>Buy Now</span>
           </button>
         </div>
       </div>

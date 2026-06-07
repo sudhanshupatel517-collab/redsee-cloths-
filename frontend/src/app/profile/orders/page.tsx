@@ -38,6 +38,67 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useSelector((state: RootState) => state.auth);
+  const [expandedTracking, setExpandedTracking] = useState<Record<string, boolean>>({});
+
+  const toggleTracking = (orderId: string) => {
+    setExpandedTracking(prev => ({
+      ...prev,
+      [orderId]: !prev[orderId]
+    }));
+  };
+
+  const getStepperProgress = (status: string) => {
+    switch (status) {
+      case 'Pending': return 0;
+      case 'Confirmed':
+      case 'Packed': return 33;
+      case 'Shipped':
+      case 'Out for Delivery': return 66;
+      case 'Delivered': return 100;
+      default: return 0;
+    }
+  };
+
+  const getSteps = (status: string) => {
+    const statusWeight: Record<string, number> = {
+      'Pending': 1,
+      'Confirmed': 2,
+      'Packed': 2,
+      'Shipped': 3,
+      'Out for Delivery': 3,
+      'Delivered': 4,
+      'Cancelled': 0
+    };
+    
+    const currentWeight = statusWeight[status] || 1;
+    
+    return [
+      {
+        label: 'Order Placed',
+        sublabel: 'Order received',
+        completed: currentWeight > 1,
+        current: currentWeight === 1
+      },
+      {
+        label: 'Confirmed',
+        sublabel: 'Packed & ready',
+        completed: currentWeight > 2,
+        current: currentWeight === 2
+      },
+      {
+        label: 'Shipped',
+        sublabel: 'In transit',
+        completed: currentWeight > 3,
+        current: currentWeight === 3
+      },
+      {
+        label: 'Delivered',
+        sublabel: 'Item delivered',
+        completed: currentWeight >= 4,
+        current: currentWeight === 4
+      }
+    ];
+  };
 
   const fetchOrders = async () => {
     try {
@@ -216,7 +277,7 @@ export default function OrdersPage() {
 
               {/* Footer: Tracking info & Total */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-zinc-200 dark:border-white/5 gap-4">
-                <div>
+                <div className="flex flex-wrap items-center gap-3">
                   {order.trackingId && (
                     <div className="flex items-center text-xs text-zinc-650 dark:text-gray-400 font-poppins bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 px-3 py-1.5 rounded-lg w-fit">
                       <Truck size={14} className="mr-2 text-[#ff0033]" />
@@ -224,12 +285,78 @@ export default function OrdersPage() {
                       <span className="text-black dark:text-white font-bold ml-1 font-mono">{order.trackingId}</span>
                     </div>
                   )}
+                  <button
+                    onClick={() => toggleTracking(order._id)}
+                    className="flex items-center text-xs font-montserrat uppercase font-bold tracking-wider text-[#ff0033] hover:underline py-1.5 px-3 rounded-lg bg-[#ff0033]/5 border border-[#ff0033]/10 hover:bg-[#ff0033]/10 transition-colors"
+                  >
+                    <span>{expandedTracking[order._id] ? 'Hide Status' : 'Track Order'}</span>
+                    <ChevronRight size={14} className={`ml-1 transform transition-transform ${expandedTracking[order._id] ? 'rotate-90' : ''}`} />
+                  </button>
                 </div>
                 <div className="flex items-baseline space-x-2 self-end sm:self-auto">
                   <span className="text-xs text-zinc-500 font-poppins uppercase tracking-wider">Grand Total:</span>
                   <span className="text-xl font-poppins font-bold text-black dark:text-white">₹{order.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
+
+              {/* Collapsible Stepper Timeline */}
+              <AnimatePresence>
+                {expandedTracking[order._id] && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden mt-4"
+                  >
+                    <div className="bg-zinc-50 dark:bg-white/[0.01] border border-zinc-200 dark:border-white/5 p-4 rounded-xl mt-2">
+                      <h5 className="text-[10px] font-montserrat uppercase font-bold tracking-widest text-zinc-400 dark:text-gray-500 mb-4">Delivery Timeline</h5>
+                      
+                      {/* Timeline Stepper Container */}
+                      <div className="relative flex flex-col md:flex-row md:items-start justify-between space-y-6 md:space-y-0 py-2">
+                        {/* Connecting Line for Desktop */}
+                        <div className="hidden md:block absolute top-[15px] left-[10%] right-[10%] h-[2px] bg-zinc-200 dark:bg-white/10 -z-0">
+                          <div 
+                            className="h-full bg-[#ff0033] transition-all duration-500 shadow-[0_0_8px_rgba(255,0,51,0.5)]" 
+                            style={{ width: `${getStepperProgress(order.orderStatus)}%` }}
+                          />
+                        </div>
+                        
+                        {/* Connecting Line for Mobile */}
+                        <div className="md:hidden absolute top-[15px] bottom-[15px] left-[15px] w-[2px] bg-zinc-200 dark:bg-white/10 -z-0">
+                          <div 
+                            className="w-full bg-[#ff0033] transition-all duration-500 shadow-[0_0_8px_rgba(255,0,51,0.5)]" 
+                            style={{ height: `${getStepperProgress(order.orderStatus)}%` }}
+                          />
+                        </div>
+
+                        {/* Step Items */}
+                        {getSteps(order.orderStatus).map((step, idx) => (
+                          <div key={idx} className="flex md:flex-col items-center md:items-center text-left md:text-center relative z-10 flex-1 md:px-2">
+                            {/* Circle Indicator */}
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 font-bold text-xs transition-all duration-300 ${
+                              step.completed 
+                                ? 'bg-[#ff0033] border-[#ff0033] text-white shadow-[0_0_12px_rgba(255,0,51,0.4)]' 
+                                : step.current 
+                                ? 'bg-white dark:bg-zinc-900 border-[#ff0033] text-[#ff0033] shadow-[0_0_8px_rgba(255,0,51,0.2)]' 
+                                : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-white/10 text-zinc-400 dark:text-gray-500'
+                            }`}>
+                              {step.completed ? '✓' : idx + 1}
+                            </div>
+                            
+                            {/* Step Text details */}
+                            <div className="ml-4 md:ml-0 md:mt-3">
+                              <p className={`text-xs font-montserrat uppercase font-bold tracking-wider ${
+                                step.completed || step.current ? 'text-black dark:text-white' : 'text-zinc-400 dark:text-gray-500'
+                              }`}>{step.label}</p>
+                              <p className="text-[10px] font-poppins text-zinc-400 dark:text-zinc-500 mt-0.5">{step.sublabel}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>

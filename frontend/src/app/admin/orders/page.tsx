@@ -48,6 +48,17 @@ export default function AdminOrders() {
     }
   };
 
+  const handlePaymentStatusChange = async (orderId: string, newPaymentStatus: string) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+      const { data } = await api.put(`/api/orders/${orderId}`, { paymentStatus: newPaymentStatus }, config);
+      
+      setOrders(orders.map(o => o._id === orderId ? data : o));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error updating payment status. Do you have permissions?');
+    }
+  };
+
   const filteredOrders = orders.filter(o => 
     o._id.toLowerCase().includes(search.toLowerCase()) || 
     (o.userId?.name && o.userId.name.toLowerCase().includes(search.toLowerCase()))
@@ -122,14 +133,49 @@ export default function AdminOrders() {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-border/50 flex justify-between items-center text-xs">
-                  <div>
-                    <p className="text-foreground/90 font-poppins font-medium">{order.userId?.name || 'Guest'}</p>
-                    <p className="text-foreground/50 font-poppins">{order.userId?.email || 'N/A'}</p>
+                <div className="pt-2 border-t border-border/50 flex flex-col space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-foreground/90 font-poppins font-medium">{order.userId?.name || 'Guest'}</p>
+                      <p className="text-foreground/50 font-poppins">{order.userId?.email || 'N/A'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-foreground/50 font-montserrat uppercase tracking-wider text-[10px]">Total Amount</p>
+                      <p className="text-foreground font-poppins font-bold text-sm">₹{order.totalAmount}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-foreground/50 font-montserrat uppercase tracking-wider text-[10px]">Total Amount</p>
-                    <p className="text-foreground font-poppins font-bold text-sm">₹{order.totalAmount}</p>
+                  
+                  <div className="pt-2 border-t border-border/25 flex justify-between items-center gap-2">
+                    <div className="flex flex-col space-y-0.5">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-[10px] font-montserrat uppercase font-bold text-foreground/80">{order.paymentMethod}</span>
+                        {order.paymentMethod === 'UPI' && order.razorpayPaymentId && (
+                          <span className="text-[9px] font-mono text-[#ff0033] bg-[#ff0033]/5 border border-[#ff0033]/15 px-1 py-0.5 rounded">
+                            UTR: {order.razorpayPaymentId}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="relative inline-block">
+                      <select 
+                        value={order.paymentStatus || 'Pending'}
+                        onChange={(e) => handlePaymentStatusChange(order._id, e.target.value)}
+                        className={`appearance-none outline-none pl-2.5 pr-6 py-1 rounded text-[10px] font-montserrat uppercase font-bold cursor-pointer transition-colors border ${
+                          order.paymentStatus === 'Completed' ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20' : 
+                          order.paymentStatus === 'Failed' ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20' : 
+                          'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20'
+                        }`}
+                      >
+                        <option value="Pending" className="bg-background text-foreground">Pending</option>
+                        <option value="Completed" className="bg-background text-foreground">Completed</option>
+                        <option value="Failed" className="bg-background text-foreground">Failed</option>
+                      </select>
+                      <ChevronDown size={10} className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${
+                        order.paymentStatus === 'Completed' ? 'text-green-500' : 
+                        order.paymentStatus === 'Failed' ? 'text-red-500' : 
+                        'text-yellow-550'
+                      }`} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -146,15 +192,16 @@ export default function AdminOrders() {
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Order ID</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Customer</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Date</th>
+                  <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Payment</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium">Total</th>
                   <th className="px-6 py-4 font-montserrat text-xs tracking-widest text-foreground/50 uppercase font-medium text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {loading ? (
-                  <tr><td colSpan={5} className="text-center py-12 text-foreground/50 font-poppins">Loading Orders...</td></tr>
+                  <tr><td colSpan={6} className="text-center py-12 text-foreground/50 font-poppins">Loading Orders...</td></tr>
                 ) : filteredOrders.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center py-12 text-foreground/50 font-poppins">No orders found.</td></tr>
+                  <tr><td colSpan={6} className="text-center py-12 text-foreground/50 font-poppins">No orders found.</td></tr>
                 ) : (
                   filteredOrders.map((order) => (
                     <motion.tr 
@@ -170,6 +217,36 @@ export default function AdminOrders() {
                       </td>
                       <td className="px-6 py-4 text-sm text-foreground/70 font-poppins">
                         {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-poppins font-medium text-foreground">
+                        <div className="flex flex-col space-y-1">
+                          <span className="text-xs font-montserrat uppercase font-bold text-foreground/80">{order.paymentMethod}</span>
+                          {order.paymentMethod === 'UPI' && order.razorpayPaymentId && (
+                            <span className="text-[10px] font-mono text-[#ff0033] bg-[#ff0033]/5 border border-[#ff0033]/15 px-1.5 py-0.5 rounded w-fit" title="UTR Reference">
+                              UTR: {order.razorpayPaymentId}
+                            </span>
+                          )}
+                          <div className="relative inline-block w-fit mt-1">
+                            <select 
+                              value={order.paymentStatus || 'Pending'}
+                              onChange={(e) => handlePaymentStatusChange(order._id, e.target.value)}
+                              className={`appearance-none outline-none pl-2.5 pr-6 py-0.5 rounded text-[10px] font-montserrat uppercase font-bold cursor-pointer transition-colors border ${
+                                order.paymentStatus === 'Completed' ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20' : 
+                                order.paymentStatus === 'Failed' ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20' : 
+                                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20'
+                              }`}
+                            >
+                              <option value="Pending" className="bg-background text-foreground">Pending</option>
+                              <option value="Completed" className="bg-background text-foreground">Completed</option>
+                              <option value="Failed" className="bg-background text-foreground">Failed</option>
+                            </select>
+                            <ChevronDown size={10} className={`absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none ${
+                              order.paymentStatus === 'Completed' ? 'text-green-500' : 
+                              order.paymentStatus === 'Failed' ? 'text-red-500' : 
+                              'text-yellow-550'
+                            }`} />
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-sm font-poppins font-medium text-foreground">₹{order.totalAmount}</td>
                       <td className="px-6 py-4 text-right relative">

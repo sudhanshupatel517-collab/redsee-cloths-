@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutGrid, ShoppingCart, User, Heart, Sun, Moon } from 'lucide-react';
+import { Home, LayoutGrid, ShoppingCart, User, Heart, Sun, Moon, ClipboardList } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -31,6 +31,7 @@ export default function BottomNav() {
   const navItems = [
     { name: 'Home', path: '/', icon: Home },
     { name: 'Category', path: '/categories', icon: LayoutGrid },
+    { name: 'Orders', path: '/profile/orders', icon: ClipboardList },
     { 
       name: 'Theme', 
       isAction: true,
