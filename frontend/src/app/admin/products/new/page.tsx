@@ -93,7 +93,7 @@ export default function AddProduct() {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-4">
       <div className="max-w-4xl mx-auto">
         <Link href="/admin/products" className="inline-flex items-center space-x-2 text-gray-500 hover:text-white transition-colors font-montserrat text-xs tracking-widest uppercase mb-8">
           <ArrowLeft size={16} />

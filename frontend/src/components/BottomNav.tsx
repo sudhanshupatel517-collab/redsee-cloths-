@@ -31,14 +31,13 @@ export default function BottomNav() {
   const navItems = [
     { name: 'Home', path: '/', icon: Home },
     { name: 'Category', path: '/shop', icon: LayoutGrid },
-    { name: 'Cart', path: '/cart', icon: ShoppingCart, badge: cartItemCount },
     { 
       name: 'Theme', 
       isAction: true,
       onClick: () => setTheme(currentTheme === 'dark' ? 'light' : 'dark'), 
       icon: currentTheme === 'dark' ? Sun : Moon 
     },
-    { name: 'Profile', path: '/profile', icon: User },
+    { name: 'Cart', path: '/cart', icon: ShoppingCart, badge: cartItemCount },
   ];
 
   return (

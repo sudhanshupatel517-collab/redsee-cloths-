@@ -123,7 +123,7 @@ export default function StaffManagement() {
   );
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative">
+    <div className="w-full py-4 relative">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 space-y-4 md:space-y-0">
           <div>

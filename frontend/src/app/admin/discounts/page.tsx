@@ -18,7 +18,7 @@ export default function ManageDiscounts() {
   }, [user, router]);
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-4">
       <div className="max-w-7xl mx-auto flex flex-col items-center justify-center text-center mt-20">
         <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mb-6">
           <BadgePercent size={40} className="text-[#ff0033]" />

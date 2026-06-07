@@ -4,7 +4,7 @@ import { Settings, Shield, Globe, Bell } from 'lucide-react';
 
 export default function AdminSettings() {
   return (
-    <div className="min-h-screen bg-background pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bebas text-foreground tracking-widest uppercase">Platform Settings</h1>

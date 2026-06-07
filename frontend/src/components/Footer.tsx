@@ -3,8 +3,10 @@ import Link from "next/link";
 import { Globe, Mail, Phone, MapPin, ArrowUp } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const Footer = () => {
+  const pathname = usePathname();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -12,6 +14,8 @@ const Footer = () => {
   const currentTheme = resolvedTheme || 'dark';
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <footer className="bg-zinc-50 dark:bg-[#0a0a0a] border-t border-zinc-200 dark:border-white/5 pt-12 pb-6 mt-12 transition-colors duration-300">

@@ -163,7 +163,7 @@ export default function ManageBanners() {
   );
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-4">
       <div className="max-w-6xl mx-auto">
         
         {/* Header */}

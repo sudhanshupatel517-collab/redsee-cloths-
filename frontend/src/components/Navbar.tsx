@@ -51,6 +51,8 @@ const Navbar = () => {
 
   const currentTheme = resolvedTheme || 'dark';
 
+  if (pathname?.startsWith('/admin')) return null;
+
   return (
     <>
       <motion.nav
