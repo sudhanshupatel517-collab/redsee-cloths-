@@ -245,64 +245,45 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
               </div>
             </div>
 
-            {/* Desktop Actions (Hidden on Mobile) */}
-            <div className="hidden md:flex space-x-4 mb-8">
-              <div className="flex border border-zinc-300 dark:border-white/20 rounded-lg overflow-hidden">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors">-</button>
-                <input type="text" value={quantity} readOnly className="w-12 bg-transparent text-center font-poppins text-black dark:text-white outline-none" />
-                <button onClick={() => setQuantity(quantity + 1)} className="px-4 text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors">+</button>
+            {/* Actions (Visible on both Mobile and Desktop) */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="flex items-center justify-between border border-zinc-300 dark:border-white/20 rounded-lg overflow-hidden h-12 flex-shrink-0">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 h-full text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-white/5 active:bg-zinc-200 transition-colors">-</button>
+                <input type="text" value={quantity} readOnly className="w-12 bg-transparent text-center font-poppins text-black dark:text-white outline-none text-sm font-bold" />
+                <button onClick={() => setQuantity(quantity + 1)} className="px-4 h-full text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-white/5 active:bg-zinc-200 transition-colors">+</button>
               </div>
-              <button onClick={handleAddToCart} className="flex-1 bg-zinc-800 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2">
-                <ShoppingBag size={18} />
-                <span>Add To Cart</span>
-              </button>
-              <button onClick={handleBuyNow} className="flex-1 bg-[#ff0033] text-white hover:bg-[#cc0029] rounded-lg transition-colors flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-sm space-x-2 shadow-[0_0_15px_rgba(255,0,51,0.3)]">
-                <span>Buy Now</span>
-              </button>
-              <button 
-                onClick={handleWishlistToggle}
-                className="px-4 border border-zinc-300 dark:border-white/20 rounded-lg text-zinc-500 dark:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors flex items-center justify-center"
-              >
-                <Heart size={20} className={isWishlisted ? "fill-[#ff0033] text-[#ff0033]" : ""} />
-              </button>
+              
+              <div className="flex flex-1 gap-3">
+                <button onClick={handleAddToCart} className="flex-1 h-12 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-black dark:text-white hover:bg-zinc-200 dark:hover:bg-white/10 active:scale-[0.98] rounded-lg transition-all flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-xs sm:text-sm space-x-2">
+                  <ShoppingBag size={16} />
+                  <span>Add To Cart</span>
+                </button>
+                
+                <button onClick={handleBuyNow} className="flex-1 h-12 bg-[#ff0033] text-white hover:bg-[#cc0029] active:scale-[0.98] rounded-lg transition-all flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-xs sm:text-sm space-x-2 shadow-[0_0_15px_rgba(255,0,51,0.3)]">
+                  <span>Buy Now</span>
+                </button>
+                
+                <button 
+                  onClick={handleWishlistToggle}
+                  className="w-12 h-12 border border-zinc-300 dark:border-white/20 rounded-lg text-zinc-550 dark:text-white hover:bg-zinc-100 dark:hover:bg-white/5 active:scale-[0.98] transition-all flex items-center justify-center flex-shrink-0"
+                >
+                  <Heart size={20} className={isWishlisted ? "fill-[#ff0033] text-[#ff0033]" : ""} />
+                </button>
+              </div>
             </div>
 
             {/* Meta Info */}
             <div className="border-t border-zinc-200 dark:border-white/5 pt-6 space-y-4 mb-8">
-              <div className="flex items-center space-x-3 text-sm text-zinc-600 dark:text-gray-400 font-poppins bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5">
+              <div className="flex items-center space-x-3 text-sm text-zinc-650 dark:text-gray-400 font-poppins bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5">
                 <Truck size={20} className="text-[#ff0033]" />
                 <span>Free express shipping on orders over ₹150</span>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-zinc-600 dark:text-gray-400 font-poppins bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5">
+              <div className="flex items-center space-x-3 text-sm text-zinc-650 dark:text-gray-400 font-poppins bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-200 dark:border-white/5">
                 <ShieldAlert size={20} className="text-[#ff0033]" />
                 <span>30-day premium return policy.</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Mobile Sticky Bottom Add-to-Cart Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-t border-zinc-200 dark:border-white/10 p-3 pb-safe transition-colors duration-300">
-        <div className="flex space-x-3">
-          <div className="flex border border-zinc-300 dark:border-white/10 rounded-lg overflow-hidden bg-zinc-100 dark:bg-white/5 flex-shrink-0">
-            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 text-zinc-700 dark:text-white active:bg-zinc-200 dark:active:bg-white/10 transition-colors">-</button>
-            <input type="text" value={quantity} readOnly className="w-8 bg-transparent text-center font-poppins text-black dark:text-white text-sm outline-none" />
-            <button onClick={() => setQuantity(quantity + 1)} className="px-3 text-zinc-700 dark:text-white active:bg-zinc-200 dark:active:bg-white/10 transition-colors">+</button>
-          </div>
-          <button 
-            onClick={handleAddToCart} 
-            className="flex-1 bg-zinc-800 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-black dark:text-white active:scale-[0.98] rounded-lg transition-transform flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-[10px] space-x-1.5"
-          >
-            <ShoppingBag size={14} />
-            <span>Add To Cart</span>
-          </button>
-          <button 
-            onClick={handleBuyNow} 
-            className="flex-1 bg-[#ff0033] text-white active:scale-[0.98] rounded-lg transition-transform flex items-center justify-center font-montserrat uppercase tracking-wider font-bold text-[10px] shadow-[0_0_15px_rgba(255,0,51,0.3)]"
-          >
-            <span>Buy Now</span>
-          </button>
         </div>
       </div>
     </div>
