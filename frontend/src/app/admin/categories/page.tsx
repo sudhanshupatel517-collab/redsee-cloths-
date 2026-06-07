@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
-import { Plus, Search, Trash2, LayoutGrid, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Search, Trash2, LayoutGrid, CheckCircle, XCircle, Pencil } from 'lucide-react';
 
 interface Category {
   _id: string;
@@ -30,8 +30,9 @@ export default function ManageCategories() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   
-  // Create Category State
+  // Create / Edit Category State
   const [isCreating, setIsCreating] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [newCatName, setNewCatName] = useState('');
   const [newCatSlug, setNewCatSlug] = useState('');
   const [newCatImageUrl, setNewCatImageUrl] = useState('');
@@ -79,7 +80,18 @@ export default function ManageCategories() {
     }
   };
 
-  const createCategory = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setNewCatName('');
+    setNewCatSlug('');
+    setNewCatImageUrl('');
+    setNewCatParentId('');
+    setCategoryType('navbar');
+    setNewCatSection('Men');
+    setIsCreating(false);
+    setEditingCategory(null);
+  };
+
+  const handleSubmitCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName || !newCatSlug) return;
     if (categoryType === 'subcategory' && !newCatParentId) {
@@ -92,21 +104,27 @@ export default function ManageCategories() {
     const parentCategory = categoryType === 'subcategory' ? newCatParentId : null;
     
     try {
-      await api.post('/api/categories', { 
-        name: newCatName, 
-        slug: newCatSlug, 
-        imageUrl: newCatImageUrl,
-        section,
-        parentCategory
-      });
-      setNewCatName('');
-      setNewCatSlug('');
-      setNewCatImageUrl('');
-      setNewCatParentId('');
-      setIsCreating(false);
+      if (editingCategory) {
+        await api.put(`/api/categories/${editingCategory._id}`, {
+          name: newCatName,
+          slug: newCatSlug,
+          imageUrl: newCatImageUrl,
+          section,
+          parentCategory
+        });
+      } else {
+        await api.post('/api/categories', { 
+          name: newCatName, 
+          slug: newCatSlug, 
+          imageUrl: newCatImageUrl,
+          section,
+          parentCategory
+        });
+      }
+      resetForm();
       fetchCategories();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to create category');
+      alert(err.response?.data?.message || `Failed to ${editingCategory ? 'update' : 'create'} category`);
     }
   };
 
@@ -127,6 +145,34 @@ export default function ManageCategories() {
       setCategories(categories.map(c => c._id === id ? { ...c, isActive: !currentStatus } : c));
     } catch (err) {
       alert('Failed to update status');
+    }
+  };
+
+  const startEdit = (cat: Category) => {
+    setEditingCategory(cat);
+    setNewCatName(cat.name);
+    setNewCatSlug(cat.slug);
+    setNewCatImageUrl(cat.imageUrl || '');
+    setCategoryType(cat.parentCategory ? 'subcategory' : 'navbar');
+    setNewCatSection(cat.section || 'Men');
+    
+    let pId = '';
+    if (cat.parentCategory) {
+      pId = typeof cat.parentCategory === 'string' 
+        ? cat.parentCategory 
+        : (cat.parentCategory._id || '');
+    }
+    setNewCatParentId(pId);
+    setIsCreating(false);
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNewCategoryClick = () => {
+    if (isCreating || editingCategory) {
+      resetForm();
+    } else {
+      setIsCreating(true);
     }
   };
 
@@ -152,18 +198,20 @@ export default function ManageCategories() {
             <p className="text-zinc-500 dark:text-gray-400 font-poppins text-sm mt-1">Organize your store collections dynamically.</p>
           </div>
           <button 
-            onClick={() => setIsCreating(!isCreating)}
+            onClick={handleNewCategoryClick}
             className="flex items-center justify-center space-x-2 bg-[#ff0033] hover:bg-[#cc0029] text-white px-6 py-3 rounded-lg font-montserrat font-bold tracking-widest uppercase text-sm transition-all shadow-[0_0_15px_rgba(255,0,51,0.3)] cursor-pointer"
           >
-            {isCreating ? <XCircle size={18} /> : <Plus size={18} />}
-            <span>{isCreating ? 'Cancel' : 'New Category'}</span>
+            {(isCreating || editingCategory) ? <XCircle size={18} /> : <Plus size={18} />}
+            <span>{(isCreating || editingCategory) ? 'Cancel' : 'New Category'}</span>
           </button>
         </div>
 
-        {/* Create Form */}
-        {isCreating && (
-          <form onSubmit={createCategory} className="bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl p-6 mb-8 backdrop-blur-md">
-            <h2 className="text-xl font-bebas text-black dark:text-white tracking-widest uppercase mb-6">Create New Collection</h2>
+        {/* Create / Edit Form */}
+        {(isCreating || editingCategory) && (
+          <form onSubmit={handleSubmitCategory} className="bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl p-6 mb-8 backdrop-blur-md">
+            <h2 className="text-xl font-bebas text-black dark:text-white tracking-widest uppercase mb-6">
+              {editingCategory ? 'Edit Collection' : 'Create New Collection'}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Category Name</label>
@@ -206,7 +254,7 @@ export default function ManageCategories() {
                     className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors font-poppins"
                   >
                     <option value="">Select Parent Category...</option>
-                    {categories.filter(c => !c.parentCategory).map(c => (
+                    {categories.filter(c => !c.parentCategory && c._id !== editingCategory?._id).map(c => (
                       <option key={c._id} value={c._id}>
                         {c.name} {c.section ? `(${c.section})` : ''}
                       </option>
@@ -232,7 +280,7 @@ export default function ManageCategories() {
               </div>
             </div>
             <button type="submit" className="bg-[#ff0033] hover:bg-[#cc0029] text-white px-8 py-3 rounded-lg font-montserrat font-bold tracking-widest uppercase text-sm transition-colors shadow-[0_0_15px_rgba(255,0,51,0.3)] cursor-pointer">
-              Save Category
+              {editingCategory ? 'Update Category' : 'Save Category'}
             </button>
           </form>
         )}
@@ -320,6 +368,9 @@ export default function ManageCategories() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end space-x-3">
+                          <button onClick={() => startEdit(category)} className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit">
+                            <Pencil size={18} />
+                          </button>
                           <button onClick={() => deleteCategory(category._id)} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Delete">
                             <Trash2 size={18} />
                           </button>
