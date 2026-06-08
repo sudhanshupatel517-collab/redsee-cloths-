@@ -31,6 +31,7 @@ export interface HomeState {
   newArrivals: any[];
   categories: any[];
   lookbook: LookbookItem[];
+  hasLoadedOnce: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -47,6 +48,7 @@ const initialState: HomeState = {
   newArrivals: [],
   categories: [],
   lookbook: [],
+  hasLoadedOnce: false,
   loading: false,
   error: null,
 };
@@ -67,7 +69,11 @@ export const fetchHomeData = createAsyncThunk(
 const homeSlice = createSlice({
   name: 'home',
   initialState,
-  reducers: {},
+  reducers: {
+    setHasLoadedOnce: (state) => {
+      state.hasLoadedOnce = true;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchHomeData.pending, (state) => {
@@ -94,5 +100,7 @@ const homeSlice = createSlice({
       });
   },
 });
+
+export const { setHasLoadedOnce } = homeSlice.actions;
 
 export default homeSlice.reducer;

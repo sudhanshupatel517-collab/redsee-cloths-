@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
-import { fetchHomeData } from "@/store/homeSlice";
+import { fetchHomeData, setHasLoadedOnce } from "@/store/homeSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
@@ -185,6 +185,7 @@ export default function Home() {
     offersForYou, 
     newArrivals, 
     categories,
+    hasLoadedOnce,
     loading 
   } = useSelector((state: RootState) => state.home);
   
@@ -200,6 +201,12 @@ export default function Home() {
   useEffect(() => {
     setThemeMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (hasLoadedOnce) {
+      setLoaded(true);
+    }
+  }, [hasLoadedOnce]);
 
   const currentTheme = resolvedTheme || 'dark';
 
@@ -504,7 +511,14 @@ export default function Home() {
 
   return (
     <div className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white min-h-screen pb-24 overflow-x-hidden transition-colors duration-300">
-      <LoadingScreen onComplete={() => setLoaded(true)} />
+      {!hasLoadedOnce && (
+        <LoadingScreen 
+          onComplete={() => {
+            setLoaded(true);
+            dispatch(setHasLoadedOnce());
+          }} 
+        />
+      )}
       
       <div 
         style={{ 
