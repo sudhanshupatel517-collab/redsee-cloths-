@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { addToCart, removeFromCart } from "@/store/cartSlice";
 import { useRouter } from "next/navigation";
+import { optimizeImageUrl } from "@/lib/image";
 
 export default function Cart() {
   const dispatch = useDispatch();
@@ -78,7 +79,7 @@ export default function Cart() {
               {cartItems.map((item, index) => (
                 <div key={index} className="flex gap-4 p-4 border border-zinc-200 dark:border-white/5 rounded-2xl bg-white dark:bg-zinc-900/40 shadow-sm dark:shadow-none relative transition-colors duration-300">
                   <div className="w-20 h-28 md:w-28 md:h-36 flex-shrink-0 bg-zinc-100 dark:bg-black rounded-lg overflow-hidden border border-zinc-200 dark:border-white/10">
-                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                    <img src={optimizeImageUrl(item.image, 160)} alt={item.title} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-grow flex flex-col justify-between py-1">
                     <div className="pr-8">

@@ -7,6 +7,7 @@ import { addToCart } from "@/store/cartSlice";
 import { RootState } from "@/store/store";
 import { addRecentlyViewedLocal, addRecentlyViewedBackend } from "@/store/recentlyViewedSlice";
 import { toggleWishlistLocal, toggleWishlistBackend } from "@/store/wishlistSlice";
+import { optimizeImageUrl } from "@/lib/image";
 
 interface ProductProps {
   id: string;
@@ -33,8 +34,8 @@ const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating
     return img.url || "";
   };
 
-  const imgUrl = getImageUrl(image);
-  const hoverImgUrl = hoverImage ? getImageUrl(hoverImage) : imgUrl;
+  const imgUrl = optimizeImageUrl(getImageUrl(image), 600);
+  const hoverImgUrl = hoverImage ? optimizeImageUrl(getImageUrl(hoverImage), 600) : imgUrl;
 
   const getProductObj = () => {
     return {

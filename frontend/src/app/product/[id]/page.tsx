@@ -10,6 +10,7 @@ import { addRecentlyViewedLocal, addRecentlyViewedBackend } from "@/store/recent
 import { toggleWishlistLocal, toggleWishlistBackend } from "@/store/wishlistSlice";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { optimizeImageUrl } from "@/lib/image";
 
 export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -139,7 +140,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-[60vh] bg-zinc-100 dark:bg-zinc-900">
               {images.map((img: string, i: number) => (
                 <div key={i} className="min-w-full h-full snap-center relative">
-                  <img src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
+                  <img src={optimizeImageUrl(img, 800)} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
@@ -151,7 +152,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 animate={{ opacity: 1 }}
                 className="aspect-[4/5] bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 relative overflow-hidden group rounded-2xl"
               >
-                <img src={activeImage} alt={product.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" />
+                <img src={optimizeImageUrl(activeImage, 1000)} alt={product.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" />
               </motion.div>
               <div className="grid grid-cols-4 gap-4">
                 {images.map((img: string, i: number) => (
@@ -160,7 +161,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                     onClick={() => setActiveImage(img)}
                     className={`aspect-square bg-zinc-100 dark:bg-zinc-900 rounded-xl border ${activeImage === img ? 'border-[#ff0033]' : 'border-zinc-200 dark:border-white/5 hover:border-[#ff0033]/50 dark:hover:border-white/30'} transition-colors overflow-hidden`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={optimizeImageUrl(img, 200)} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

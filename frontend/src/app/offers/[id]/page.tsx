@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import api from '@/lib/axios';
 import ProductGrid from '@/components/ProductGrid';
+import { optimizeImageUrl } from '@/lib/image';
 
 interface Banner {
   _id: string;
@@ -103,7 +104,7 @@ export default function OfferPage({ params }: { params: Promise<{ id: string }> 
         {/* Background image backdrop */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={banner.imageUrl} 
+            src={optimizeImageUrl(banner.imageUrl, 1200)} 
             alt={banner.title} 
             className="w-full h-full object-cover opacity-30 blur-sm scale-105" 
           />

@@ -7,6 +7,7 @@ import api from '@/lib/axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import Link from 'next/link';
+import { optimizeImageUrl } from '@/lib/image';
 
 interface OrderItem {
   product: {
@@ -254,7 +255,7 @@ export default function OrdersPage() {
                   return (
                     <div key={idx} className="flex items-start md:items-center space-x-4">
                       <div className="w-16 h-20 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-lg overflow-hidden flex-shrink-0">
-                        <img src={itemImage} alt={itemTitle} className="w-full h-full object-cover" />
+                        <img src={optimizeImageUrl(itemImage, 160)} alt={itemTitle} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-poppins font-bold text-black dark:text-white line-clamp-1 hover:text-[#ff0033] dark:hover:text-[#ff0033] transition-colors">

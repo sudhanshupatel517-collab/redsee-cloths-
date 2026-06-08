@@ -15,6 +15,7 @@ import ProductCard from "@/components/ProductCard";
 import api from "@/lib/axios";
 import LoadingScreen from "@/components/LoadingScreen";
 import RecentlyViewedShelf from "@/components/RecentlyViewedShelf";
+import { optimizeImageUrl } from "@/lib/image";
 
 // Category circles curated for luxury streetwear (Men and Women circles removed per user request)
 const STYLE_CATEGORIES = [
@@ -147,7 +148,7 @@ function LookbookSection() {
               className={`relative overflow-hidden rounded-xl bg-zinc-950 border border-white/5 group aspect-square md:aspect-auto ${item.span}`}
             >
               <img
-                src={item.imageUrl}
+                src={optimizeImageUrl(item.imageUrl, 600)}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
@@ -692,7 +693,7 @@ export default function Home() {
                     className="flex flex-col items-center gap-2 min-w-[70px] cat-circle group cursor-pointer"
                   >
                     <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border border-zinc-200 dark:border-white/10 group-hover:border-[#ff0033]/60 transition-all duration-300 bg-zinc-200 dark:bg-[#141414]">
-                      <img src={cat.img} alt={cat.name} className="w-full h-full object-cover" />
+                      <img src={optimizeImageUrl(cat.img, 150)} alt={cat.name} className="w-full h-full object-cover" />
                     </div>
                     <span className="text-[10px] md:text-[11px] font-montserrat font-semibold text-zinc-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors whitespace-nowrap uppercase">
                       {cat.name}
@@ -749,7 +750,7 @@ export default function Home() {
                           className="w-[85vw] md:w-[65vw] lg:w-[55vw] h-[22vh] md:h-[32vh] flex-shrink-0 snap-center rounded-2xl overflow-hidden relative border border-white/5 shadow-2xl transition-transform duration-300"
                         >
                           <img
-                            src={imgSrc}
+                            src={optimizeImageUrl(imgSrc, 1200)}
                             alt={title || `Slide ${idx + 1}`}
                             className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
                             draggable={false}

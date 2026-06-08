@@ -6,6 +6,7 @@ import { RootState } from "@/store/store";
 import { clearCart } from "@/store/cartSlice";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import { optimizeImageUrl } from "@/lib/image";
 
 export default function Checkout() {
   const [step, setStep] = useState(1);
@@ -490,7 +491,7 @@ export default function Checkout() {
                 {cartItems.map((item, index) => (
                   <div key={index} className="flex space-x-4">
                     <div className="w-16 h-20 bg-zinc-100 dark:bg-zinc-850 rounded border border-zinc-200 dark:border-white/5 overflow-hidden">
-                      <img src={item.image} className="w-full h-full object-cover" />
+                      <img src={optimizeImageUrl(item.image, 160)} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <h4 className="text-sm font-poppins text-black dark:text-white line-clamp-1">{item.title}</h4>
