@@ -10,7 +10,11 @@ const {
   mergeRecentlyViewed,
   toggleWishlist,
   getWishlist,
-  mergeWishlist
+  mergeWishlist,
+  getAddresses,
+  addAddress,
+  updateAddress,
+  deleteAddress
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -18,6 +22,14 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
+
+// Address Routes
+router.route('/addresses')
+  .get(protect, getAddresses)
+  .post(protect, addAddress);
+router.route('/addresses/:addressId')
+  .put(protect, updateAddress)
+  .delete(protect, deleteAddress);
 
 // Recently Viewed Product Routes
 router.post('/recently-viewed', protect, addRecentlyViewed);

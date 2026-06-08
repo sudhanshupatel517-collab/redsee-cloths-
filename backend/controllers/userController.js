@@ -333,6 +333,126 @@ const mergeWishlist = async (req, res) => {
   }
 };
 
+// @desc    Get user addresses
+// @route   GET /api/users/addresses
+// @access  Private
+const getAddresses = async (req, res) => {
+  try {
+    res.json(req.user.addresses || []);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Add address
+// @route   POST /api/users/addresses
+// @access  Private
+const addAddress = async (req, res) => {
+  try {
+    const user = req.user;
+    const { name, street, city, state, zipCode, country, phone, isDefault } = req.body;
+
+    if (!street || !city || !state || !zipCode || !phone) {
+      return res.status(400).json({ message: 'All address fields are required' });
+    }
+
+    const newAddress = {
+      name: name || user.name,
+      street,
+      city,
+      state,
+      zipCode,
+      country: country || 'India',
+      phone,
+      isDefault: isDefault || false
+    };
+
+    if (newAddress.isDefault) {
+      // Clear default status of other addresses
+      user.addresses.forEach(addr => {
+        addr.isDefault = false;
+      });
+    } else if (user.addresses.length === 0) {
+      // If first address, make it default
+      newAddress.isDefault = true;
+    }
+
+    user.addresses.push(newAddress);
+    await user.save();
+    res.status(201).json(user.addresses);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Update address
+// @route   PUT /api/users/addresses/:addressId
+// @access  Private
+const updateAddress = async (req, res) => {
+  try {
+    const user = req.user;
+    const { name, street, city, state, zipCode, country, phone, isDefault } = req.body;
+
+    const address = user.addresses.id(req.params.addressId);
+
+    if (address) {
+      address.name = name !== undefined ? name : address.name;
+      address.street = street !== undefined ? street : address.street;
+      address.city = city !== undefined ? city : address.city;
+      address.state = state !== undefined ? state : address.state;
+      address.zipCode = zipCode !== undefined ? zipCode : address.zipCode;
+      address.country = country !== undefined ? country : address.country;
+      address.phone = phone !== undefined ? phone : address.phone;
+
+      if (isDefault !== undefined) {
+        address.isDefault = isDefault;
+        if (isDefault) {
+          // Clear default status of other addresses
+          user.addresses.forEach(addr => {
+            if (addr._id.toString() !== req.params.addressId) {
+              addr.isDefault = false;
+            }
+          });
+        }
+      }
+
+      await user.save();
+      res.json(user.addresses);
+    } else {
+      res.status(404).json({ message: 'Address not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Delete address
+// @route   DELETE /api/users/addresses/:addressId
+// @access  Private
+const deleteAddress = async (req, res) => {
+  try {
+    const user = req.user;
+    const address = user.addresses.id(req.params.addressId);
+
+    if (address) {
+      const wasDefault = address.isDefault;
+      address.deleteOne();
+      
+      // If we deleted the default address, make the first remaining address the default
+      if (wasDefault && user.addresses.length > 0) {
+        user.addresses[0].isDefault = true;
+      }
+
+      await user.save();
+      res.json(user.addresses);
+    } else {
+      res.status(404).json({ message: 'Address not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -343,5 +463,9 @@ module.exports = {
   mergeRecentlyViewed,
   toggleWishlist,
   getWishlist,
-  mergeWishlist
+  mergeWishlist,
+  getAddresses,
+  addAddress,
+  updateAddress,
+  deleteAddress
 };

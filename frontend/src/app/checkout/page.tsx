@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Lock, CreditCard, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Lock, CreditCard, ChevronRight, CheckCircle2, Plus, MapPin } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { clearCart } from "@/store/cartSlice";
@@ -15,11 +15,17 @@ export default function Checkout() {
   const router = useRouter();
 
   const [shippingAddress, setShippingAddress] = useState({
-    street: '', city: '', state: '', zipCode: '', country: 'US', phone: ''
+    name: '', street: '', city: '', state: '', zipCode: '', country: 'India', phone: ''
   });
   const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [transactionRef, setTransactionRef] = useState('');
   const [verifying, setVerifying] = useState(false);
+
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [useNewAddress, setUseNewAddress] = useState<boolean>(true);
+  const [saveNewAddress, setSaveNewAddress] = useState<boolean>(true);
+  const [setAsDefault, setSetAsDefault] = useState<boolean>(false);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal >= 999 ? 0 : 99;
@@ -32,8 +38,81 @@ export default function Checkout() {
     }
   }, [user, router]);
 
-  const handleNext = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+        const { data } = await api.get('/api/users/addresses', config);
+        setSavedAddresses(data);
+        
+        // Find default address
+        const defaultAddr = data.find((addr: any) => addr.isDefault);
+        if (defaultAddr) {
+          setSelectedAddressId(defaultAddr._id);
+          setShippingAddress({
+            name: defaultAddr.name || '',
+            street: defaultAddr.street || '',
+            city: defaultAddr.city || '',
+            state: defaultAddr.state || '',
+            zipCode: defaultAddr.zipCode || '',
+            country: defaultAddr.country || 'India',
+            phone: defaultAddr.phone || ''
+          });
+          setUseNewAddress(false);
+        } else if (data.length > 0) {
+          setSelectedAddressId(data[0]._id);
+          setShippingAddress({
+            name: data[0].name || '',
+            street: data[0].street || '',
+            city: data[0].city || '',
+            state: data[0].state || '',
+            zipCode: data[0].zipCode || '',
+            country: data[0].country || 'India',
+            phone: data[0].phone || ''
+          });
+          setUseNewAddress(false);
+        } else {
+          setUseNewAddress(true);
+        }
+      } catch (err) {
+        console.error('Error fetching addresses:', err);
+        setUseNewAddress(true);
+      }
+    };
+
+    if (user) {
+      fetchAddresses();
+    }
+  }, [user]);
+
+  const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (useNewAddress) {
+      if (!shippingAddress.name) {
+        alert('Please enter a recipient name');
+        return;
+      }
+      if (saveNewAddress) {
+        try {
+          const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+          const { data } = await api.post('/api/users/addresses', {
+            ...shippingAddress,
+            isDefault: setAsDefault
+          }, config);
+          
+          // Select the newly added address (usually the last item)
+          const newAddr = data[data.length - 1];
+          if (newAddr) {
+            setSelectedAddressId(newAddr._id);
+            setShippingAddress(newAddr);
+          }
+          setSavedAddresses(data);
+          setUseNewAddress(false);
+        } catch (err) {
+          console.error('Failed to save address:', err);
+        }
+      }
+    }
     setStep(step + 1);
   };
 
@@ -118,29 +197,135 @@ export default function Checkout() {
           {step === 1 && (
             <form onSubmit={handleNext} className="space-y-6">
               <h2 className="text-2xl font-bebas text-black dark:text-white tracking-wide border-b border-zinc-200 dark:border-white/10 pb-4 mb-6">Shipping Address</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Address Line 1</label>
-                  <input required type="text" value={shippingAddress.street} onChange={(e) => setShippingAddress({...shippingAddress, street: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
+              
+              {/* Saved Addresses list */}
+              {savedAddresses.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-4">Select Shipping Address</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {savedAddresses.map((addr) => {
+                      const isSelected = selectedAddressId === addr._id && !useNewAddress;
+                      return (
+                        <div
+                          key={addr._id}
+                          onClick={() => {
+                            setSelectedAddressId(addr._id);
+                            setShippingAddress({
+                              name: addr.name || '',
+                              street: addr.street || '',
+                              city: addr.city || '',
+                              state: addr.state || '',
+                              zipCode: addr.zipCode || '',
+                              country: addr.country || 'India',
+                              phone: addr.phone || ''
+                            });
+                            setUseNewAddress(false);
+                          }}
+                          className={`p-4 border rounded-xl cursor-pointer transition-all duration-300 relative text-left bg-zinc-50 dark:bg-white/[0.02] ${
+                            isSelected 
+                              ? 'border-[#ff0033] shadow-[0_0_15px_rgba(255,0,51,0.15)] ring-1 ring-[#ff0033]' 
+                              : 'border-zinc-200 dark:border-white/10 hover:border-zinc-400 dark:hover:border-white/30'
+                          }`}
+                        >
+                          {addr.isDefault && (
+                            <span className="absolute top-3 right-3 bg-[#ff0033]/10 text-[#ff0033] text-[8px] font-montserrat font-bold px-2 py-0.5 rounded tracking-widest">
+                              DEFAULT
+                            </span>
+                          )}
+                          <p className="font-poppins font-bold text-sm text-black dark:text-white mb-2">{addr.name}</p>
+                          <p className="font-poppins text-xs text-zinc-600 dark:text-gray-400 mb-1">{addr.street}</p>
+                          <p className="font-poppins text-xs text-zinc-600 dark:text-gray-400 mb-2">{addr.city}, {addr.state} - {addr.zipCode}</p>
+                          <p className="font-poppins text-[10px] text-zinc-500 dark:text-gray-500">Phone: {addr.phone}</p>
+                        </div>
+                      );
+                    })}
+
+                    {/* Use New Address Card */}
+                    <div
+                      onClick={() => {
+                        setUseNewAddress(true);
+                        setSelectedAddressId('');
+                        setShippingAddress({
+                          name: '',
+                          street: '',
+                          city: '',
+                          state: '',
+                          zipCode: '',
+                          country: 'India',
+                          phone: ''
+                        });
+                      }}
+                      className={`p-4 border rounded-xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[140px] text-center bg-zinc-50 dark:bg-white/[0.02] ${
+                        useNewAddress 
+                          ? 'border-[#ff0033] shadow-[0_0_15px_rgba(255,0,51,0.15)] ring-1 ring-[#ff0033]' 
+                          : 'border-zinc-200 dark:border-white/10 hover:border-zinc-400 dark:hover:border-white/30'
+                      }`}
+                    >
+                      <Plus size={24} className={useNewAddress ? 'text-[#ff0033] mb-2' : 'text-zinc-400 dark:text-gray-500 mb-2'} />
+                      <span className="font-montserrat text-xs font-bold uppercase tracking-wider text-black dark:text-white">Use a New Address</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">City</label>
-                  <input required type="text" value={shippingAddress.city} onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
+              )}
+
+              {/* Address Form */}
+              {(useNewAddress || savedAddresses.length === 0) && (
+                <div className="space-y-6 pt-4 border-t border-zinc-200 dark:border-white/10">
+                  <h3 className="text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">New Address Details</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Full Name</label>
+                      <input required type="text" value={shippingAddress.name} onChange={(e) => setShippingAddress({...shippingAddress, name: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" placeholder="e.g. Sudhanshu Patel" />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Address Line 1</label>
+                      <input required type="text" value={shippingAddress.street} onChange={(e) => setShippingAddress({...shippingAddress, street: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
+                    </div>
+                    <div className="col-span-2 md:col-span-1">
+                      <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">City</label>
+                      <input required type="text" value={shippingAddress.city} onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
+                    </div>
+                    <div className="col-span-2 md:col-span-1">
+                      <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">State</label>
+                      <input required type="text" value={shippingAddress.state} onChange={(e) => setShippingAddress({...shippingAddress, state: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
+                    </div>
+                    <div className="col-span-2 md:col-span-1">
+                      <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Postal Code</label>
+                      <input required type="text" value={shippingAddress.zipCode} onChange={(e) => setShippingAddress({...shippingAddress, zipCode: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
+                    </div>
+                    <div className="col-span-2 md:col-span-1">
+                      <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Phone</label>
+                      <input required type="text" value={shippingAddress.phone} onChange={(e) => setShippingAddress({...shippingAddress, phone: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={saveNewAddress} 
+                        onChange={(e) => setSaveNewAddress(e.target.checked)} 
+                        className="accent-[#ff0033] h-4 w-4"
+                      />
+                      <span className="text-sm font-poppins text-zinc-700 dark:text-gray-300">Save this address for future use</span>
+                    </label>
+
+                    {saveNewAddress && (
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={setAsDefault} 
+                          onChange={(e) => setSetAsDefault(e.target.checked)} 
+                          className="accent-[#ff0033] h-4 w-4"
+                        />
+                        <span className="text-sm font-poppins text-zinc-700 dark:text-gray-300">Set it as a default address</span>
+                      </label>
+                    )}
+                  </div>
                 </div>
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">State</label>
-                  <input required type="text" value={shippingAddress.state} onChange={(e) => setShippingAddress({...shippingAddress, state: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
-                </div>
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Postal Code</label>
-                  <input required type="text" value={shippingAddress.zipCode} onChange={(e) => setShippingAddress({...shippingAddress, zipCode: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
-                </div>
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Phone</label>
-                  <input required type="text" value={shippingAddress.phone} onChange={(e) => setShippingAddress({...shippingAddress, phone: e.target.value})} className="w-full bg-zinc-100 dark:bg-black border border-zinc-200 dark:border-white/20 p-3 text-black dark:text-white focus:border-[#ff0033] focus:outline-none transition-colors" />
-                </div>
-              </div>
-              <button type="submit" className="w-full mt-8 bg-black dark:bg-white text-white dark:text-black py-4 font-montserrat uppercase tracking-wider font-bold text-sm hover:bg-[#ff0033] dark:hover:bg-[#ff0033] hover:text-white dark:hover:text-white transition-colors">
+              )}
+
+              <button type="submit" className="w-full mt-8 bg-black dark:bg-white text-white dark:text-black py-4 font-montserrat uppercase tracking-wider font-bold text-sm hover:bg-[#ff0033] dark:hover:bg-[#ff0033] hover:text-white dark:hover:text-white transition-colors cursor-pointer">
                 Continue to Payment
               </button>
             </form>

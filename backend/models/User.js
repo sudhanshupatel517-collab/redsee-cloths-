@@ -17,12 +17,14 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['user', 'coadmin', 'admin'], default: 'user' },
   permissions: [{ type: String, enum: ['manage_products', 'manage_inventory', 'manage_orders', 'manage_discounts', 'manage_support', 'manage_categories', 'manage_banners', 'manage_events', 'manage_studio'] }],
   addresses: [{
+    name: String,
     street: String,
     city: String,
     state: String,
     zipCode: String,
-    country: String,
+    country: { type: String, default: 'India' },
     phone: String,
+    isDefault: { type: Boolean, default: false }
   }],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   cart: [{
