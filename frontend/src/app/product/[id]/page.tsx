@@ -125,16 +125,16 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
         </button>
       </div>
 
-      <div className="container mx-auto px-0 md:px-6 md:py-12">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 md:py-12">
         {/* Desktop Breadcrumbs */}
         <div className="hidden md:block text-xs font-montserrat text-gray-500 uppercase tracking-widest mb-8">
           <Link href="/">Home</Link> / <Link href={`/category/${product.category.toLowerCase()}`}>{product.category}</Link> / <span className="text-black dark:text-white">{product.name}</span>
         </div>
 
-        <div className="flex flex-col md:grid md:grid-cols-2 gap-0 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
           
           {/* Image Gallery */}
-          <div className="relative w-full">
+          <div className="md:col-span-5 relative w-full">
             {/* Mobile: Horizontal Swipeable Gallery */}
             <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-[60vh] bg-zinc-100 dark:bg-zinc-900">
               {images.map((img: string, i: number) => (
@@ -168,7 +168,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
           </div>
 
           {/* Product Info */}
-          <div className="flex flex-col px-4 pt-6 md:px-0 md:pt-0">
+          <div className="md:col-span-7 flex flex-col px-4 pt-6 md:px-0 md:pt-0">
             <div className="flex justify-between items-start mb-2">
               <h1 className="text-3xl md:text-5xl font-bebas text-black dark:text-white tracking-wide leading-none">{product.name}</h1>
               <button className="hidden md:flex text-zinc-500 dark:text-gray-400 hover:text-[#ff0033] transition-colors p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-white/5">
