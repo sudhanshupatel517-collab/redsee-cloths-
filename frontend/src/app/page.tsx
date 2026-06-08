@@ -726,7 +726,7 @@ export default function Home() {
                       const imgSrc = item.imageUrl || item.img || '';
                       const title = item.title || '';
                       const desc = item.description || item.sub || '';
-                      const link = item.linkUrl || item.link || item.href || '/shop';
+                      const link = item._id ? `/offers/${item._id}` : (item.linkUrl || item.link || item.href || '/shop');
 
                       return (
                         <div

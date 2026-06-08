@@ -107,10 +107,27 @@ const deleteBanner = async (req, res) => {
   }
 };
 
+// @desc    Get single banner by ID
+// @route   GET /api/banners/:id
+// @access  Public
+const getBannerById = async (req, res) => {
+  try {
+    const banner = await Banner.findById(req.params.id);
+    if (banner) {
+      res.json(banner);
+    } else {
+      res.status(404).json({ message: 'Banner not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error fetching banner' });
+  }
+};
+
 module.exports = {
   getBanners,
   getAllBanners,
   createBanner,
   updateBanner,
   deleteBanner,
+  getBannerById,
 };
