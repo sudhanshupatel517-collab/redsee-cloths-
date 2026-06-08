@@ -68,7 +68,7 @@ export default function CreatePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden transition-colors duration-300">
       {/* Background aesthetics */}
       <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#ff0033]/5 to-transparent pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ff0033]/10 blur-[150px] rounded-full pointer-events-none opacity-50" />
@@ -76,14 +76,14 @@ export default function CreatePasswordPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl p-8 relative z-10 shadow-2xl"
+        className="w-full max-w-md bg-white dark:bg-[#0A0A0A] border border-zinc-200 dark:border-white/5 rounded-3xl p-8 relative z-10 shadow-2xl dark:shadow-none transition-colors duration-300"
       >
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#ff0033]/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#ff0033]/20 shadow-[0_0_20px_rgba(255,0,51,0.2)]">
             <KeyRound size={28} className="text-[#ff0033]" />
           </div>
-          <h1 className="text-3xl font-bebas text-white tracking-widest uppercase">Secure Account</h1>
-          <p className="text-gray-400 font-poppins text-sm mt-2">
+          <h1 className="text-3xl font-bebas text-black dark:text-white tracking-widest uppercase">Secure Account</h1>
+          <p className="text-zinc-500 dark:text-gray-400 font-poppins text-sm mt-2">
             {step === 1 ? 'Create a secure password to access your account features.' : `Enter the 6-digit code sent to ${user?.email}`}
           </p>
         </div>
@@ -111,13 +111,13 @@ export default function CreatePasswordPage() {
                   placeholder="New Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-xl px-12 py-4 text-white font-poppins text-sm transition-all outline-none"
+                  className="w-full bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-xl px-12 py-4 text-black dark:text-white font-poppins text-sm transition-all outline-none focus:bg-white dark:focus:bg-black"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black dark:hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -130,20 +130,20 @@ export default function CreatePasswordPage() {
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-xl px-12 py-4 text-white font-poppins text-sm transition-all outline-none"
+                  className="w-full bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-xl px-12 py-4 text-black dark:text-white font-poppins text-sm transition-all outline-none focus:bg-white dark:focus:bg-black"
                   required
                 />
               </div>
 
-              <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2">
-                <p className="text-xs text-gray-400 font-montserrat uppercase tracking-widest mb-2">Requirements:</p>
+              <div className="bg-zinc-50 dark:bg-black/30 p-4 rounded-xl border border-zinc-150 dark:border-white/5 space-y-2">
+                <p className="text-xs text-zinc-500 dark:text-gray-400 font-montserrat uppercase tracking-widest mb-2">Requirements:</p>
                 <div className="grid grid-cols-2 gap-2 text-xs font-poppins">
-                  <span className={validation.length ? 'text-green-500' : 'text-gray-500'}>✓ 8+ Characters</span>
-                  <span className={validation.upper ? 'text-green-500' : 'text-gray-500'}>✓ 1 Uppercase</span>
-                  <span className={validation.lower ? 'text-green-500' : 'text-gray-500'}>✓ 1 Lowercase</span>
-                  <span className={validation.number ? 'text-green-500' : 'text-gray-500'}>✓ 1 Number</span>
-                  <span className={validation.special ? 'text-green-500' : 'text-gray-500'}>✓ 1 Special Char</span>
-                  <span className={password === confirmPassword && password ? 'text-green-500' : 'text-gray-500'}>✓ Matches</span>
+                  <span className={validation.length ? 'text-green-500' : 'text-zinc-400 dark:text-gray-500'}>✓ 8+ Characters</span>
+                  <span className={validation.upper ? 'text-green-500' : 'text-zinc-400 dark:text-gray-500'}>✓ 1 Uppercase</span>
+                  <span className={validation.lower ? 'text-green-500' : 'text-zinc-400 dark:text-gray-500'}>✓ 1 Lowercase</span>
+                  <span className={validation.number ? 'text-green-500' : 'text-zinc-400 dark:text-gray-500'}>✓ 1 Number</span>
+                  <span className={validation.special ? 'text-green-500' : 'text-zinc-400 dark:text-gray-500'}>✓ 1 Special Char</span>
+                  <span className={password === confirmPassword && password ? 'text-green-500' : 'text-zinc-400 dark:text-gray-500'}>✓ Matches</span>
                 </div>
               </div>
 
@@ -153,7 +153,7 @@ export default function CreatePasswordPage() {
                 className={`w-full py-4 rounded-xl font-montserrat font-bold text-sm tracking-widest uppercase transition-all flex items-center justify-center ${
                   isValid && !loading
                     ? 'bg-[#ff0033] text-white hover:bg-[#cc0029] hover:shadow-[0_0_20px_rgba(255,0,51,0.4)]'
-                    : 'bg-white/5 text-gray-500 cursor-not-allowed'
+                    : 'bg-zinc-100 dark:bg-white/5 text-zinc-400 dark:text-gray-500 cursor-not-allowed'
                 }`}
               >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Continue'}
@@ -176,7 +176,7 @@ export default function CreatePasswordPage() {
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                className="w-full bg-black/50 border border-white/10 focus:border-[#ff0033] rounded-xl px-6 py-4 text-center text-white font-bebas text-3xl tracking-[1em] transition-all outline-none"
+                className="w-full bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-xl px-6 py-4 text-center text-black dark:text-white font-bebas text-3xl tracking-[1em] transition-all outline-none focus:bg-white dark:focus:bg-black"
                 required
               />
 
@@ -186,7 +186,7 @@ export default function CreatePasswordPage() {
                 className={`w-full py-4 rounded-xl font-montserrat font-bold text-sm tracking-widest uppercase transition-all flex items-center justify-center ${
                   otp.length === 6 && !loading
                     ? 'bg-[#ff0033] text-white hover:bg-[#cc0029] hover:shadow-[0_0_20px_rgba(255,0,51,0.4)]'
-                    : 'bg-white/5 text-gray-500 cursor-not-allowed'
+                    : 'bg-zinc-100 dark:bg-white/5 text-zinc-400 dark:text-gray-500 cursor-not-allowed'
                 }`}
               >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Verify & Secure'}
@@ -195,7 +195,7 @@ export default function CreatePasswordPage() {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="w-full py-2 text-gray-500 hover:text-white font-poppins text-xs transition-colors"
+                className="w-full py-2 text-zinc-500 hover:text-black dark:hover:text-white font-poppins text-xs transition-colors"
               >
                 Go Back
               </button>

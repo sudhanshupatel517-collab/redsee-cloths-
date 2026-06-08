@@ -130,29 +130,14 @@ export default function Cart() {
                   </div>
                 </div>
 
-                {/* Mobile Sticky Checkout Button */}
-                <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-t border-zinc-200 dark:border-white/10 p-4 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_20px_rgba(0,0,0,0.5)] transition-colors duration-300">
-                  <div className="flex items-center justify-between mb-3 px-1">
-                    <span className="text-sm font-poppins text-zinc-500 dark:text-gray-400">Total</span>
-                    <span className="text-xl font-poppins font-bold text-black dark:text-white">₹{total.toFixed(2)}</span>
-                  </div>
+                <div className="mt-6">
                   <Link href="/checkout">
-                    <button className="w-full bg-[#ff0033] text-white py-3.5 rounded-xl font-montserrat uppercase tracking-wider font-bold text-xs flex items-center justify-center space-x-2 active:scale-[0.98] transition-transform shadow-[0_0_20px_rgba(255,0,51,0.3)]">
+                    <button className="w-full bg-[#ff0033] text-white py-4 rounded-xl font-montserrat uppercase tracking-wider font-bold text-sm flex items-center justify-center space-x-2 hover:bg-[#cc0029] active:scale-[0.98] transition-all group shadow-[0_0_20px_rgba(255,0,51,0.15)] cursor-pointer">
                       <span>Checkout Now</span>
-                      <ArrowRight size={16} />
-                    </button>
-                  </Link>
-                </div>
-
-                {/* Desktop Checkout Button */}
-                <div className="hidden md:block">
-                  <Link href="/checkout">
-                    <button className="w-full bg-[#ff0033] text-white py-4 rounded-xl font-montserrat uppercase tracking-wider font-bold text-sm flex items-center justify-center space-x-2 hover:bg-[#cc0029] transition-colors group">
-                      <span>Proceed to Checkout</span>
                       <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                   </Link>
-                  <div className="mt-4 flex items-center justify-center space-x-2 text-gray-500">
+                  <div className="mt-4 flex items-center justify-center space-x-2 text-zinc-500 dark:text-gray-500">
                     <ShieldCheck size={16} />
                     <p className="text-xs font-poppins">Secure 256-bit SSL Checkout</p>
                   </div>
