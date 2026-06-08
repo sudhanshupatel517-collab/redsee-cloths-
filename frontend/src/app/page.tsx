@@ -274,12 +274,21 @@ export default function Home() {
     loadData();
   }, [loadData, retryCount]);
 
-  // Handle Header Shrinking on scroll
+  // Handle Header Shrinking on scroll with hysteresis to prevent fumbling/looping
   useEffect(() => {
     const handleScroll = () => {
-      setShrunk(window.scrollY > 80);
+      const currentScrollY = window.scrollY;
+      setShrunk((prev) => {
+        if (prev) {
+          // If already shrunk, only expand if scrolling back up near the top (e.g., < 40px)
+          return currentScrollY > 40;
+        } else {
+          // If not shrunk, only shrink if scrolled past a safe buffer (e.g., > 140px)
+          return currentScrollY > 140;
+        }
+      });
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
