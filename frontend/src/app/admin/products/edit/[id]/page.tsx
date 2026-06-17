@@ -24,7 +24,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   // Form State
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedSection, setSelectedSection] = useState<'Men' | 'Women'>('Men');
+  const [selectedSection, setSelectedSection] = useState<'Men' | 'Women' | 'Accessories'>('Men');
   const [selectedNavbarCategory, setSelectedNavbarCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [bannerId, setBannerId] = useState('');
@@ -101,7 +101,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     }
   }, [id]);
 
-  const handleSectionChange = (val: 'Men' | 'Women') => {
+  const handleSectionChange = (val: 'Men' | 'Women' | 'Accessories') => {
     setSelectedSection(val);
     setSelectedNavbarCategory('');
     setSelectedSubcategory('');
@@ -239,11 +239,12 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                   <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Section</label>
                   <select 
                     value={selectedSection} 
-                    onChange={e => handleSectionChange(e.target.value as 'Men' | 'Women')} 
+                    onChange={e => handleSectionChange(e.target.value as 'Men' | 'Women' | 'Accessories')} 
                     className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors appearance-none cursor-pointer font-poppins"
                   >
                     <option value="Men">Men</option>
                     <option value="Women">Women</option>
+                    <option value="Accessories">Accessories</option>
                   </select>
                 </div>
                 <div>

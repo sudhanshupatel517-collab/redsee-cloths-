@@ -88,6 +88,18 @@ const importData = async () => {
       }
     ];
 
+    dummyProducts.forEach(p => {
+      if (p.variants) {
+        p.totalStock = p.variants.reduce((acc, v) => acc + (v.stock || 0), 0);
+      } else {
+        p.totalStock = p.stock || 0;
+      }
+      if (!p.section) {
+        if (p.category && p.category.toLowerCase().includes('women')) p.section = 'Women';
+        else p.section = 'Men';
+      }
+    });
+
     await Product.insertMany(dummyProducts);
 
     console.log('Data Imported!');

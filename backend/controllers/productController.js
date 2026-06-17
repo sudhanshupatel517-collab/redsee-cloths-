@@ -78,6 +78,8 @@ const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (product) {
+      product.clicks = (product.clicks || 0) + 1;
+      await product.save();
       res.json(product);
     } else {
       res.status(404).json({ message: 'Product not found' });

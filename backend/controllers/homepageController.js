@@ -9,6 +9,13 @@ const Lookbook = require('../models/Lookbook');
 const getHomepageData = async (req, res) => {
   try {
     const now = new Date();
+    const sectionParam = req.query.section || 'Men';
+
+    const productFilter = {
+      published: true,
+      section: { $regex: `^${sectionParam}$`, $options: 'i' }
+    };
+
     // Run all database queries concurrently for maximum performance
     const [
       banners,
@@ -17,6 +24,7 @@ const getHomepageData = async (req, res) => {
       bestSellers,
       mensProducts,
       womensProducts,
+      accessoriesProducts,
       limitedDrops,
       offersForYou,
       newArrivals,
@@ -30,14 +38,15 @@ const getHomepageData = async (req, res) => {
           { $or: [{ endDate: null }, { endDate: { $gte: now } }] }
         ]
       }).sort({ order: 1 }),
-      Product.find({ published: true }).sort({ createdAt: -1 }).limit(8),
-      Product.find({ published: true }).sort({ updatedAt: -1 }).limit(8),
-      Product.find({ published: true, featured: true }).limit(8),
-      Product.find({ published: true, category: { $regex: /\bmen/i } }).sort({ createdAt: -1 }).limit(8),
-      Product.find({ published: true, category: { $regex: /women/i } }).sort({ createdAt: -1 }).limit(8),
-      Product.find({ published: true }).sort({ createdAt: 1 }).limit(8),
-      Product.find({ published: true, 'pricing.discountPercentage': { $gt: 0 } }).sort({ 'pricing.discountPercentage': -1 }).limit(8),
-      Product.find({ published: true }).sort({ createdAt: -1 }).skip(2).limit(8),
+      Product.find(productFilter).sort({ createdAt: -1 }).limit(8),
+      Product.find(productFilter).sort({ clicks: -1 }).limit(8),
+      Product.find(productFilter).sort({ salesCount: -1 }).limit(8),
+      Product.find({ published: true, section: 'Men' }).sort({ createdAt: -1 }).limit(8),
+      Product.find({ published: true, section: 'Women' }).sort({ createdAt: -1 }).limit(8),
+      Product.find({ published: true, section: 'Accessories' }).sort({ createdAt: -1 }).limit(8),
+      Product.find({ ...productFilter, totalStock: { $gt: 0 } }).sort({ totalStock: 1 }).limit(8),
+      Product.find({ ...productFilter, 'pricing.discountPercentage': { $gt: 0 } }).sort({ 'pricing.discountPercentage': -1 }).limit(8),
+      Product.find(productFilter).sort({ createdAt: -1 }).limit(8),
       Category.find({ isActive: true }).sort({ order: 1 }),
       Lookbook.find({ isActive: true }).sort({ order: 1 })
     ]);
@@ -49,6 +58,7 @@ const getHomepageData = async (req, res) => {
       bestSellers,
       mensCollection: mensProducts,
       womensCollection: womensProducts,
+      accessoriesCollection: accessoriesProducts,
       limitedDrops,
       offersForYou,
       newArrivals,

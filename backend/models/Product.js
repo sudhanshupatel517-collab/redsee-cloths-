@@ -11,10 +11,13 @@ const productSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true },
   description: { type: String, required: true },
   category: { type: String, required: true },
-  section: { type: String, enum: ['Men', 'Women'], default: 'Men' },
+  section: { type: String, enum: ['Men', 'Women', 'Accessories'], default: 'Men' },
   navbarCategory: { type: String, default: '' },
   bannerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Banner', default: null },
   brand: { type: String, default: 'Redsee' },
+  clicks: { type: Number, default: 0 },
+  salesCount: { type: Number, default: 0 },
+  totalStock: { type: Number, default: 0 },
   
   pricing: {
     originalPrice: { type: Number, required: true },
@@ -50,9 +53,10 @@ productSchema.pre('save', function() {
     this.pricing.finalPrice = Math.round(this.pricing.originalPrice - discountAmount);
   }
 
-  // Auto-calculate inventory status based on variants stock
+  // Auto-calculate inventory status and totalStock based on variants stock
   if (this.variants && this.variants.length > 0) {
     const totalStock = this.variants.reduce((acc, variant) => acc + variant.stock, 0);
+    this.totalStock = totalStock;
     if (totalStock <= 0) {
       this.inventoryStatus = 'Out of Stock';
     } else if (totalStock <= 10) {

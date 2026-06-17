@@ -182,6 +182,7 @@ export default function Home() {
     bestSellers, 
     mensCollection, 
     womensCollection, 
+    accessoriesCollection,
     limitedDrops, 
     offersForYou, 
     newArrivals, 
@@ -227,7 +228,7 @@ export default function Home() {
   const dragDistance = useRef(0);
 
   // Dynamic filter states
-  const [activeGenderTab, setActiveGenderTab] = useState<"men" | "women">("men");
+  const [activeGenderTab, setActiveGenderTab] = useState<"men" | "women" | "accessories">("men");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [loadingFiltered, setLoadingFiltered] = useState(false);
@@ -235,21 +236,8 @@ export default function Home() {
   // Helper function to filter products client-side by gender
   const getFilteredProducts = useCallback((productList: any[]) => {
     if (!productList) return [];
-    return productList.filter((product: any) => {
-      const cat = (product.category || "").toLowerCase();
-      const name = (product.name || "").toLowerCase();
-      const tags = (product.tags || []).map((t: string) => t.toLowerCase());
-
-      const isWomen = cat.includes("women") || name.includes("women") || tags.includes("women") || tags.includes("woman");
-      const isMen = cat.includes("men") || name.includes("men") || tags.includes("men") || tags.includes("man") || cat.includes("oversized") || cat.includes("hoodie") || cat.includes("sneaker") || cat.includes("jacket") || cat.includes("cap"); // default men categories if not women
-      
-      if (activeGenderTab === "men") {
-        return isMen && !isWomen;
-      } else {
-        return isWomen;
-      }
-    });
-  }, [activeGenderTab]);
+    return productList;
+  }, []);
 
   // Reset slide index when gender changes to prevent errors
   useEffect(() => {
@@ -265,10 +253,11 @@ export default function Home() {
   const loadData = useCallback(() => {
     setFetchError(false);
     setLoadingTimedOut(false);
-    dispatch(fetchHomeData())
+    const sectionParam = activeGenderTab.charAt(0).toUpperCase() + activeGenderTab.slice(1);
+    dispatch(fetchHomeData(sectionParam))
       .unwrap()
       .catch(() => setFetchError(true));
-  }, [dispatch]);
+  }, [dispatch, activeGenderTab]);
 
   useEffect(() => {
     loadData();
@@ -594,16 +583,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Inline filters for Men / Women - Segmented sliding toggle control */}
+          {/* Inline filters for Men / Women / Accessories - Segmented sliding toggle control */}
           <div className={`transition-all duration-300 overflow-hidden ${shrunk ? "max-h-0 opacity-0 pointer-events-none" : "max-h-16 opacity-100 mt-3 border-t border-zinc-200 dark:border-white/5"}`}>
             <div className="flex justify-center px-4 py-2.5">
-              <div className="relative flex w-full max-w-xs bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 rounded-full p-1 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]">
+              <div className="relative flex w-full max-w-sm bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 rounded-full p-1 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]">
                 {/* Sliding indicator */}
                 <div 
                   className="absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-[#ff0033] to-[#cc0029] shadow-[0_2px_12px_rgba(255,0,51,0.5)] transition-all duration-300 ease-out"
                   style={{
-                    width: 'calc(50% - 6px)',
-                    left: activeGenderTab === 'men' ? '4px' : 'calc(50% + 2px)'
+                    width: 'calc(33.33% - 4px)',
+                    left: activeGenderTab === 'men' 
+                      ? '4px' 
+                      : activeGenderTab === 'women' 
+                        ? 'calc(33.33% + 2px)' 
+                        : 'calc(66.66% + 2px)'
                   }}
                 />
                 
@@ -629,6 +622,18 @@ export default function Home() {
                   }`}
                 >
                   Women
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveGenderTab('accessories');
+                    setActiveCategory('all');
+                  }}
+                  className={`relative z-10 flex-1 py-1.5 text-xs font-montserrat font-bold tracking-widest uppercase text-center transition-colors duration-300 ${
+                    activeGenderTab === 'accessories' ? 'text-white' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                  }`}
+                >
+                  Accessories
                 </button>
               </div>
             </div>
@@ -910,6 +915,17 @@ export default function Home() {
               />
             )}
 
+            {/* ============ SECTION 8.5: ACCESSORIES COLLECTION ============ */}
+            {activeGenderTab === "accessories" && (
+              <ProductShelf
+                title="Accessories Collection"
+                subtitle="Stealth luxury utility gear"
+                products={getFilteredProducts(accessoriesCollection)}
+                loading={showLoading}
+                link="/category/accessories"
+              />
+            )}
+
             {/* ============ SECTION 9: LIMITED DROPS ============ */}
             <LimitedDropShelf
               title="Limited Drops"
@@ -1136,8 +1152,9 @@ function LimitedDropShelf({ title, subtitle, products, loading }: { title: strin
             ))
           ) : (
             products.map((product: any, idx: number) => {
-              const stocks = [3, 5, 8, 12, 15];
-              const left = stocks[idx % stocks.length];
+              const left = product.totalStock !== undefined 
+                ? product.totalStock 
+                : (product.variants?.reduce((acc: number, v: any) => acc + (v.stock || 0), 0) || 0);
               return (
                 <div key={product._id} className="w-[170px] md:w-[220px] flex-shrink-0 snap-start relative">
                   <ProductCard

@@ -450,6 +450,62 @@ const products = [
     tags: ["women", "puffer", "jacket", "stealth"],
     featured: false,
     published: true
+  },
+  // CATEGORY 7: Accessories
+  {
+    name: "Redsee Matte Black Tactical Cap",
+    slug: generateSlug("Redsee Matte Black Tactical Cap"),
+    description: "Water-resistant matte black utility cap with an adjustable quick-release buckle. Features a tonal embroidered Redsee logo on the front panel.",
+    category: "Accessories",
+    section: "Accessories",
+    brand: "Redsee",
+    pricing: { originalPrice: 999, discountPercentage: 20, finalPrice: 799 },
+    variants: [
+      { size: "O/S", color: "Matte Black", stock: 25 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["tactical", "cap", "matte", "black"],
+    featured: true,
+    published: true
+  },
+  {
+    name: "Cyberpunk LED Shield Visor",
+    slug: generateSlug("Cyberpunk LED Shield Visor"),
+    description: "Futuristic semi-translucent visor glasses with custom LED light strip bordering the edges. USB rechargeable, features multi-color light presets.",
+    category: "Accessories",
+    section: "Accessories",
+    brand: "Redsee",
+    pricing: { originalPrice: 2499, discountPercentage: 28, finalPrice: 1799 },
+    variants: [
+      { size: "O/S", color: "Translucent / Red LED", stock: 15 },
+      { size: "O/S", color: "Translucent / Blue LED", stock: 10 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["cyberpunk", "visor", "glasses", "led"],
+    featured: true,
+    published: true
+  },
+  {
+    name: "Stealth Utility Chest Rig Bag",
+    slug: generateSlug("Stealth Utility Chest Rig Bag"),
+    description: "Premium heavy-duty nylon chest bag with modular webbing, quick-access front zipper compartments, and reflective hardware.",
+    category: "Accessories",
+    section: "Accessories",
+    brand: "Redsee",
+    pricing: { originalPrice: 2999, discountPercentage: 16, finalPrice: 2499 },
+    variants: [
+      { size: "O/S", color: "Onyx Black", stock: 10 }
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=1000"
+    ],
+    tags: ["chest-rig", "utility", "bag", "stealth"],
+    featured: false,
+    published: true
   }
 ];
 
@@ -461,6 +517,16 @@ const seedDB = async () => {
 
     console.log('Clearing old schema products...');
     await Product.deleteMany();
+
+    console.log('Calculating totalStock for products...');
+    products.forEach(p => {
+      p.totalStock = p.variants ? p.variants.reduce((acc, v) => acc + (v.stock || 0), 0) : 0;
+      if (!p.section) {
+        // Infer section from category name
+        if (p.category.toLowerCase().includes('women')) p.section = 'Women';
+        else p.section = 'Men';
+      }
+    });
 
     console.log('Inserting new variant-based products...');
     await Product.insertMany(products);

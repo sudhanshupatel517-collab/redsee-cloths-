@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Product = require('../models/Product');
 
 const createOrder = async (req, res) => {
   try {
@@ -33,6 +34,20 @@ const createOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    // Increment salesCount for each purchased product
+    if (products && products.length > 0) {
+      for (const item of products) {
+        try {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { salesCount: item.quantity }
+          });
+        } catch (err) {
+          console.error(`Failed to increment salesCount for product ${item.product}:`, err);
+        }
+      }
+    }
+
     res.status(201).json(createdOrder);
   } catch (error) {
     res.status(500).json({ message: error.message });

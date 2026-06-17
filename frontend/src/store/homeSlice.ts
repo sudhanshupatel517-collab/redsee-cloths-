@@ -26,6 +26,7 @@ export interface HomeState {
   bestSellers: any[];
   mensCollection: any[];
   womensCollection: any[];
+  accessoriesCollection: any[];
   limitedDrops: any[];
   offersForYou: any[];
   newArrivals: any[];
@@ -43,6 +44,7 @@ const initialState: HomeState = {
   bestSellers: [],
   mensCollection: [],
   womensCollection: [],
+  accessoriesCollection: [],
   limitedDrops: [],
   offersForYou: [],
   newArrivals: [],
@@ -56,9 +58,10 @@ const initialState: HomeState = {
 // Thunks
 export const fetchHomeData = createAsyncThunk(
   'home/fetchHomeData',
-  async (_, { rejectWithValue }) => {
+  async (section: string | undefined, { rejectWithValue }) => {
     try {
-      const { data } = await api.get('/api/homepage');
+      const url = section ? `/api/homepage?section=${section}` : '/api/homepage';
+      const { data } = await api.get(url);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch home data');
@@ -88,6 +91,7 @@ const homeSlice = createSlice({
         state.bestSellers = action.payload.bestSellers || [];
         state.mensCollection = action.payload.mensCollection || [];
         state.womensCollection = action.payload.womensCollection || [];
+        state.accessoriesCollection = action.payload.accessoriesCollection || [];
         state.limitedDrops = action.payload.limitedDrops || [];
         state.offersForYou = action.payload.offersForYou || [];
         state.newArrivals = action.payload.newArrivals || [];
