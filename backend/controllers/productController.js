@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 
 // @desc    Fetch all products (with search/filter support)
 // @route   GET /api/products
@@ -16,14 +17,37 @@ const getProducts = async (req, res) => {
         }
       : {};
 
-    const category = req.query.category 
-      ? { 
+    let category = {};
+    if (req.query.category) {
+      const categorySearch = req.query.category;
+      const mainCategory = await Category.findOne({
+        $or: [
+          { name: { $regex: `^${categorySearch}$`, $options: "i" } },
+          { slug: categorySearch }
+        ]
+      });
+
+      if (mainCategory) {
+        const subCategories = await Category.find({ parentCategory: mainCategory._id });
+        const categoryNames = [mainCategory.name, ...subCategories.map(sub => sub.name)];
+
+        category = {
           $or: [
-            { category: { $regex: req.query.category, $options: "i" } }, 
-            { navbarCategory: { $regex: req.query.category, $options: "i" } }
+            { category: { $in: categoryNames } },
+            { navbarCategory: { $in: categoryNames } },
+            { category: { $regex: categorySearch, $options: "i" } },
+            { navbarCategory: { $regex: categorySearch, $options: "i" } }
+          ]
+        };
+      } else {
+        category = { 
+          $or: [
+            { category: { $regex: categorySearch, $options: "i" } }, 
+            { navbarCategory: { $regex: categorySearch, $options: "i" } }
           ] 
-        } 
-      : {};
+        };
+      }
+    }
 
     const section = req.query.section ? { section: { $regex: `^${req.query.section}$`, $options: "i" } } : {};
     const banner = req.query.banner ? { bannerId: req.query.banner } : {};

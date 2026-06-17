@@ -302,10 +302,23 @@ export default function Home() {
     const fetchFilteredProducts = async () => {
       try {
         setLoadingFiltered(true);
+        let queryCategory = activeCategory;
+        if (categories && categories.length > 0) {
+          const matchedDbCat = categories.find((c: any) => c.slug === activeCategory);
+          if (matchedDbCat) {
+            queryCategory = matchedDbCat.name;
+          }
+        } else {
+          const matchedFallbackCat = STYLE_CATEGORIES.find((c: any) => c.slug === activeCategory);
+          if (matchedFallbackCat) {
+            queryCategory = matchedFallbackCat.name;
+          }
+        }
+
         let url = `/api/products?`;
         const params: string[] = [];
-        params.push(`category=${encodeURIComponent(activeCategory)}`);
-        params.push(`keyword=${encodeURIComponent(activeGenderTab)}`);
+        params.push(`category=${encodeURIComponent(queryCategory)}`);
+        params.push(`section=${encodeURIComponent(activeGenderTab)}`);
         
         const { data } = await api.get(url + params.join("&"));
         setFilteredProducts(data);
@@ -318,7 +331,7 @@ export default function Home() {
 
     const debounceFetch = setTimeout(fetchFilteredProducts, 150);
     return () => clearTimeout(debounceFetch);
-  }, [activeCategory, activeGenderTab]);
+  }, [activeCategory, activeGenderTab, categories]);
 
   // Detect location
   const handleAutoDetectLocation = () => {
@@ -629,7 +642,15 @@ export default function Home() {
               <div>
                 <span className="text-[10px] uppercase font-montserrat font-bold tracking-[0.2em] text-[#ff0033] block mb-1">Filtered Collection</span>
                 <h2 className="text-3xl font-bebas text-white tracking-widest uppercase">
-                  {activeCategory} • {activeGenderTab === "men" ? "Men's Collection" : "Women's Collection"}
+                  {(() => {
+                    if (categories && categories.length > 0) {
+                      const found = categories.find((c: any) => c.slug === activeCategory);
+                      if (found) return found.name;
+                    }
+                    const fallback = STYLE_CATEGORIES.find((c: any) => c.slug === activeCategory);
+                    if (fallback) return fallback.name;
+                    return activeCategory;
+                  })()} • {activeGenderTab === "men" ? "Men's Collection" : "Women's Collection"}
                 </h2>
               </div>
               <button 

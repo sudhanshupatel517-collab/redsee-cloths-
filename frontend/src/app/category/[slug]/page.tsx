@@ -24,17 +24,35 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         const matched = data.find((c: any) => c.slug === slug);
         if (matched) {
           setCategoryName(matched.name);
-          dispatch(fetchProducts({ category: matched.name }));
+          dispatch(fetchProducts({ category: matched.name, section: matched.section }));
         } else {
           const fallbackName = slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
           setCategoryName(fallbackName);
-          dispatch(fetchProducts({ category: fallbackName }));
+          let fallbackSection = undefined;
+          let queryName = fallbackName;
+          if (slug.endsWith('-men')) {
+            fallbackSection = 'Men';
+            queryName = fallbackName.replace(/\bMen\b/gi, '').trim();
+          } else if (slug.endsWith('-women')) {
+            fallbackSection = 'Women';
+            queryName = fallbackName.replace(/\bWomen\b/gi, '').trim();
+          }
+          dispatch(fetchProducts({ category: queryName, section: fallbackSection }));
         }
       } catch (err) {
         console.error("Failed to resolve category name from DB:", err);
         const fallbackName = slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
         setCategoryName(fallbackName);
-        dispatch(fetchProducts({ category: fallbackName }));
+        let fallbackSection = undefined;
+        let queryName = fallbackName;
+        if (slug.endsWith('-men')) {
+          fallbackSection = 'Men';
+          queryName = fallbackName.replace(/\bMen\b/gi, '').trim();
+        } else if (slug.endsWith('-women')) {
+          fallbackSection = 'Women';
+          queryName = fallbackName.replace(/\bWomen\b/gi, '').trim();
+        }
+        dispatch(fetchProducts({ category: queryName, section: fallbackSection }));
       }
     };
     resolveCategory();

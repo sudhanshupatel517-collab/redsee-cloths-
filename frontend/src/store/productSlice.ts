@@ -15,14 +15,15 @@ const initialState: ProductState = {
   error: null,
 };
 
-// Fetch all products (optional category and keyword filter)
+// Fetch all products (optional category, keyword, and section filter)
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async ({ category, keyword }: { category?: string; keyword?: string } = {}, { rejectWithValue }) => {
+  async ({ category, keyword, section }: { category?: string; keyword?: string; section?: string } = {}, { rejectWithValue }) => {
     try {
       let url = '/api/products?';
       if (category) url += `category=${category}&`;
       if (keyword) url += `keyword=${keyword}&`;
+      if (section) url += `section=${section}&`;
       
       const { data } = await api.get(url);
       return data;
