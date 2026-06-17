@@ -36,6 +36,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           } else if (slug.endsWith('-women')) {
             fallbackSection = 'Women';
             queryName = fallbackName.replace(/\bWomen\b/gi, '').trim();
+          } else if (slug.endsWith('-accessories')) {
+            fallbackSection = 'Accessories';
+            queryName = fallbackName.replace(/\bAccessories\b/gi, '').trim();
           }
           dispatch(fetchProducts({ category: queryName, section: fallbackSection }));
         }
@@ -51,6 +54,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         } else if (slug.endsWith('-women')) {
           fallbackSection = 'Women';
           queryName = fallbackName.replace(/\bWomen\b/gi, '').trim();
+        } else if (slug.endsWith('-accessories')) {
+          fallbackSection = 'Accessories';
+          queryName = fallbackName.replace(/\bAccessories\b/gi, '').trim();
         }
         dispatch(fetchProducts({ category: queryName, section: fallbackSection }));
       }

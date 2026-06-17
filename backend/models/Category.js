@@ -14,7 +14,7 @@ const categorySchema = new mongoose.Schema(
     },
     section: {
       type: String,
-      enum: ['Men', 'Women'],
+      enum: ['Men', 'Women', 'Accessories'],
     },
     parentCategory: {
       type: mongoose.Schema.Types.ObjectId,

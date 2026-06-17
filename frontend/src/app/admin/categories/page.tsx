@@ -14,7 +14,7 @@ interface Category {
   isActive: boolean;
   order: number;
   imageUrl?: string;
-  section?: 'Men' | 'Women';
+  section?: 'Men' | 'Women' | 'Accessories';
   parentCategory?: {
     _id: string;
     name: string;
@@ -38,7 +38,7 @@ export default function ManageCategories() {
   const [newCatImageUrl, setNewCatImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [categoryType, setCategoryType] = useState<'navbar' | 'subcategory'>('navbar');
-  const [newCatSection, setNewCatSection] = useState<'Men' | 'Women'>('Men');
+  const [newCatSection, setNewCatSection] = useState<'Men' | 'Women' | 'Accessories'>('Men');
   const [newCatParentId, setNewCatParentId] = useState('');
   
   useEffect(() => {
@@ -237,11 +237,12 @@ export default function ManageCategories() {
                   <label className="block text-xs font-montserrat tracking-widest text-zinc-500 dark:text-gray-500 uppercase mb-2">Section</label>
                   <select 
                     value={newCatSection} 
-                    onChange={e => setNewCatSection(e.target.value as 'Men' | 'Women')} 
+                    onChange={e => setNewCatSection(e.target.value as 'Men' | 'Women' | 'Accessories')} 
                     className="w-full bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-white/10 focus:border-[#ff0033] rounded-lg px-4 py-3 text-black dark:text-white outline-none transition-colors font-poppins"
                   >
                     <option value="Men">Men</option>
                     <option value="Women">Women</option>
+                    <option value="Accessories">Accessories</option>
                   </select>
                 </div>
               ) : (
