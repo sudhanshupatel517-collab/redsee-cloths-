@@ -180,12 +180,8 @@ export default function Home() {
     justDropped, 
     trendingNow, 
     bestSellers, 
-    mensCollection, 
-    womensCollection, 
-    accessoriesCollection,
     limitedDrops, 
     offersForYou, 
-    newArrivals, 
     categories,
     hasLoadedOnce,
     loading 
@@ -893,38 +889,7 @@ export default function Home() {
               link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
             />
 
-            {/* ============ SECTION 7: MEN'S COLLECTION ============ */}
-            {activeGenderTab === "men" && (
-              <ProductShelf
-                title="Men Collection"
-                subtitle="Luxury drops for men"
-                products={getFilteredProducts(mensCollection)}
-                loading={showLoading}
-                link="/category/men"
-              />
-            )}
 
-            {/* ============ SECTION 8: WOMEN'S COLLECTION ============ */}
-            {activeGenderTab === "women" && (
-              <ProductShelf
-                title="Women Collection"
-                subtitle="Futuristic collection for women"
-                products={getFilteredProducts(womensCollection)}
-                loading={showLoading}
-                link="/category/women"
-              />
-            )}
-
-            {/* ============ SECTION 8.5: ACCESSORIES COLLECTION ============ */}
-            {activeGenderTab === "accessories" && (
-              <ProductShelf
-                title="Accessories Collection"
-                subtitle="Stealth luxury utility gear"
-                products={getFilteredProducts(accessoriesCollection)}
-                loading={showLoading}
-                link="/category/accessories"
-              />
-            )}
 
             {/* ============ SECTION 9: LIMITED DROPS ============ */}
             <LimitedDropShelf
@@ -943,14 +908,7 @@ export default function Home() {
               link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
             />
 
-            {/* ============ SECTION 11: NEW ARRIVALS ============ */}
-            <ProductShelf
-              title="New Arrivals"
-              subtitle="Latest designs added to store"
-              products={getFilteredProducts(newArrivals)}
-              loading={showLoading}
-              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
-            />
+
 
             <BrandBar />
 
