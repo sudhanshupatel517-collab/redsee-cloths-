@@ -717,7 +717,7 @@ export default function Home() {
                       if (cat.slug === "men" || cat.slug === "women") {
                         setActiveGenderTab(cat.slug as any);
                       } else {
-                        setActiveCategory(cat.slug);
+                        router.push(`/category/${cat.slug}`);
                       }
                     }}
                     className="flex flex-col items-center gap-2 min-w-[70px] cat-circle group cursor-pointer"
