@@ -14,7 +14,7 @@ const productSchema = new mongoose.Schema({
   section: { type: String, enum: ['Men', 'Women', 'Accessories'], default: 'Men' },
   navbarCategory: { type: String, default: '' },
   bannerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Banner', default: null },
-  brand: { type: String, default: 'Redsee' },
+  brand: { type: String, default: 'Redsee Store' },
   clicks: { type: Number, default: 0 },
   salesCount: { type: Number, default: 0 },
   totalStock: { type: Number, default: 0 },

@@ -201,7 +201,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             </div>
 
             <p className="text-gray-400 font-poppins text-sm leading-relaxed mb-8">
-              Experience next-level comfort and style with this premium piece from Redsee's latest collection. Engineered for the modern urban environment, featuring durable stitching and a relaxed silhouette.
+              Experience next-level comfort and style with this premium piece from Redsee Store's latest collection. Engineered for the modern urban environment, featuring durable stitching and a relaxed silhouette.
             </p>
 
             {/* Color Selection */}

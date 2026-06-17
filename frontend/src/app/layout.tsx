@@ -7,25 +7,25 @@ import AuthGuard from "@/components/AuthGuard";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://redsee.com"),
-  title: "Redsee | Futuristic Fashion",
-  description: "Premium futuristic fashion and streetwear by Redsee",
-  applicationName: "Redsee",
+  title: "Redsee Store | Futuristic Fashion",
+  description: "Premium futuristic fashion and streetwear by Redsee Store",
+  applicationName: "Redsee Store",
   openGraph: {
-    title: "Redsee | Futuristic Fashion",
+    title: "Redsee Store | Futuristic Fashion",
     description: "Premium futuristic streetwear.",
     images: [
       {
         url: "/logo-dark.png",
         width: 500,
         height: 500,
-        alt: "Redsee Logo",
+        alt: "Redsee Store Logo",
       }
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Redsee | Futuristic Fashion",
+    title: "Redsee Store | Futuristic Fashion",
     description: "Premium futuristic streetwear.",
     images: ["/logo-dark.png"],
   },

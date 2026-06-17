@@ -28,7 +28,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const [selectedNavbarCategory, setSelectedNavbarCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [bannerId, setBannerId] = useState('');
-  const [brand, setBrand] = useState('Redsee');
+  const [brand, setBrand] = useState('Redsee Store');
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [images, setImages] = useState<(string | CloudinaryImage)[]>([]);
@@ -81,7 +81,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         setSelectedNavbarCategory(p.navbarCategory || '');
         setSelectedSubcategory(p.category || '');
         setBannerId(p.bannerId?._id || p.bannerId || '');
-        setBrand(p.brand || 'Redsee');
+        setBrand(p.brand || 'Redsee Store');
         setOriginalPrice(p.pricing?.originalPrice || 0);
         setDiscountPercentage(p.pricing?.discountPercentage || 0);
         setImages(p.images || []);

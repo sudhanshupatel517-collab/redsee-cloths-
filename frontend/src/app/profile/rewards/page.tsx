@@ -5,7 +5,7 @@ import { Gift, Star, Award, Zap } from 'lucide-react';
 export default function RewardsPage() {
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-bebas text-black dark:text-white tracking-widest uppercase mb-1">Redsee Rewards</h1>
+      <h1 className="text-2xl md:text-3xl font-bebas text-black dark:text-white tracking-widest uppercase mb-1">Redsee Store Rewards</h1>
       <p className="text-zinc-500 dark:text-gray-400 font-poppins text-sm mb-8">Earn points and unlock exclusive perks.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">

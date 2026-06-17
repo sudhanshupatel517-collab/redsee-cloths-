@@ -26,7 +26,7 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <Link href="/">
               {mounted ? (
-                <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="w-28 md:w-36 object-contain mb-3" />
+                <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE STORE" className="w-28 md:w-36 object-contain mb-3" />
               ) : (
                 <div className="w-28 h-12 bg-transparent"></div>
               )}
@@ -131,7 +131,7 @@ const Footer = () => {
 
         {/* Bottom bar */}
         <div className="border-t border-zinc-200 dark:border-white/5 pt-5 flex flex-col md:flex-row justify-between items-center gap-3">
-          <p className="text-zinc-500 dark:text-gray-600 text-[10px] font-poppins">© 2026 REDSEE. All rights reserved.</p>
+          <p className="text-zinc-500 dark:text-gray-600 text-[10px] font-poppins">© 2026 REDSEE STORE. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="text-zinc-500 dark:text-gray-600 hover:text-black dark:hover:text-white text-[10px] transition-colors font-poppins">Privacy Policy</Link>
             <Link href="/terms" className="text-zinc-500 dark:text-gray-600 hover:text-black dark:hover:text-white text-[10px] transition-colors font-poppins">Terms of Service</Link>

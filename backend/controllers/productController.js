@@ -121,7 +121,7 @@ const createProduct = async (req, res) => {
       section: section || 'Men',
       navbarCategory: navbarCategory || '',
       bannerId: bannerId || null,
-      brand: brand || 'Redsee',
+      brand: brand || 'Redsee Store',
       pricing,
       variants,
       images,

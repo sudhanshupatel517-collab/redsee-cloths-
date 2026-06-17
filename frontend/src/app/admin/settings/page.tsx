@@ -20,7 +20,7 @@ export default function AdminSettings() {
             <div className="space-y-4 font-poppins">
               <div>
                 <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Store Name</label>
-                <input type="text" defaultValue="Redsee Clothing" className="w-full bg-background border border-border rounded-lg px-4 py-2 text-foreground outline-none" disabled />
+                <input type="text" defaultValue="Redsee Store" className="w-full bg-background border border-border rounded-lg px-4 py-2 text-foreground outline-none" disabled />
               </div>
               <div>
                 <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Support Email</label>

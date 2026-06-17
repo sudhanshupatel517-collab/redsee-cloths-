@@ -69,7 +69,7 @@ const Navbar = () => {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
               {mounted ? (
-                <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="h-8 md:h-10 cursor-pointer object-contain" />
+                <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE STORE" className="h-8 md:h-10 cursor-pointer object-contain" />
               ) : (
                 <div className="h-10 w-28 bg-transparent"></div>
               )}
@@ -169,7 +169,7 @@ const Navbar = () => {
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                  {mounted && <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className="h-8 object-contain" />}
+                  {mounted && <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE STORE" className="h-8 object-contain" />}
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} className="text-zinc-500 dark:text-gray-400 hover:text-foreground">
                   <X size={20} />

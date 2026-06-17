@@ -172,7 +172,7 @@ export default function ManageStudio() {
             <h1 className="text-3xl md:text-4xl font-bebas text-white tracking-widest uppercase flex items-center">
               <Camera className="mr-3 text-[#ff0033]" /> Studio Management
             </h1>
-            <p className="text-gray-400 font-poppins text-sm mt-1">Manage the Redsee Studios editorial lookbook chapters and layout grids.</p>
+            <p className="text-gray-400 font-poppins text-sm mt-1">Manage the Redsee Store Studios editorial lookbook chapters and layout grids.</p>
           </div>
           <button 
             onClick={handleOpenCreate}

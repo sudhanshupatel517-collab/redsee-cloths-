@@ -41,7 +41,7 @@ export default function ProfileDashboard() {
       items: [
         { name: 'My Orders', href: '/profile/orders', icon: Package, desc: 'Track, return, or buy things again' },
         { name: 'Wishlist', href: '/profile/wishlist', icon: Heart, desc: 'Your saved items' },
-        { name: 'Redsee Rewards', href: '/profile/rewards', icon: Gift, desc: 'View your points and tiers' },
+        { name: 'Redsee Store Rewards', href: '/profile/rewards', icon: Gift, desc: 'View your points and tiers' },
       ]
     },
     {
@@ -127,7 +127,7 @@ export default function ProfileDashboard() {
             <ShieldCheck size={14} />
             <span className="text-[10px] font-poppins uppercase tracking-wider">Secure Account</span>
           </div>
-          <span className="text-[10px] font-poppins">Redsee v1.0.0</span>
+          <span className="text-[10px] font-poppins">Redsee Store v1.0.0</span>
         </div>
       </div>
     </div>

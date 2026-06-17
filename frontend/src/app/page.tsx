@@ -28,7 +28,7 @@ const STYLE_CATEGORIES = [
 ];
 
 const BRANDS = [
-  "REDSEE", "·", "LUXURY STREETWEAR", "·", "FW26 COLLECTION", "·",
+  "REDSEE STORE", "·", "LUXURY STREETWEAR", "·", "FW26 COLLECTION", "·",
   "BORN IN DARKNESS", "·", "LIMITED DROPS", "·", "CYBERPUNK FASHION", "·",
   "PREMIUM QUALITY", "·", "WORLDWIDE SHIPPING", "·", "EST. 2024", "·",
 ];
@@ -59,7 +59,7 @@ function BrandBar() {
 }
 
 function BrandBarReverse() {
-  const words = ["NEW DROP", "·", "EXCLUSIVE", "·", "REDSEE", "·", "LUXURY", "·", "DARK AESTHETICS", "·", "CYBERPUNK", "·", "STREETWEAR", "·"];
+  const words = ["NEW DROP", "·", "EXCLUSIVE", "·", "REDSEE STORE", "·", "LUXURY", "·", "DARK AESTHETICS", "·", "CYBERPUNK", "·", "STREETWEAR", "·"];
   return (
     <div className="bg-[#ff0033]/5 border-y border-[#ff0033]/10 py-2.5 overflow-hidden relative">
       <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white/20 dark:from-black/20 to-transparent z-10 pointer-events-none" />
@@ -133,7 +133,7 @@ function LookbookSection() {
               — Editorial Lookbook
             </span>
             <h2 className="text-4xl md:text-5xl font-bebas text-black dark:text-white tracking-widest uppercase">
-              REDSEE <span className="text-[#ff0033] text-glow">STUDIOS</span>
+              REDSEE STORE <span className="text-[#ff0033] text-glow">STUDIOS</span>
             </h2>
           </div>
           <p className="text-zinc-500 dark:text-zinc-400 text-xs font-poppins max-w-xs leading-relaxed">
@@ -542,7 +542,7 @@ export default function Home() {
             
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
-              <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE" className={`transition-all duration-300 object-contain ${shrunk ? "h-6 md:h-7" : "h-8 md:h-9"}`} />
+              <img src={currentTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="REDSEE STORE" className={`transition-all duration-300 object-contain ${shrunk ? "h-6 md:h-7" : "h-8 md:h-9"}`} />
             </Link>
 
             {/* Centered Search Bar */}
@@ -883,7 +883,7 @@ export default function Home() {
             {/* ============ SECTION 6: BEST SELLERS ============ */}
             <ProductShelf
               title="Best Sellers"
-              subtitle="Redsee classics & most wanted"
+              subtitle="Redsee Store classics & most wanted"
               products={getFilteredProducts(bestSellers)}
               loading={showLoading}
               link={activeGenderTab === "men" ? "/category/men" : "/category/women"}

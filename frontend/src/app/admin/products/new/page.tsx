@@ -24,7 +24,7 @@ export default function AddProduct() {
   const [selectedNavbarCategory, setSelectedNavbarCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [bannerId, setBannerId] = useState('');
-  const [brand, setBrand] = useState('Redsee');
+  const [brand, setBrand] = useState('Redsee Store');
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [images, setImages] = useState<(string | CloudinaryImage)[]>([]);
