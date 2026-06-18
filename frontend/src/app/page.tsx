@@ -348,9 +348,25 @@ export default function Home() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          setDeliveryLocation("Detected Location (400001)");
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+          );
+          const data = await response.json();
+          if (data && data.address) {
+            const pincode = data.address.postcode || "";
+            const city = data.address.city || data.address.town || data.address.village || data.address.county || "";
+            if (pincode) {
+              setDeliveryLocation(`${city ? city + " " : ""}${pincode}`);
+            } else {
+              setDeliveryLocation(data.display_name?.split(',')[0] || "Detected Location");
+            }
+          } else {
+            setDeliveryLocation("Detected Location (400001)");
+          }
           setShowLocationModal(false);
         } catch (e) {
+          console.error("Error reverse geocoding location:", e);
           setDeliveryLocation("Bengaluru 560001");
         } finally {
           setDetectingLocation(false);

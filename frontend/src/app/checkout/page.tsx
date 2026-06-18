@@ -27,6 +27,53 @@ export default function Checkout() {
   const [useNewAddress, setUseNewAddress] = useState<boolean>(true);
   const [saveNewAddress, setSaveNewAddress] = useState<boolean>(true);
   const [setAsDefault, setSetAsDefault] = useState<boolean>(false);
+  const [detectingLocation, setDetectingLocation] = useState<boolean>(false);
+
+  const handleAutofillAddressFromLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+          );
+          const data = await response.json();
+          if (data && data.address) {
+            const road = data.address.road || data.address.suburb || data.address.neighbourhood || '';
+            const city = data.address.city || data.address.town || data.address.village || data.address.county || '';
+            const state = data.address.state || '';
+            const postcode = data.address.postcode || '';
+            const country = data.address.country || 'India';
+            
+            setShippingAddress(prev => ({
+              ...prev,
+              street: road || data.display_name?.split(',')[0] || '',
+              city: city,
+              state: state,
+              zipCode: postcode,
+              country: country
+            }));
+          } else {
+            alert("Could not retrieve detailed address for this location.");
+          }
+        } catch (err) {
+          console.error("Error reverse geocoding address:", err);
+          alert("Failed to retrieve address details.");
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      () => {
+        alert("Location access denied or unavailable.");
+        setDetectingLocation(false);
+      }
+    );
+  };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal >= 999 ? 0 : 99;
@@ -291,7 +338,18 @@ export default function Checkout() {
                 {/* Address Form */}
                 {(useNewAddress || savedAddresses.length === 0) && (
                   <div className="space-y-6 pt-4 border-t border-zinc-200 dark:border-white/10">
-                    <h3 className="text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">New Address Details</h3>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider">New Address Details</h3>
+                      <button 
+                        type="button" 
+                        onClick={handleAutofillAddressFromLocation}
+                        disabled={detectingLocation}
+                        className="text-[#ff0033] hover:underline text-xs font-montserrat font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                      >
+                        <MapPin size={13} className={detectingLocation ? "animate-bounce" : ""} />
+                        <span>{detectingLocation ? "Detecting..." : "Auto-detect Address"}</span>
+                      </button>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="col-span-2">
                         <label className="block text-xs font-montserrat text-zinc-500 dark:text-gray-400 uppercase tracking-wider mb-2">Full Name</label>
