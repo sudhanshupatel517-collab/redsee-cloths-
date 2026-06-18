@@ -44,16 +44,31 @@ export default function Checkout() {
           );
           const data = await response.json();
           if (data && data.address) {
-            const road = data.address.road || data.address.suburb || data.address.neighbourhood || '';
-            const city = data.address.city || data.address.town || data.address.village || data.address.county || '';
+            const cityRaw = data.address.city || data.address.town || data.address.state_district || data.address.village || data.address.county || '';
+            const cityClean = cityRaw
+              .replace(/\s+district/gi, '')
+              .replace(/\s+tahsil/gi, '')
+              .replace(/\s+tehsil/gi, '')
+              .replace(/\s+taluk[a]?/gi, '')
+              .trim();
+            
+            // Build a descriptive street address
+            const streetParts = [];
+            if (data.address.road) streetParts.push(data.address.road);
+            if (data.address.neighbourhood) streetParts.push(data.address.neighbourhood);
+            if (data.address.suburb) streetParts.push(data.address.suburb);
+            if (data.address.village && data.address.village !== cityRaw) streetParts.push(data.address.village);
+            
+            const streetClean = streetParts.join(', ') || data.display_name?.split(',')[0] || '';
+            
             const state = data.address.state || '';
             const postcode = data.address.postcode || '';
             const country = data.address.country || 'India';
             
             setShippingAddress(prev => ({
               ...prev,
-              street: road || data.display_name?.split(',')[0] || '',
-              city: city,
+              street: streetClean,
+              city: cityClean,
               state: state,
               zipCode: postcode,
               country: country
@@ -71,7 +86,8 @@ export default function Checkout() {
       () => {
         alert("Location access denied or unavailable.");
         setDetectingLocation(false);
-      }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
@@ -107,6 +123,9 @@ export default function Checkout() {
             phone: defaultAddr.phone || ''
           });
           setUseNewAddress(false);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem("redsee_delivery_location", `${defaultAddr.city} ${defaultAddr.zipCode}`);
+          }
         } else if (data.length > 0) {
           setSelectedAddressId(data[0]._id);
           setShippingAddress({
@@ -119,6 +138,9 @@ export default function Checkout() {
             phone: data[0].phone || ''
           });
           setUseNewAddress(false);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem("redsee_delivery_location", `${data[0].city} ${data[0].zipCode}`);
+          }
         } else {
           setUseNewAddress(true);
         }
@@ -153,12 +175,23 @@ export default function Checkout() {
           if (newAddr) {
             setSelectedAddressId(newAddr._id);
             setShippingAddress(newAddr);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem("redsee_delivery_location", `${newAddr.city} ${newAddr.zipCode}`);
+            }
           }
           setSavedAddresses(data);
           setUseNewAddress(false);
         } catch (err) {
           console.error('Failed to save address:', err);
         }
+      } else {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem("redsee_delivery_location", `${shippingAddress.city} ${shippingAddress.zipCode}`);
+        }
+      }
+    } else {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("redsee_delivery_location", `${shippingAddress.city} ${shippingAddress.zipCode}`);
       }
     }
     setStep(step + 1);
@@ -287,6 +320,9 @@ export default function Checkout() {
                                 phone: addr.phone || ''
                               });
                               setUseNewAddress(false);
+                              if (typeof window !== 'undefined') {
+                                localStorage.setItem("redsee_delivery_location", `${addr.city} ${addr.zipCode}`);
+                              }
                             }}
                             className={`p-4 border rounded-xl cursor-pointer transition-all duration-300 relative text-left bg-zinc-50 dark:bg-white/[0.02] ${
                               isSelected 

@@ -266,6 +266,15 @@ export default function Home() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedLoc = localStorage.getItem("redsee_delivery_location");
+      if (savedLoc) {
+        setDeliveryLocation(savedLoc);
+      }
+    }
+  }, []);
+
   const loadData = useCallback(() => {
     setFetchError(false);
     setLoadingTimedOut(false);
@@ -355,35 +364,54 @@ export default function Home() {
           const data = await response.json();
           if (data && data.address) {
             const pincode = data.address.postcode || "";
-            const city = data.address.city || data.address.town || data.address.village || data.address.county || "";
+            const cityRaw = data.address.city || data.address.town || data.address.state_district || data.address.village || data.address.county || "";
+            const city = cityRaw
+              .replace(/\s+district/gi, '')
+              .replace(/\s+tahsil/gi, '')
+              .replace(/\s+tehsil/gi, '')
+              .replace(/\s+taluk[a]?/gi, '')
+              .trim();
+            
+            let finalLoc = "";
             if (pincode) {
-              setDeliveryLocation(`${city ? city + " " : ""}${pincode}`);
+              finalLoc = `${city ? city + " " : ""}${pincode}`;
             } else {
-              setDeliveryLocation(data.display_name?.split(',')[0] || "Detected Location");
+              finalLoc = city || data.display_name?.split(',')[0] || "Detected Location";
             }
+            setDeliveryLocation(finalLoc);
+            localStorage.setItem("redsee_delivery_location", finalLoc);
           } else {
-            setDeliveryLocation("Detected Location (400001)");
+            const fallbackLoc = "Detected Location (400001)";
+            setDeliveryLocation(fallbackLoc);
+            localStorage.setItem("redsee_delivery_location", fallbackLoc);
           }
           setShowLocationModal(false);
         } catch (e) {
           console.error("Error reverse geocoding location:", e);
-          setDeliveryLocation("Bengaluru 560001");
+          const fallbackLoc = "Bengaluru 560001";
+          setDeliveryLocation(fallbackLoc);
+          localStorage.setItem("redsee_delivery_location", fallbackLoc);
         } finally {
           setDetectingLocation(false);
         }
       },
       () => {
-        setDeliveryLocation("New Delhi 110001");
+        const fallbackLoc = "New Delhi 110001";
+        setDeliveryLocation(fallbackLoc);
+        localStorage.setItem("redsee_delivery_location", fallbackLoc);
         setDetectingLocation(false);
         setShowLocationModal(false);
-      }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
   const handleManualPincodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pincodeInput.trim().length >= 4) {
-      setDeliveryLocation(`Pincode: ${pincodeInput}`);
+      const manualLoc = `Pincode: ${pincodeInput}`;
+      setDeliveryLocation(manualLoc);
+      localStorage.setItem("redsee_delivery_location", manualLoc);
       setShowLocationModal(false);
       setPincodeInput("");
     }
