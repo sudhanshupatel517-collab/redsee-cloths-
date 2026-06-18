@@ -229,6 +229,26 @@ export default function Home() {
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [loadingFiltered, setLoadingFiltered] = useState(false);
 
+  const handleGenderTabChange = useCallback((tab: "men" | "women" | "accessories") => {
+    setActiveGenderTab(tab);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('section', tab);
+      window.history.replaceState(null, '', url.pathname + url.search);
+    }
+  }, []);
+
+  // Restore gender tab from URL params on browser back navigation / load
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const section = params.get('section');
+      if (section && ['men', 'women', 'accessories'].includes(section.toLowerCase())) {
+        setActiveGenderTab(section.toLowerCase() as any);
+      }
+    }
+  }, []);
+
   // Helper function to filter products client-side by gender
   const getFilteredProducts = useCallback((productList: any[]) => {
     if (!productList) return [];
@@ -379,25 +399,29 @@ export default function Home() {
   });
 
   // Curate circular categories dynamically from database, filter by gender tab and exclude subcategories
-  const displayCategories = categories && categories.length > 0 
-    ? categories
-        .filter((c: any) => !c.parentCategory && c.section?.toLowerCase() === activeGenderTab.toLowerCase())
-        .map((c: any) => ({
-          name: c.name,
-          slug: c.slug,
-          img: c.imageUrl || '/overts.png'
-        }))
+  const displayCategoriesFiltered = categories && categories.length > 0 
+    ? categories.filter((c: any) => !c.parentCategory && c.section?.toLowerCase() === activeGenderTab.toLowerCase())
+    : [];
+
+  const displayCategories = displayCategoriesFiltered.length > 0
+    ? displayCategoriesFiltered.map((c: any) => ({
+        name: c.name,
+        slug: c.slug,
+        img: c.imageUrl || '/overts.png'
+      }))
     : STYLE_CATEGORIES;
 
   // Curate active promotional slides
   const slides = filteredBanners.length > 0 ? filteredBanners : [
     {
-      title: activeGenderTab === "men" ? "MEN'S URBAN EXCLUSIVES" : "WOMEN'S CROWN DROPS",
+      title: activeGenderTab === "men" ? "MEN'S URBAN EXCLUSIVES" : activeGenderTab === "women" ? "WOMEN'S CROWN DROPS" : "ACCESSORIES DROPS",
       description: "Upgrade your streetwear rotation with premium luxury designs.",
       imageUrl: activeGenderTab === "men" 
         ? "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&q=80&w=1000" 
-        : "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000",
-      linkUrl: activeGenderTab === "men" ? "/category/men" : "/category/women"
+        : activeGenderTab === "women"
+          ? "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=1000"
+          : "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=1000",
+      linkUrl: activeGenderTab === "men" ? "/category/men" : activeGenderTab === "women" ? "/category/women" : "/category/accessories"
     },
     {
       title: "BUY 1 HOODIE GET 1 TEE FREE",
@@ -598,7 +622,7 @@ export default function Home() {
                 
                 <button
                   onClick={() => {
-                    setActiveGenderTab('men');
+                    handleGenderTabChange('men');
                     setActiveCategory('all');
                   }}
                   className={`relative z-10 flex-1 py-1.5 text-xs font-montserrat font-bold tracking-widest uppercase text-center transition-colors duration-300 ${
@@ -610,7 +634,7 @@ export default function Home() {
                 
                 <button
                   onClick={() => {
-                    setActiveGenderTab('women');
+                    handleGenderTabChange('women');
                     setActiveCategory('all');
                   }}
                   className={`relative z-10 flex-1 py-1.5 text-xs font-montserrat font-bold tracking-widest uppercase text-center transition-colors duration-300 ${
@@ -622,7 +646,7 @@ export default function Home() {
 
                 <button
                   onClick={() => {
-                    setActiveGenderTab('accessories');
+                    handleGenderTabChange('accessories');
                     setActiveCategory('all');
                   }}
                   className={`relative z-10 flex-1 py-1.5 text-xs font-montserrat font-bold tracking-widest uppercase text-center transition-colors duration-300 ${
@@ -715,8 +739,8 @@ export default function Home() {
                   <button
                     key={cat.slug}
                     onClick={() => {
-                      if (cat.slug === "men" || cat.slug === "women") {
-                        setActiveGenderTab(cat.slug as any);
+                      if (cat.slug === "men" || cat.slug === "women" || cat.slug === "accessories") {
+                        handleGenderTabChange(cat.slug as any);
                       } else {
                         router.push(`/category/${cat.slug}`);
                       }
@@ -860,7 +884,7 @@ export default function Home() {
             <BrandBarReverse />
 
             {/* ============ CONTINUE SHOPPING / RECENTLY VIEWED ============ */}
-            <RecentlyViewedShelf />
+            <RecentlyViewedShelf section={activeGenderTab} />
 
             {/* ============ SECTION 4: JUST DROPPED ============ */}
             <ProductShelf
@@ -868,7 +892,7 @@ export default function Home() {
               subtitle="Latest releases & fresh designs"
               products={getFilteredProducts(justDropped)}
               loading={showLoading}
-              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+              link={activeGenderTab === "men" ? "/category/men" : activeGenderTab === "women" ? "/category/women" : "/category/accessories"}
             />
 
             {/* ============ SECTION 5: TRENDING NOW ============ */}
@@ -877,7 +901,7 @@ export default function Home() {
               subtitle="Hot picks & viral looks"
               products={getFilteredProducts(trendingNow)}
               loading={showLoading}
-              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+              link={activeGenderTab === "men" ? "/category/men" : activeGenderTab === "women" ? "/category/women" : "/category/accessories"}
             />
 
             {/* ============ SECTION 6: BEST SELLERS ============ */}
@@ -886,7 +910,7 @@ export default function Home() {
               subtitle="Redsee Store classics & most wanted"
               products={getFilteredProducts(bestSellers)}
               loading={showLoading}
-              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+              link={activeGenderTab === "men" ? "/category/men" : activeGenderTab === "women" ? "/category/women" : "/category/accessories"}
             />
 
 
@@ -905,7 +929,7 @@ export default function Home() {
               subtitle="Unmissable bargains & promo discounts"
               products={getFilteredProducts(offersForYou)}
               loading={showLoading}
-              link={activeGenderTab === "men" ? "/category/men" : "/category/women"}
+              link={activeGenderTab === "men" ? "/category/men" : activeGenderTab === "women" ? "/category/women" : "/category/accessories"}
             />
 
 

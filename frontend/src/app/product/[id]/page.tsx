@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Heart, Share2, ShoppingBag, Truck, ShieldAlert, ArrowLeft } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +24,49 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState("");
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  const mobileGalleryRef = useRef<HTMLDivElement>(null);
+
+  const imagesList = product?.images?.map((img: any) => typeof img === 'string' ? img : (img?.url || '')) || [];
+
+  const handleMobileScroll = () => {
+    if (mobileGalleryRef.current) {
+      const { scrollLeft, clientWidth } = mobileGalleryRef.current;
+      if (clientWidth > 0) {
+        const index = Math.round(scrollLeft / clientWidth);
+        if (imagesList[index] && imagesList[index] !== activeImage) {
+          setActiveImage(imagesList[index]);
+        }
+      }
+    }
+  };
+
+  const handleBack = () => {
+    const activeIndex = imagesList.indexOf(activeImage);
+    if (activeIndex > 0) {
+      const prevImage = imagesList[activeIndex - 1];
+      setActiveImage(prevImage);
+      if (mobileGalleryRef.current) {
+        mobileGalleryRef.current.scrollTo({
+          left: (activeIndex - 1) * mobileGalleryRef.current.clientWidth,
+          behavior: 'smooth'
+        });
+      }
+    } else {
+      router.back();
+    }
+  };
+
+  const handleThumbnailClick = (img: string) => {
+    setActiveImage(img);
+    const index = imagesList.indexOf(img);
+    if (index !== -1 && mobileGalleryRef.current) {
+      mobileGalleryRef.current.scrollTo({
+        left: index * mobileGalleryRef.current.clientWidth,
+        behavior: 'smooth'
+      });
+    }
+  };
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
   const isWishlisted = product ? wishlistItems.some((item: any) => item._id === product._id) : false;
 
@@ -114,7 +157,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
     <div className="bg-background min-h-screen pb-24 md:pb-12">
       {/* Mobile Sticky Header */}
       <div className="md:hidden sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-zinc-200 dark:border-white/5 flex items-center justify-between px-4 py-3">
-        <button onClick={() => router.back()} className="text-foreground p-2 -ml-2 rounded-full active:bg-zinc-100 dark:active:bg-white/5 transition-colors">
+        <button onClick={handleBack} className="text-foreground p-2 -ml-2 rounded-full active:bg-zinc-100 dark:active:bg-white/5 transition-colors">
           <ArrowLeft size={24} />
         </button>
         <h2 className="font-bebas tracking-widest text-lg truncate px-4">{product.name}</h2>
@@ -127,9 +170,18 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
       </div>
 
       <div className="max-w-6xl mx-auto px-4 md:px-6 md:py-12">
-        {/* Desktop Breadcrumbs */}
-        <div className="hidden md:block text-xs font-montserrat text-gray-500 uppercase tracking-widest mb-8">
-          <Link href="/">Home</Link> / <Link href={`/category/${product.category.toLowerCase()}`}>{product.category}</Link> / <span className="text-black dark:text-white">{product.name}</span>
+        {/* Desktop Breadcrumbs & Go Back */}
+        <div className="hidden md:flex items-center justify-between mb-8">
+          <div className="text-xs font-montserrat text-gray-500 uppercase tracking-widest">
+            <Link href="/">Home</Link> / <Link href={`/category/${product.category.toLowerCase()}`}>{product.category}</Link> / <span className="text-black dark:text-white">{product.name}</span>
+          </div>
+          <button 
+            onClick={handleBack}
+            className="flex items-center gap-1.5 text-xs font-montserrat font-bold uppercase tracking-wider text-zinc-500 hover:text-[#ff0033] transition-colors cursor-pointer"
+          >
+            <ArrowLeft size={14} />
+            <span>Go Back</span>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
@@ -137,7 +189,11 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
           {/* Image Gallery */}
           <div className="md:col-span-5 relative w-full">
             {/* Mobile: Horizontal Swipeable Gallery */}
-            <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-[60vh] bg-zinc-100 dark:bg-zinc-900">
+            <div 
+              ref={mobileGalleryRef}
+              onScroll={handleMobileScroll}
+              className="md:hidden flex overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-[60vh] bg-zinc-100 dark:bg-zinc-900"
+            >
               {images.map((img: string, i: number) => (
                 <div key={i} className="min-w-full h-full snap-center relative">
                   <img src={optimizeImageUrl(img, 800)} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
@@ -158,7 +214,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 {images.map((img: string, i: number) => (
                   <button 
                     key={i} 
-                    onClick={() => setActiveImage(img)}
+                    onClick={() => handleThumbnailClick(img)}
                     className={`aspect-square bg-zinc-100 dark:bg-zinc-900 rounded-xl border ${activeImage === img ? 'border-[#ff0033]' : 'border-zinc-200 dark:border-white/5 hover:border-[#ff0033]/50 dark:hover:border-white/30'} transition-colors overflow-hidden`}
                   >
                     <img src={optimizeImageUrl(img, 200)} alt="" className="w-full h-full object-cover" />

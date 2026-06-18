@@ -13,6 +13,7 @@ import { useRouter, usePathname } from "next/navigation";
 const CATEGORIES = [
   { name: "Men", href: "/category/men", icon: Shirt, color: "#ff0033" },
   { name: "Women", href: "/category/women", icon: Crown, color: "#ff0033" },
+  { name: "Accessories", href: "/category/accessories", icon: Gem, color: "#ff0033" },
   { name: "Oversized", href: "/category/oversized", icon: Layers, color: "#ff0033" },
   { name: "Hoodies", href: "/category/hoodies", icon: Sparkles, color: "#ff0033" },
   { name: "Cargo", href: "/category/cargo", icon: Layers, color: "#ff0033" },

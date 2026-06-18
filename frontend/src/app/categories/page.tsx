@@ -10,7 +10,7 @@ interface Category {
   _id: string;
   name: string;
   slug: string;
-  section?: "Men" | "Women";
+  section?: "Men" | "Women" | "Accessories";
   parentCategory?: string | { _id: string; name: string } | null;
 }
 
@@ -19,7 +19,7 @@ interface Product {
   name: string;
   category: string;
   navbarCategory: string;
-  section: "Men" | "Women";
+  section: "Men" | "Women" | "Accessories";
   pricing: {
     basePrice: number;
     finalPrice: number;
@@ -32,7 +32,7 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<"Men" | "Women">("Men");
+  const [activeSection, setActiveSection] = useState<"Men" | "Women" | "Accessories">("Men");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,7 +83,7 @@ export default function CategoriesPage() {
 
         {/* Section Tabs */}
         <div className="flex justify-center space-x-4 mb-10">
-          {(["Men", "Women"] as const).map((sec) => (
+          {(["Men", "Women", "Accessories"] as const).map((sec) => (
             <button
               key={sec}
               onClick={() => setActiveSection(sec)}
@@ -93,7 +93,7 @@ export default function CategoriesPage() {
                   : "bg-zinc-50 dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-gray-400 hover:border-zinc-400"
               }`}
             >
-              {sec}'s Wear
+              {sec === "Accessories" ? sec : `${sec}'s Wear`}
             </button>
           ))}
         </div>

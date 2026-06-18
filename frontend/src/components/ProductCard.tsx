@@ -18,9 +18,10 @@ interface ProductProps {
   category: string;
   rating?: number;
   discount?: number;
+  section?: string;
 }
 
-const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating = 5, discount }: ProductProps) => {
+const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating = 5, discount, section }: ProductProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const dispatch = useDispatch();
@@ -48,7 +49,8 @@ const ProductCard = memo(({ id, name, price, image, hoverImage, category, rating
         discountPercentage: discount || 0
       },
       category,
-      rating
+      rating,
+      section
     };
   };
 

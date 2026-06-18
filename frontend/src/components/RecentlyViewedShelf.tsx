@@ -5,13 +5,21 @@ import { RootState } from '@/store/store';
 import ProductCard from './ProductCard';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 
-export default function RecentlyViewedShelf() {
+export default function RecentlyViewedShelf({ section }: { section?: string }) {
   const { items, loading } = useSelector((state: RootState) => state.recentlyViewed);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
 
+  // Filter items by active section
+  const filteredItems = section
+    ? items.filter((item: any) => {
+        if (!item.section) return true; // Fallback: show item if section is unknown
+        return item.section.toLowerCase() === section.toLowerCase();
+      })
+    : items;
+
   // If there are no items and we aren't loading, don't show the shelf at all
-  if (!loading && items.length === 0) return null;
+  if (!loading && filteredItems.length === 0) return null;
 
   const handleScroll = () => {
     if (containerRef.current) {
@@ -50,7 +58,7 @@ export default function RecentlyViewedShelf() {
         </div>
 
         {/* Navigation Arrows */}
-        {items.length > 2 && (
+        {filteredItems.length > 2 && (
           <>
             {showLeftArrow && (
               <button
@@ -86,7 +94,7 @@ export default function RecentlyViewedShelf() {
               </div>
             ))
           ) : (
-            items.map((product: any) => {
+            filteredItems.map((product: any) => {
               const image = typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0]?.url || '');
               const hoverImage = typeof product.images?.[1] === 'string' ? product.images[1] : (product.images?.[1]?.url || image);
               const finalPrice = product.pricing?.finalPrice || product.pricing?.basePrice || 0;
@@ -103,6 +111,7 @@ export default function RecentlyViewedShelf() {
                     category={product.category}
                     rating={product.rating || 5}
                     discount={discount}
+                    section={product.section}
                   />
                 </div>
               );
