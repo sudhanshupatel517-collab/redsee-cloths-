@@ -24,45 +24,45 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bebas tracking-widest text-white mb-8">DASHBOARD OVERVIEW</h1>
+      <h1 className="text-3xl font-bebas tracking-widest text-foreground mb-8">DASHBOARD OVERVIEW</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="glassmorphism-dark p-6 rounded-xl border border-white/5">
+        <div className="glassmorphism-dark p-6 rounded-xl border border-zinc-200 dark:border-white/5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400 font-montserrat text-sm uppercase">Total Revenue</h3>
+            <h3 className="text-gray-455 dark:text-gray-400 font-montserrat text-sm uppercase">Total Revenue</h3>
             <TrendingUp className="text-[#ff0033]" size={24} />
           </div>
-          <p className="text-3xl font-bebas text-white">₹{stats?.totalRevenue?.toFixed(2) || '0.00'}</p>
+          <p className="text-3xl font-bebas text-foreground">₹{stats?.totalRevenue?.toFixed(2) || '0.00'}</p>
         </div>
         
-        <div className="glassmorphism-dark p-6 rounded-xl border border-white/5">
+        <div className="glassmorphism-dark p-6 rounded-xl border border-zinc-200 dark:border-white/5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400 font-montserrat text-sm uppercase">Orders</h3>
+            <h3 className="text-gray-455 dark:text-gray-400 font-montserrat text-sm uppercase">Orders</h3>
             <ShoppingBag className="text-blue-500" size={24} />
           </div>
-          <p className="text-3xl font-bebas text-white">{stats?.totalOrders || 0}</p>
+          <p className="text-3xl font-bebas text-foreground">{stats?.totalOrders || 0}</p>
         </div>
 
-        <div className="glassmorphism-dark p-6 rounded-xl border border-white/5">
+        <div className="glassmorphism-dark p-6 rounded-xl border border-zinc-200 dark:border-white/5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400 font-montserrat text-sm uppercase">Products</h3>
+            <h3 className="text-gray-455 dark:text-gray-400 font-montserrat text-sm uppercase">Products</h3>
             <Package className="text-green-500" size={24} />
           </div>
-          <p className="text-3xl font-bebas text-white">{stats?.totalProducts || 0}</p>
+          <p className="text-3xl font-bebas text-foreground">{stats?.totalProducts || 0}</p>
         </div>
 
-        <div className="glassmorphism-dark p-6 rounded-xl border border-white/5">
+        <div className="glassmorphism-dark p-6 rounded-xl border border-zinc-200 dark:border-white/5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400 font-montserrat text-sm uppercase">Users</h3>
+            <h3 className="text-gray-455 dark:text-gray-400 font-montserrat text-sm uppercase">Users</h3>
             <Users className="text-purple-500" size={24} />
           </div>
-          <p className="text-3xl font-bebas text-white">{stats?.totalUsers || 0}</p>
+          <p className="text-3xl font-bebas text-foreground">{stats?.totalUsers || 0}</p>
         </div>
       </div>
 
-      <div className="glassmorphism-dark p-6 rounded-xl border border-white/5">
-         <h2 className="text-xl font-bebas text-white mb-4">RECENT ACTIVITY</h2>
-         <p className="text-gray-400">System is running normally. No recent critical alerts.</p>
+      <div className="glassmorphism-dark p-6 rounded-xl border border-zinc-200 dark:border-white/5">
+         <h2 className="text-xl font-bebas text-foreground mb-4">RECENT ACTIVITY</h2>
+         <p className="text-zinc-500 dark:text-gray-450">System is running normally. No recent critical alerts.</p>
       </div>
     </div>
   );
