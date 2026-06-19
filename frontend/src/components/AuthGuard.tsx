@@ -29,6 +29,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         router.push('/auth');
       } else if (user) {
         const isStaff = user.role === 'admin' || user.role === 'coadmin';
+        
+        // If staff tries to access user-facing pages, redirect them to admin panel
+        if (isStaff && !pathname?.startsWith('/admin') && pathname !== '/auth') {
+          router.push('/admin');
+          return;
+        }
+
         if (user.hasPassword === false && !isCreatePasswordRoute && !isStaff) {
           router.push('/create-password');
         } else if ((user.hasPassword !== false || isStaff) && isCreatePasswordRoute) {

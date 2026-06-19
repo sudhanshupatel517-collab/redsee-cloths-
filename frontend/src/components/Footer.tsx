@@ -68,7 +68,7 @@ const Footer = () => {
                 { label: "FAQs", href: "/faq" },
                 { label: "Shipping Info", href: "/shipping" },
                 { label: "Returns & Refunds", href: "/returns" },
-                { label: "Size Guide", href: "#" },
+                { label: "Size Guide", href: "/size-guide" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link href={l.href} className="text-gray-500 hover:text-[#ff0033] transition-colors text-xs font-poppins">{l.label}</Link>
@@ -76,16 +76,16 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-
+          
           {/* Company */}
           <div>
             <h3 className="text-sm font-bebas tracking-widest mb-4 text-black dark:text-white">Company</h3>
             <ul className="space-y-2.5">
               {[
-                { label: "About Us", href: "#" },
-                { label: "Careers", href: "#" },
-                { label: "Blog", href: "#" },
-                { label: "Press", href: "#" },
+                { label: "About Us", href: "/about" },
+                { label: "Careers", href: "/careers" },
+                { label: "Blog", href: "/blog" },
+                { label: "Press", href: "/press" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link href={l.href} className="text-gray-500 hover:text-[#ff0033] transition-colors text-xs font-poppins">{l.label}</Link>
@@ -108,24 +108,6 @@ const Footer = () => {
                 JOIN
               </button>
             </form>
-          </div>
-        </div>
-
-        {/* Payment methods */}
-        <div className="border-t border-zinc-200 dark:border-white/5 pt-6 mb-6">
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="text-[10px] text-zinc-500 dark:text-gray-600 font-montserrat uppercase tracking-wider mr-2">Payment:</span>
-            {["VISA", "Mastercard", "UPI", "Razorpay", "PayTM", "COD"].map((m) => (
-              <span key={m} className="px-2 py-1 border border-zinc-200 dark:border-white/5 rounded text-[9px] text-zinc-600 dark:text-gray-500 font-montserrat font-medium bg-zinc-100 dark:bg-white/[0.02]">
-                {m}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-4 md:gap-8 text-[10px] text-zinc-500 dark:text-gray-600 font-poppins">
-            <span className="flex items-center gap-1.5"><MapPin size={10} /> Worldwide Shipping</span>
-            <span>↩️ 7-Day Easy Returns</span>
-            <span>🔒 100% Secure Payments</span>
-            <span>📦 Order Tracking</span>
           </div>
         </div>
 

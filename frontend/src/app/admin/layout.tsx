@@ -125,15 +125,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               {/* User section at bottom of Mobile Sidebar */}
               <div className="mt-auto pt-6 border-t border-white/10 flex flex-col space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#ff0033]">
+                <Link 
+                  href="/admin/profile" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-all group cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#ff0033] group-hover:border-[#ff0033]/50 transition-colors">
                     <User size={20} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-poppins font-medium text-white truncate">{user.name}</p>
+                    <p className="text-sm font-poppins font-medium text-white truncate group-hover:text-[#ff0033] transition-colors">{user.name}</p>
                     <p className="text-[10px] font-montserrat uppercase tracking-widest text-zinc-500">{user.role}</p>
                   </div>
-                </div>
+                </Link>
                 <button 
                   onClick={handleLogout}
                   className="flex items-center justify-center space-x-2 w-full bg-white/5 hover:bg-[#ff0033]/10 text-gray-300 hover:text-[#ff0033] py-2.5 rounded-lg text-xs font-montserrat font-bold tracking-widest uppercase transition-colors border border-white/10 hover:border-[#ff0033]/20 cursor-pointer"
@@ -195,15 +199,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* User section at bottom of Desktop Sidebar */}
         <div className="mt-auto pt-6 border-t border-border flex flex-col space-y-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#ff0033]">
+          <Link 
+            href="/admin/profile" 
+            className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-all group cursor-pointer"
+            title="View Profile"
+          >
+            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#ff0033] group-hover:border-[#ff0033]/50 transition-colors">
               <User size={20} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-poppins font-medium text-foreground truncate">{user.name}</p>
+              <p className="text-sm font-poppins font-medium text-foreground truncate group-hover:text-[#ff0033] transition-colors">{user.name}</p>
               <p className="text-[10px] font-montserrat uppercase tracking-widest text-zinc-500">{user.role}</p>
             </div>
-          </div>
+          </Link>
           <button 
             onClick={handleLogout}
             className="flex items-center justify-center space-x-2 w-full bg-white/5 hover:bg-[#ff0033]/10 text-zinc-600 dark:text-gray-400 hover:text-[#ff0033] py-2.5 rounded-lg text-xs font-montserrat font-bold tracking-widest uppercase transition-colors border border-zinc-200 dark:border-white/10 hover:border-[#ff0033]/20 cursor-pointer"

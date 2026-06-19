@@ -17,11 +17,12 @@ import {
   LogOut,
   ChevronRight,
   Menu,
-  X
+  X,
+  LayoutDashboard
 } from 'lucide-react';
 
 const sidebarLinks = [
-  { name: 'Dashboard', href: '/profile', icon: User },
+  { name: 'Dashboard', href: '/profile', icon: LayoutDashboard },
   { name: 'Personal Details', href: '/profile/details', icon: User },
   { name: 'Orders', href: '/profile/orders', icon: Package },
   { name: 'Wishlist', href: '/profile/wishlist', icon: Heart },

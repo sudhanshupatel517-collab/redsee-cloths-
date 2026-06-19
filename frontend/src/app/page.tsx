@@ -992,7 +992,7 @@ export default function Home() {
               { title: "Premium Quality", desc: "Crafted from choice materials", icon: Crown },
               { title: "Secure Payments", desc: "100% encrypted checkout", icon: ShieldCheck },
               { title: "Fast Delivery", desc: "Express delivery straight to door", icon: Truck },
-              { title: "Easy Returns", desc: "Hassle-free 14-day replacement", icon: RotateCcw },
+              { title: "Easy Returns", desc: "Hassle-free 4-day replacement", icon: RotateCcw },
             ].map((item, idx) => {
               const Icon = item.icon;
               return (

@@ -12,6 +12,8 @@ interface User {
   avatar?: string;
   hasPassword?: boolean;
   permissions?: string[];
+  rewards?: number;
+  createdAt?: string;
 }
 
 interface AuthState {
