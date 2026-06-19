@@ -144,8 +144,8 @@ function LookbookSection() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {itemsToRender.map((item, idx) => (
             <div
-              key={item._id || idx}
-              className={`relative overflow-hidden rounded-xl bg-zinc-950 border border-white/5 group aspect-square md:aspect-auto ${item.span}`}
+              key={(item as any)._id || idx}
+              className={`relative overflow-hidden rounded-xl bg-zinc-950 border border-white/5 group aspect-square md:aspect-auto ${(item as any).span || ''}`}
             >
               <img
                 src={optimizeImageUrl(item.imageUrl, 600)}

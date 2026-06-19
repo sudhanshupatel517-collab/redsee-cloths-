@@ -419,7 +419,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               <ImageIcon className="mr-3 text-[#ff0033]" /> Media Gallery
             </h2>
             <div className="space-y-6">
-              <ImageUpload images={images} setImages={setImages} maxImages={6} />
+              <ImageUpload images={images} onChange={setImages} />
             </div>
           </div>
 

@@ -10,6 +10,7 @@ const {
   getProductsBatch,
   deleteSeedProducts,
 } = require('../controllers/productController');
+const { createReview, getProductReviews } = require('../controllers/reviewController');
 const { protect, coadmin } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -24,6 +25,10 @@ router.route('/admin')
 
 router.route('/batch')
   .post(getProductsBatch);
+
+router.route('/:id/reviews')
+  .get(getProductReviews)
+  .post(protect, createReview);
 
 router.route('/:id')
   .get(getProductById)

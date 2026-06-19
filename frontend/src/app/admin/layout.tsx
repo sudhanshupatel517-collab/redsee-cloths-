@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, Package, ShoppingBag, Users, Settings, Archive, Tags, 
-  BadgePercent, Headphones, CalendarDays, Sparkles, Menu, X, User, LogOut, Camera
+  BadgePercent, Headphones, CalendarDays, Sparkles, Menu, X, User, LogOut, Camera, Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logout } from '@/store/authSlice';
@@ -111,6 +111,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link href="/admin/support" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
                   <Headphones size={20} className="mr-3" /> Support
                 </Link>
+                <Link href="/admin/reviews" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
+                  <Star size={20} className="mr-3" /> Reviews
+                </Link>
                 {isAdmin && (
                   <>
                     <Link href="/admin/users" className="flex items-center text-gray-300 hover:text-white hover:bg-white/5 p-3 rounded-lg transition-all">
@@ -184,6 +187,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/support" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
             <Headphones size={20} className="mr-3" /> Support
+          </Link>
+          <Link href="/admin/reviews" className="flex items-center text-foreground/70 hover:text-foreground hover:bg-foreground/5 p-3 rounded-lg transition-all">
+            <Star size={20} className="mr-3" /> Reviews
           </Link>
           {isAdmin && (
             <>

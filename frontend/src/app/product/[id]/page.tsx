@@ -11,6 +11,7 @@ import { toggleWishlistLocal, toggleWishlistBackend } from "@/store/wishlistSlic
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { optimizeImageUrl } from "@/lib/image";
+import ProductReviews from "@/components/ProductReviews";
 
 export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -342,6 +343,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             </div>
           </div>
         </div>
+        <ProductReviews productId={product._id} />
       </div>
     </div>
   );

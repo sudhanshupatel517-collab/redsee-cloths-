@@ -57,6 +57,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const homepageRoutes = require('./routes/homepageRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const lookbookRoutes = require('./routes/lookbookRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes); // keep for backward compat
@@ -69,6 +70,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/homepage', homepageRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/studio', lookbookRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 app.get('/', (req, res) => {
     res.send('Redsee API is running');
@@ -85,12 +87,42 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
+// Socket.IO Wrap for local server execution
+const http = require('http');
+const { Server } = require('socket.io');
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  }
+});
+
+app.set('socketio', io);
+
+io.on('connection', (socket) => {
+  console.log('Socket user connected:', socket.id);
+  
+  socket.on('join_room', (roomId) => {
+    socket.join(roomId);
+    console.log(`Socket joined room: ${roomId}`);
+  });
+
+  socket.on('leave_room', (roomId) => {
+    socket.leave(roomId);
+    console.log(`Socket left room: ${roomId}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Socket user disconnected:', socket.id);
+  });
+});
 
 // Vercel Serverless Functions need the app exported
-// Local development needs app.listen
+// Local development needs server.listen
 if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
 module.exports = app;

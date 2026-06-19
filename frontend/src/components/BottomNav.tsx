@@ -45,7 +45,7 @@ export default function BottomNav() {
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-black/80 backdrop-blur-xl border-t border-zinc-200 dark:border-white/10 pb-safe text-foreground">
       <nav className="flex justify-around items-center px-2 py-3">
         {navItems.map((item) => {
-          const isActive = !item.isAction && (pathname === item.path || (item.path !== '/' && pathname?.startsWith(item.path)));
+          const isActive = !item.isAction && item.path && (pathname === item.path || (item.path !== '/' && pathname?.startsWith(item.path)));
           const Icon = item.icon;
 
           const content = (
@@ -88,7 +88,7 @@ export default function BottomNav() {
           }
 
           return (
-            <Link key={item.name} href={item.path} className="relative flex flex-col items-center justify-center w-full h-12">
+            <Link key={item.name} href={item.path || ''} className="relative flex flex-col items-center justify-center w-full h-12">
               {content}
             </Link>
           );

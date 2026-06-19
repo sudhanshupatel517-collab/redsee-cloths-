@@ -20,8 +20,8 @@ const upload = multer({
 
 // @desc    Upload an image to Cloudinary
 // @route   POST /api/upload
-// @access  Private (Admin/Co-Admin)
-router.post('/', protect, coadmin, upload.single('image'), async (req, res) => {
+// @access  Private (Authenticated Users)
+router.post('/', protect, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No image file provided' });

@@ -41,4 +41,8 @@ router.post('/wishlist', protect, toggleWishlist);
 router.get('/wishlist', protect, getWishlist);
 router.post('/wishlist/merge', protect, mergeWishlist);
 
+// User Reviews Route
+const { getUserReviews } = require('../controllers/reviewController');
+router.get('/reviews', protect, getUserReviews);
+
 module.exports = router;
