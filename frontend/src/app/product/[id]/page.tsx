@@ -26,6 +26,15 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
   const [activeImage, setActiveImage] = useState("");
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
+  const [reviewStats, setReviewStats] = useState({ totalReviews: 0, averageRating: 0 });
+
+  const scrollToReviews = () => {
+    const element = document.getElementById("reviews-section");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const mobileGalleryRef = useRef<HTMLDivElement>(null);
 
   const imagesList = product?.images?.map((img: any) => typeof img === 'string' ? img : (img?.url || '')) || [];
@@ -234,14 +243,29 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
               </button>
             </div>
             
-            <div className="flex items-center space-x-3 mb-4">
+            <button 
+              onClick={scrollToReviews}
+              className="flex items-center space-x-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity text-left bg-transparent border-none p-0 outline-none"
+            >
               <div className="flex text-[#ff0033]">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} className={i < Math.floor(product.rating) ? "fill-[#ff0033]" : "text-gray-600"} />
-                ))}
+                {[...Array(5)].map((_, i) => {
+                  const rating = reviewStats.averageRating || 0;
+                  const isFilled = i < Math.round(rating);
+                  return (
+                    <Star 
+                      key={i} 
+                      size={14} 
+                      className={isFilled ? "fill-[#ff0033] text-[#ff0033]" : "text-zinc-350 dark:text-gray-600"} 
+                    />
+                  );
+                })}
               </div>
-              <span className="text-xs font-poppins text-gray-400">124 Reviews</span>
-            </div>
+              <span className="text-xs font-poppins text-gray-500 hover:text-[#ff0033] hover:underline transition-colors font-medium">
+                {reviewStats.totalReviews === 0 
+                  ? "No reviews yet (Be the first)" 
+                  : `${reviewStats.totalReviews} ${reviewStats.totalReviews === 1 ? 'Review' : 'Reviews'}`}
+              </span>
+            </button>
 
             <div className="flex items-end space-x-3 mb-6">
               <span className="text-3xl md:text-4xl font-poppins font-bold text-black dark:text-white leading-none">₹{displayPrice}</span>
@@ -343,7 +367,9 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             </div>
           </div>
         </div>
-        <ProductReviews productId={product._id} />
+        <div id="reviews-section">
+          <ProductReviews productId={product._id} onStatsChange={setReviewStats} />
+        </div>
       </div>
     </div>
   );

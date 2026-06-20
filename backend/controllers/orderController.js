@@ -79,7 +79,10 @@ const getMyOrders = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find({}).populate('userId', 'name email').sort({ createdAt: -1 });
+    const orders = await Order.find({})
+      .populate('userId', 'name email')
+      .populate('products.product')
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -88,19 +91,27 @@ const getAllOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status, paymentStatus } = req.body;
+    const { status, paymentStatus, courier, trackingId } = req.body;
     const order = await Order.findById(req.params.id);
 
     if (order) {
       if (status !== undefined) order.orderStatus = status;
       if (paymentStatus !== undefined) order.paymentStatus = paymentStatus;
+      if (courier !== undefined) order.courier = courier;
+      if (trackingId !== undefined) order.trackingId = trackingId;
       
       if (status === 'Delivered') {
         order.isDelivered = true;
         order.deliveredAt = Date.now();
       }
       const updatedOrder = await order.save();
-      res.json(updatedOrder);
+      
+      // Populate product details back to keep frontend state consistent
+      const populated = await Order.findById(updatedOrder._id)
+        .populate('userId', 'name email')
+        .populate('products.product');
+        
+      res.json(populated);
     } else {
       res.status(404).json({ message: 'Order not found' });
     }

@@ -40,9 +40,10 @@ interface Review {
 
 interface ProductReviewsProps {
   productId: string;
+  onStatsChange?: (stats: { totalReviews: number; averageRating: number }) => void;
 }
 
-export default function ProductReviews({ productId }: ProductReviewsProps) {
+export default function ProductReviews({ productId, onStatsChange }: ProductReviewsProps) {
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -69,7 +70,14 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
     try {
       const { data } = await api.get(`/api/products/${productId}/reviews`);
       setReviews(data.reviews || []);
-      setStats(data.stats || { totalReviews: 0, averageRating: 0, ratingBreakdown: {} });
+      const newStats = data.stats || { totalReviews: 0, averageRating: 0, ratingBreakdown: {} };
+      setStats(newStats);
+      if (onStatsChange) {
+        onStatsChange({
+          totalReviews: newStats.totalReviews || 0,
+          averageRating: newStats.averageRating || 0
+        });
+      }
     } catch (err) {
       console.error('Error fetching reviews:', err);
     } finally {
@@ -160,11 +168,20 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         breakdown[ratingKey] = Math.max(0, (breakdown[ratingKey] || 0) - 1);
       }
 
-      return {
+      const updated = {
         totalReviews: total,
         averageRating: total > 0 ? Number((sum / total).toFixed(1)) : 0,
         ratingBreakdown: breakdown
       };
+
+      if (onStatsChange) {
+        onStatsChange({
+          totalReviews: updated.totalReviews,
+          averageRating: updated.averageRating
+        });
+      }
+
+      return updated;
     });
   };
 

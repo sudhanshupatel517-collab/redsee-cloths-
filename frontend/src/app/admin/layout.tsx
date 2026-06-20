@@ -155,7 +155,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </AnimatePresence>
 
       {/* Desktop Sidebar */}
-      <aside className="w-64 glassmorphism-dark border-r border-border hidden md:flex flex-col p-6">
+      <aside className="w-64 glassmorphism-dark border-r border-border hidden md:flex flex-col p-6 h-screen sticky top-0">
         <h2 className="text-2xl font-bebas tracking-widest mb-8 text-[#ff0033]">
           STAFF PANEL
         </h2>
