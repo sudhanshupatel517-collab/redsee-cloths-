@@ -455,7 +455,7 @@ export default function AdminOrders() {
 
         {/* Desktop View: Table */}
         <div className="hidden md:block bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
-          <div className="overflow-x-auto min-h-[400px]">
+          <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-[#161616] sticky top-0 z-10">
