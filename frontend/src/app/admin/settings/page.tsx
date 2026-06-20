@@ -24,7 +24,7 @@ export default function AdminSettings() {
               </div>
               <div>
                 <label className="block text-xs font-montserrat tracking-widest text-foreground/60 uppercase mb-2">Support Email</label>
-                <input type="text" defaultValue="support@redsee.com" className="w-full bg-background border border-border rounded-lg px-4 py-2 text-foreground outline-none" disabled />
+                <input type="text" defaultValue="sudhanshupatel517@gmail.com" className="w-full bg-background border border-border rounded-lg px-4 py-2 text-foreground outline-none" disabled />
               </div>
             </div>
           </div>

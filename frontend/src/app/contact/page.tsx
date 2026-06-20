@@ -48,7 +48,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h4 className="font-montserrat font-bold text-xs text-black dark:text-white uppercase tracking-wider">Email Us</h4>
-                  <a href="mailto:support@redsee.com" className="text-zinc-550 dark:text-zinc-400 hover:text-[#ff0033] transition-colors">support@redsee.com</a>
+                  <a href="mailto:sudhanshupatel517@gmail.com" className="text-zinc-550 dark:text-zinc-400 hover:text-[#ff0033] transition-colors">sudhanshupatel517@gmail.com</a>
                 </div>
               </div>
 
@@ -58,7 +58,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h4 className="font-montserrat font-bold text-xs text-black dark:text-white uppercase tracking-wider">Call Us</h4>
-                  <a href="tel:+919999999999" className="text-zinc-550 dark:text-zinc-400 hover:text-[#ff0033] transition-colors">+91 99999 99999</a>
+                  <a href="tel:+918889715939" className="text-zinc-550 dark:text-zinc-400 hover:text-[#ff0033] transition-colors">+91 88897 15939</a>
                 </div>
               </div>
 
@@ -68,7 +68,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h4 className="font-montserrat font-bold text-xs text-black dark:text-white uppercase tracking-wider">Headquarters</h4>
-                  <p className="text-zinc-550 dark:text-zinc-400">Redsee Fashion District, New Delhi, India</p>
+                  <p className="text-zinc-550 dark:text-zinc-400">Redsee Fashion, Sidhi, Madhya Pradesh, India</p>
                 </div>
               </div>
             </div>

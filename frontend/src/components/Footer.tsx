@@ -35,8 +35,8 @@ const Footer = () => {
               Premium streetwear & fashion platform. Bold designs for the bold generation.
             </p>
             <div className="flex items-center gap-3 text-gray-600">
-              <a href="mailto:support@redsee.com" className="hover:text-[#ff0033] transition-colors"><Mail size={16} /></a>
-              <a href="tel:+919999999999" className="hover:text-[#ff0033] transition-colors"><Phone size={16} /></a>
+              <a href="mailto:sudhanshupatel517@gmail.com" className="hover:text-[#ff0033] transition-colors"><Mail size={16} /></a>
+              <a href="tel:+918889715939" className="hover:text-[#ff0033] transition-colors"><Phone size={16} /></a>
               <a href="#" className="hover:text-[#ff0033] transition-colors"><Globe size={16} /></a>
             </div>
           </div>
