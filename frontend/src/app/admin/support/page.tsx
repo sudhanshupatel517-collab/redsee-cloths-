@@ -22,7 +22,13 @@ import {
   ArrowLeft,
   XCircle,
   FileText,
-  User
+  User,
+  Package,
+  MapPin,
+  CreditCard,
+  Calendar,
+  Phone,
+  ShieldAlert
 } from 'lucide-react';
 import { optimizeImageUrl } from '@/lib/image';
 
@@ -74,6 +80,43 @@ export default function CustomerSupport() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Order search/CRM integration state
+  const [orderSearchId, setOrderSearchId] = useState('');
+  const [searchedOrder, setSearchedOrder] = useState<any>(null);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderError, setOrderError] = useState('');
+
+  const fetchOrderDetails = async (id: string) => {
+    if (!id || id.trim().length !== 8) {
+      setOrderError('Please enter a valid 8-digit Order ID');
+      setSearchedOrder(null);
+      return;
+    }
+    setOrderLoading(true);
+    setOrderError('');
+    try {
+      const { data } = await api.get(`/api/orders/${id}`);
+      setSearchedOrder(data);
+    } catch (err: any) {
+      console.error('Failed to fetch order details:', err);
+      setOrderError(err.response?.data?.message || 'Order not found');
+      setSearchedOrder(null);
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedTicket && selectedTicket.orderId) {
+      fetchOrderDetails(selectedTicket.orderId);
+      setOrderSearchId(selectedTicket.orderId);
+    } else {
+      setSearchedOrder(null);
+      setOrderSearchId('');
+      setOrderError('');
+    }
+  }, [selectedTicket?._id, selectedTicket?.orderId]);
 
   // Search & Filter
   const [search, setSearch] = useState('');
@@ -588,11 +631,126 @@ export default function CustomerSupport() {
                         <p className="text-[10px] text-zinc-500 font-poppins truncate">{selectedTicket.userId?.email || 'No email'}</p>
                       </div>
                     </div>
-                    {selectedTicket.orderId && (
-                      <div className="bg-white dark:bg-black/35 border border-zinc-200 dark:border-white/10 p-3.5 rounded-xl space-y-1 text-xs">
-                        <span className="text-[9px] uppercase tracking-wider text-zinc-550 font-bold">Associated Order</span>
-                        <p className="font-mono text-[10px] text-black dark:text-white truncate">{selectedTicket.orderId}</p>
+                  </div>
+
+                  {/* Order Search / Associated Order details */}
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-zinc-500">Associated Order Lookup</h4>
+                    
+                    {/* Search Input */}
+                    <div className="flex gap-2">
+                      <div className="flex-1 bg-white dark:bg-black/35 border border-zinc-200 dark:border-white/10 rounded-xl px-3 py-2 flex items-center">
+                        <Search size={14} className="text-zinc-500 mr-2 flex-shrink-0" />
+                        <input 
+                          type="text" 
+                          placeholder="Search 8-digit Order ID..." 
+                          value={orderSearchId}
+                          onChange={(e) => setOrderSearchId(e.target.value)}
+                          maxLength={8}
+                          className="bg-transparent border-none outline-none text-xs w-full text-black dark:text-white font-mono"
+                        />
                       </div>
+                      <button 
+                        onClick={() => fetchOrderDetails(orderSearchId)}
+                        disabled={orderLoading || orderSearchId.trim().length !== 8}
+                        className="bg-[#ff0033] hover:bg-[#cc0029] disabled:opacity-50 text-white text-[10px] font-montserrat font-bold px-3 py-2 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center uppercase tracking-wider cursor-pointer"
+                      >
+                        {orderLoading ? <Loader2 className="animate-spin" size={14} /> : 'Find'}
+                      </button>
+                    </div>
+
+                    {orderError && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] flex items-center space-x-1.5 font-poppins animate-pulse">
+                        <ShieldAlert size={14} className="flex-shrink-0" />
+                        <span>{orderError}</span>
+                      </div>
+                    )}
+
+                    {/* Order Details Render */}
+                    {searchedOrder ? (
+                      <div className="bg-white dark:bg-black/35 border border-zinc-200 dark:border-white/10 p-4 rounded-2xl space-y-4 text-xs font-poppins">
+                        
+                        {/* Order Header info */}
+                        <div className="border-b border-zinc-200 dark:border-white/5 pb-3.5 space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono font-bold text-xs text-black dark:text-white">ID: #{searchedOrder._id}</span>
+                            <span className={`text-[8px] font-montserrat uppercase font-bold px-2 py-0.5 rounded-full border ${
+                              searchedOrder.orderStatus === 'Delivered' 
+                                ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                                : searchedOrder.orderStatus === 'Cancelled'
+                                ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                            }`}>
+                              {searchedOrder.orderStatus}
+                            </span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center text-[10px] text-zinc-555 dark:text-zinc-400">
+                            <span className="flex items-center"><Calendar size={10} className="mr-1" /> {new Date(searchedOrder.createdAt).toLocaleDateString()}</span>
+                            <span className="flex items-center font-bold text-black dark:text-white text-xs">₹{searchedOrder.totalAmount?.toFixed(2)}</span>
+                          </div>
+                        </div>
+
+                        {/* Payment & Shipping Summary */}
+                        <div className="space-y-2.5 text-[10px] border-b border-zinc-200 dark:border-white/5 pb-3.5 text-zinc-650 dark:text-zinc-300">
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center"><CreditCard size={11} className="mr-1" /> Payment: {searchedOrder.paymentMethod}</span>
+                            <span className={`font-bold uppercase ${
+                              searchedOrder.paymentStatus === 'Completed' ? 'text-green-500' : 'text-yellow-500'
+                            }`}>{searchedOrder.paymentStatus}</span>
+                          </div>
+
+                          {searchedOrder.shippingAddress && (
+                            <div className="space-y-1 bg-zinc-50 dark:bg-black/20 p-2.5 rounded-xl border border-zinc-200/50 dark:border-white/[0.03]">
+                              <p className="font-bold flex items-center text-black dark:text-white"><MapPin size={11} className="mr-1 text-[#ff0033]" /> {searchedOrder.shippingAddress.name}</p>
+                              <p className="text-[9px] pl-4">{searchedOrder.shippingAddress.street}, {searchedOrder.shippingAddress.city}, {searchedOrder.shippingAddress.state} - {searchedOrder.shippingAddress.zipCode}</p>
+                              {searchedOrder.shippingAddress.phone && (
+                                <p className="text-[9px] pl-4 flex items-center mt-1"><Phone size={10} className="mr-1 text-zinc-400" /> {searchedOrder.shippingAddress.phone}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Products List in Order */}
+                        <div className="space-y-3.5">
+                          <p className="text-[9px] uppercase tracking-wider text-zinc-550 font-bold flex items-center"><Package size={11} className="mr-1" /> Items ({searchedOrder.products?.length || 0})</p>
+                          <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1 no-scrollbar">
+                            {searchedOrder.products?.map((item: any, i: number) => {
+                              const prod = item.product;
+                              return (
+                                <div key={i} className="flex space-x-2.5 items-center bg-zinc-50/50 dark:bg-black/10 p-2 rounded-xl border border-zinc-200/30 dark:border-white/[0.02]">
+                                  <div className="w-10 h-11 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded overflow-hidden flex-shrink-0">
+                                    {prod?.images?.[0] ? (
+                                      <img src={optimizeImageUrl(prod.images[0], 100)} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-zinc-200 dark:bg-zinc-800 text-[10px] text-zinc-400">?</div>
+                                    )}
+                                  </div>
+                                  <div className="min-w-0 flex-1 text-[10px] space-y-0.5">
+                                    <p className="font-montserrat font-bold text-black dark:text-white truncate">{prod?.name || 'Unknown Product'}</p>
+                                    <p className="text-[9px] text-zinc-500">
+                                      Qty: {item.quantity} | Size: {item.size || 'N/A'} | Color: {item.color || 'N/A'}
+                                    </p>
+                                    <p className="font-bold text-black dark:text-white">₹{item.price?.toFixed(2)}</p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                      </div>
+                    ) : (
+                      selectedTicket.orderId ? (
+                        <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-white/10 rounded-2xl text-[10px] text-zinc-500 bg-white/40 dark:bg-black/10">
+                          <Loader2 size={16} className="animate-spin text-[#ff0033] mx-auto mb-1.5" />
+                          <span>Fetching associated order #{selectedTicket.orderId}...</span>
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-white/10 rounded-2xl text-[10px] text-zinc-500 bg-white/40 dark:bg-black/10">
+                          No order associated with this ticket. Enter an ID above to search manually.
+                        </div>
+                      )
                     )}
                   </div>
 

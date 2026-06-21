@@ -226,7 +226,9 @@ export default function OrdersPage() {
                   </div>
                   <div className="text-xs text-zinc-500 dark:text-gray-400 font-poppins">
                     <span className="font-bold text-black dark:text-white mr-1">Order ID:</span>
-                    <span className="font-mono text-zinc-500">{order._id.substring(0, 10)}...</span>
+                    <Link href={`/profile/orders/${order._id}`} className="font-mono text-[#ff0033] hover:underline font-bold">
+                      {order._id}
+                    </Link>
                   </div>
                   <div className="flex items-center text-xs text-zinc-500 dark:text-gray-400 font-poppins">
                     <CreditCard size={14} className="mr-2 text-zinc-400 dark:text-gray-500" />
@@ -288,11 +290,18 @@ export default function OrdersPage() {
                   )}
                   <button
                     onClick={() => toggleTracking(order._id)}
-                    className="flex items-center text-xs font-montserrat uppercase font-bold tracking-wider text-[#ff0033] hover:underline py-1.5 px-3 rounded-lg bg-[#ff0033]/5 border border-[#ff0033]/10 hover:bg-[#ff0033]/10 transition-colors"
+                    className="flex items-center text-xs font-montserrat uppercase font-bold tracking-wider text-[#ff0033] hover:underline py-1.5 px-3 rounded-lg bg-[#ff0033]/5 border border-[#ff0033]/10 hover:bg-[#ff0033]/10 transition-colors cursor-pointer"
                   >
                     <span>{expandedTracking[order._id] ? 'Hide Status' : 'Track Order'}</span>
                     <ChevronRight size={14} className={`ml-1 transform transition-transform ${expandedTracking[order._id] ? 'rotate-90' : ''}`} />
                   </button>
+                  <Link
+                    href={`/profile/orders/${order._id}`}
+                    className="flex items-center text-xs font-montserrat uppercase font-bold tracking-wider text-black dark:text-white hover:underline py-1.5 px-3 rounded-lg bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    <span>View Details</span>
+                    <ChevronRight size={14} className="ml-1" />
+                  </Link>
                 </div>
                 <div className="flex items-baseline space-x-2 self-end sm:self-auto">
                   <span className="text-xs text-zinc-500 font-poppins uppercase tracking-wider">Grand Total:</span>
