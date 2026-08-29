@@ -26,7 +26,8 @@ const orderSchema = new mongoose.Schema({
   courier: { type: String },
   totalAmount: { type: Number, required: true },
   razorpayOrderId: { type: String },
-  razorpayPaymentId: { type: String }
+  razorpayPaymentId: { type: String },
+  razorpaySignature: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -1,26 +1,22 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
-
-const generateUniqueOrderId = async () => {
-  let isUnique = false;
-  let orderId = '';
-  while (!isUnique) {
-    const randNum = Math.floor(10000000 + Math.random() * 90000000);
-    orderId = randNum.toString();
-    const existingOrder = await Order.findById(orderId);
-    if (!existingOrder) {
-      isUnique = true;
-    }
-  }
-  return orderId;
-};
+const { validateAndCalculate, calculateTotals, decrementStock, generateUniqueOrderId } = require('./paymentController');
 
 const createOrder = async (req, res) => {
   try {
-    const { products, shippingAddress, paymentMethod, totalAmount, razorpayPaymentId } = req.body;
+    const { products, shippingAddress, paymentMethod, razorpayPaymentId } = req.body;
 
-    if (products && products.length === 0) {
+    // Block Razorpay orders from this endpoint — they must go through /api/payment/verify
+    if (paymentMethod === 'Razorpay') {
+      return res.status(400).json({ message: 'Razorpay orders must be placed through /api/payment/verify after payment verification' });
+    }
+
+    if (!products || products.length === 0) {
       return res.status(400).json({ message: 'No order items' });
+    }
+
+    if (!paymentMethod || !['COD', 'UPI'].includes(paymentMethod)) {
+      return res.status(400).json({ message: 'Invalid payment method. Use COD or UPI.' });
     }
 
     // HARDCODED FALLBACK FOR PREVIEW
@@ -32,42 +28,47 @@ const createOrder = async (req, res) => {
         products,
         shippingAddress,
         paymentMethod,
-        totalAmount,
-        paymentStatus: paymentMethod === 'UPI' ? 'Pending' : 'Completed',
+        totalAmount: 0,
+        paymentStatus: paymentMethod === 'UPI' ? 'Pending' : 'Pending',
         orderStatus: 'Confirmed',
         razorpayPaymentId
       });
     }
 
+    // Server-side validation: fetch products from DB, verify stock, calculate prices
+    const items = products.map(p => ({
+      product: p.product,
+      quantity: p.quantity,
+      size: p.size,
+      color: p.color
+    }));
+
+    const { validatedItems, subtotal } = await validateAndCalculate(items);
+    const { totalAmount } = calculateTotals(subtotal);
+
     const orderId = await generateUniqueOrderId();
     const order = new Order({
       _id: orderId,
       userId: req.user._id,
-      products,
+      products: validatedItems,
       shippingAddress,
       paymentMethod,
       totalAmount,
-      razorpayPaymentId,
+      paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Pending',
+      orderStatus: 'Pending',
+      razorpayPaymentId: paymentMethod === 'UPI' ? razorpayPaymentId : undefined,
     });
 
     const createdOrder = await order.save();
 
-    // Increment salesCount for each purchased product
-    if (products && products.length > 0) {
-      for (const item of products) {
-        try {
-          await Product.findByIdAndUpdate(item.product, {
-            $inc: { salesCount: item.quantity }
-          });
-        } catch (err) {
-          console.error(`Failed to increment salesCount for product ${item.product}:`, err);
-        }
-      }
-    }
+    // Decrement stock and increment salesCount
+    await decrementStock(validatedItems);
 
     res.status(201).json(createdOrder);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('createOrder error:', error);
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({ message: error.message });
   }
 };
 

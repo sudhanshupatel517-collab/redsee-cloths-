@@ -18,9 +18,11 @@ export default function Checkout() {
   const [shippingAddress, setShippingAddress] = useState({
     name: '', street: '', city: '', state: '', zipCode: '', country: 'India', phone: ''
   });
-  const [paymentMethod, setPaymentMethod] = useState('UPI');
+  const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   const [transactionRef, setTransactionRef] = useState('');
   const [verifying, setVerifying] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
@@ -197,36 +199,142 @@ export default function Checkout() {
     setStep(step + 1);
   };
 
+  // Load Razorpay checkout script dynamically
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Handle COD/UPI order placement (server-side price calculation, no client totalAmount)
   const handlePlaceOrder = async (e?: React.FormEvent, customRef?: string) => {
     if (e) e.preventDefault();
+    setPaymentProcessing(true);
+    setPaymentError('');
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const orderData = {
         products: cartItems.map(item => ({
           product: item.product,
           quantity: item.quantity,
           size: item.size,
-          color: item.color,
-          price: item.price
+          color: item.color
         })),
         shippingAddress,
         paymentMethod,
-        totalAmount,
         razorpayPaymentId: customRef || undefined
       };
 
-      await api.post('/api/orders', orderData, config);
+      await api.post('/api/orders', orderData);
       dispatch(clearCart());
-      setStep(4); // Success screen is now Step 4
-    } catch (error) {
+      setStep(4);
+    } catch (error: any) {
       console.error('Error placing order:', error);
-      alert('Failed to place order.');
+      const msg = error.response?.data?.message || 'Failed to place order.';
+      setPaymentError(msg);
+      alert(msg);
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
+
+  // Handle Razorpay payment flow
+  const handleRazorpayPayment = async () => {
+    setPaymentProcessing(true);
+    setPaymentError('');
+    try {
+      // 1. Load Razorpay script
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Failed to load Razorpay. Please check your internet connection.');
+      }
+
+      // 2. Create Razorpay order on backend (server-side pricing)
+      const { data: orderData } = await api.post('/api/payment/create-order', {
+        items: cartItems.map(item => ({
+          product: item.product,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color
+        })),
+        shippingAddress,
+      });
+
+      // 3. Open Razorpay Checkout
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'Redsee Store',
+        description: 'Order Payment',
+        order_id: orderData.razorpayOrderId,
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+          contact: user?.phone || '',
+        },
+        theme: {
+          color: '#ff0033',
+        },
+        handler: async (response: any) => {
+          // 4. Verify payment on backend
+          try {
+            const { data: verifyData } = await api.post('/api/payment/verify', {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            // Success — clear cart and show confirmation
+            dispatch(clearCart());
+            setStep(4);
+          } catch (verifyErr: any) {
+            console.error('Payment verification failed:', verifyErr);
+            const msg = verifyErr.response?.data?.message || 'Payment verification failed. If money was deducted, please contact support.';
+            setPaymentError(msg);
+            alert(msg);
+          } finally {
+            setPaymentProcessing(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPaymentProcessing(false);
+            setPaymentError('Payment was cancelled.');
+          },
+        },
+      };
+
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.on('payment.failed', (response: any) => {
+        setPaymentProcessing(false);
+        const msg = response.error?.description || 'Payment failed. Please try again.';
+        setPaymentError(msg);
+        alert(msg);
+      });
+      razorpay.open();
+    } catch (error: any) {
+      console.error('Razorpay payment error:', error);
+      const msg = error.response?.data?.message || error.message || 'Failed to initiate payment.';
+      setPaymentError(msg);
+      alert(msg);
+      setPaymentProcessing(false);
     }
   };
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (paymentMethod === 'UPI') {
+    if (paymentProcessing) return; // prevent double clicks
+    if (paymentMethod === 'Razorpay') {
+      handleRazorpayPayment();
+    } else if (paymentMethod === 'UPI') {
       setStep(3); // Go to UPI QR Verification step
     } else {
       handlePlaceOrder(); // COD: immediately place order
@@ -450,15 +558,28 @@ export default function Checkout() {
                 <h2 className="text-2xl font-bebas text-black dark:text-white tracking-wide border-b border-zinc-200 dark:border-white/10 pb-4 mb-6">Payment Method</h2>
                 
                 <div className="space-y-4">
-                  <label className="flex items-center justify-between p-4 border border-zinc-200 dark:border-white/20 cursor-pointer hover:border-[#ff0033] dark:hover:border-[#ff0033] transition-colors rounded-lg bg-zinc-50 dark:bg-transparent">
+                  <label className={`flex items-center justify-between p-4 border cursor-pointer hover:border-[#ff0033] dark:hover:border-[#ff0033] transition-colors rounded-lg bg-zinc-50 dark:bg-transparent ${paymentMethod === 'Razorpay' ? 'border-[#ff0033] ring-1 ring-[#ff0033]' : 'border-zinc-200 dark:border-white/20'}`}>
                     <div className="flex items-center space-x-3">
-                      <input type="radio" name="payment" value="UPI" checked={paymentMethod === 'UPI'} onChange={(e) => setPaymentMethod(e.target.value)} className="text-[#ff0033] focus:ring-[#ff0033]" />
-                      <span className="font-poppins text-zinc-800 dark:text-white">UPI / Qrcode Transfer (Manual Verification)</span>
+                      <input type="radio" name="payment" value="Razorpay" checked={paymentMethod === 'Razorpay'} onChange={(e) => setPaymentMethod(e.target.value)} className="text-[#ff0033] focus:ring-[#ff0033]" />
+                      <div>
+                        <span className="font-poppins text-zinc-800 dark:text-white">Pay Online</span>
+                        <p className="text-xs font-poppins text-zinc-500 dark:text-gray-500 mt-0.5">Cards, UPI, Wallets, Net Banking via Razorpay</p>
+                      </div>
                     </div>
                     <CreditCard className="text-zinc-400 dark:text-gray-400" />
                   </label>
 
-                  <label className="flex items-center justify-between p-4 border border-zinc-200 dark:border-white/20 cursor-pointer hover:border-[#ff0033] dark:hover:border-[#ff0033] transition-colors rounded-lg bg-zinc-50 dark:bg-transparent">
+                  <label className={`flex items-center justify-between p-4 border cursor-pointer hover:border-[#ff0033] dark:hover:border-[#ff0033] transition-colors rounded-lg bg-zinc-50 dark:bg-transparent ${paymentMethod === 'UPI' ? 'border-[#ff0033] ring-1 ring-[#ff0033]' : 'border-zinc-200 dark:border-white/20'}`}>
+                    <div className="flex items-center space-x-3">
+                      <input type="radio" name="payment" value="UPI" checked={paymentMethod === 'UPI'} onChange={(e) => setPaymentMethod(e.target.value)} className="text-[#ff0033] focus:ring-[#ff0033]" />
+                      <div>
+                        <span className="font-poppins text-zinc-800 dark:text-white">UPI / QR Transfer</span>
+                        <p className="text-xs font-poppins text-zinc-500 dark:text-gray-500 mt-0.5">Manual verification by admin</p>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label className={`flex items-center justify-between p-4 border cursor-pointer hover:border-[#ff0033] dark:hover:border-[#ff0033] transition-colors rounded-lg bg-zinc-50 dark:bg-transparent ${paymentMethod === 'COD' ? 'border-[#ff0033] ring-1 ring-[#ff0033]' : 'border-zinc-200 dark:border-white/20'}`}>
                     <div className="flex items-center space-x-3">
                       <input type="radio" name="payment" value="COD" checked={paymentMethod === 'COD'} onChange={(e) => setPaymentMethod(e.target.value)} className="text-[#ff0033] focus:ring-[#ff0033]" />
                       <span className="font-poppins text-zinc-800 dark:text-gray-300">Cash on Delivery</span>
@@ -466,12 +587,20 @@ export default function Checkout() {
                   </label>
                 </div>
 
+                {paymentError && (
+                  <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-3 rounded-lg font-poppins text-sm">
+                    {paymentError}
+                  </div>
+                )}
+
                 <div className="flex space-x-4 mt-8">
                   <button type="button" onClick={() => setStep(1)} className="w-1/3 border border-zinc-300 dark:border-white/20 text-zinc-700 dark:text-white py-4 font-montserrat uppercase tracking-wider font-bold text-sm hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors">
                     Back
                   </button>
-                  <button type="submit" className="w-2/3 bg-black dark:bg-white text-white dark:text-black py-4 font-montserrat uppercase tracking-wider font-bold text-sm hover:bg-[#ff0033] dark:hover:bg-[#ff0033] hover:text-white dark:hover:text-white transition-colors">
-                    {paymentMethod === 'UPI' ? 'Proceed to QR Code' : 'Place Order'}
+                  <button type="submit" disabled={paymentProcessing} className="w-2/3 bg-black dark:bg-white text-white dark:text-black py-4 font-montserrat uppercase tracking-wider font-bold text-sm hover:bg-[#ff0033] dark:hover:bg-[#ff0033] hover:text-white dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+                    {paymentProcessing ? (
+                      <><span className="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin"></span><span>Processing...</span></>
+                    ) : paymentMethod === 'Razorpay' ? 'Pay Now' : paymentMethod === 'UPI' ? 'Proceed to QR Code' : 'Place Order'}
                   </button>
                 </div>
               </form>
